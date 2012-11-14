@@ -2,7 +2,7 @@ function [unmix] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc
 %
 %   [unmix] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc_factor, csm, target_data, data_mask, verbose)
 %   
-%   Calculates b1-weights image space GRAPPA unmixing coefficients.
+%   Calculates b1-weighted image space GRAPPA unmixing coefficients.
 %
 %   INPUT:
 %       source_data [kx,ky,coil]   : Source data for grappa kernel estimation (k-space)
@@ -135,6 +135,7 @@ if (verbose),
     fprintf('Doing B1 weighted combination....');
 end
 
+%Loop over target coils and fo b1-weighted combination in image space.
 for c=1:target_coils,
     kernel_pad = pad_grappa_kernel(kernel(:,:,:,c),size(target_data));
     kernel_pad = fftshift(ifft(ifftshift(kernel_pad,1),[],1),1);
@@ -154,7 +155,7 @@ end
 
 return
 
-
+%Utility function for padding grappa kernel
 function padded_kernel = pad_grappa_kernel(gkernel, image_size)
     padded_kernel = zeros(image_size(1),image_size(2),size(gkernel,3));
     padded_kernel([1:size(gkernel,1)]+bitshift(image_size(1)-size(gkernel,1)-1,-1)+1, ...
