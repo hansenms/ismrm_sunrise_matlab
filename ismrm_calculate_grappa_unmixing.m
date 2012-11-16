@@ -8,10 +8,11 @@ function [unmix] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc
 %       source_data [kx,ky,coil]   : Source data for grappa kernel estimation (k-space)
 %       kernel_size [kx,ky]        : e.g. [4 5]
 %       acc_factor  scalar         : Acceleration factor, e.g. 2
-%       csm         [x,y,c]        : Coil sensitivity map
+%       csm         [x,y,c]        : Coil sensitivity map, if empty, it
+%                                    will be estimated from the reference lines.
 %       target_data [kx,ky,coil]   : Target coil data, defaults to source data
 %       data_mask   [kx,ky]        : '1' = calibration data, '0' = ignore
-%       verbode     bool           : Set true for verbose output
+%       verbose     bool           : Set true for verbose output
 %
 %   OUTPUT:
 %       unmix [x,y,coil]           : Image unmixing coefficients
@@ -20,14 +21,31 @@ function [unmix] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc
 %       [unmix] = calculate_grappa_unmixing(source_data, [5 4], 4, csm);
 %
 %
+%   Notes:
+%     - The unmixing coefficients produced by this routine produce uniform 
+%       noise distribution images when there is no acceleration, i.e. the
+%       noise in each pixel will be input noise * g-factor, where g-factor
+%       is sqrt(sum(abs(unmix).^2,3)).
+%
+%       If you have coil sensitivities where the RSS of the coil
+%       sensitivites is not 1 in each pixel, e.g. as obtained with a
+%       seperate calibration scan using a body coil, and you would like a
+%       uniform sensitivity image. You must apply that weighting after the
+%       parallel imaging reconstruction by dividin with the RSS of the coil
+%       sensitivites. 
+%
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 
 %   Michael S. Hansen (michael.hansen@nih.gov)
 %   Philip Beatty (philip.beatty@sri.utoronto.ca)
 %
 
-if nargin < 4,
+if nargin < 3,
    error('At least 4 arguments needed'); 
+end
+
+if nargin < 4,
+    csm = [];
 end
 
 if nargin < 5,
@@ -63,6 +81,17 @@ else
     target_coils = size(target_data,length(size(target_data)));
 end
 
+%If csm is not provided, we will estimate it.
+if (isempty(csm)),
+    f = hamming(max(sum(data_mask,1))) * hamming(max(sum(data_mask,2)))';
+    fmask = zeros(size(source_data));
+    fmask((1:size(f,1))+bitshift(size(source_data,1),-1)-bitshift(size(f,1),-1), ...
+          (1:size(f,2))+bitshift(size(source_data,2),-1)-bitshift(size(f,2),-1), :) = ...
+          repmat(f, [1 1 size(source_data,3)]);
+    csm = ismrm_transform_kspace_to_image(source_data .* fmask, [1 2]);
+    csm = ismrm_estimate_csm_walsh(csm);
+end
+    
 %Number of coefficients to calculate for each undersampled position, i.e.
 %the number of unknowns
 coefficients = kernel_size(1)*kernel_size(2)*coils;
@@ -145,8 +174,8 @@ for c=1:target_coils,
         unmix_sc(:,:,:,c) = kernel_pad;
     end 
     csm_rss = sqrt(sum(conj(csm).*csm,3));
-    csm_rss(csm_rss < realmin('single')) = 1; %Avoid devision by zeros where coils are undefined
-    unmix = unmix + (kernel_pad .* repmat(conj(csm(:,:,c) ./ csm_rss),[1 1 coils]));
+    csm_rss(csm_rss < eps) = 1; %Avoid devision by zeros where coils are undefined
+    unmix = unmix + (kernel_pad .* repmat(conj(csm(:,:,c)) ./csm_rss,[1 1 coils]))  ;
 end
 
 if (verbose),

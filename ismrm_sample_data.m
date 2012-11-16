@@ -56,7 +56,7 @@ pat_img(:,1:acc:end) = 1;
 %Generate reference lines pattern
 pat_ref = zeros(size(img_obj));
 if (ref > 0),
-    pat_ref(:,(1:ref)+bitshift(size(img_obj,2),-1)) = 2;
+    pat_ref(:,(1:ref)+bitshift(size(img_obj,2),-1)-bitshift(ref,-1)) = 2;
 end
 
 pat = pat_img + pat_ref;
