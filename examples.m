@@ -86,3 +86,17 @@ fprintf('done\n');
 toc;
 img = reshape(img,N,N);
 showimage(img);
+
+
+%%
+%Simple SENSE
+close all;
+[data, sp] = ismrm_sample_data(im1, smaps, 4, 0);
+img_alias = ismrm_transform_kspace_to_image(data,[1,2]);
+figure;showimage(img_alias);
+unmix = zeros(size(im1,1),size(im1,2),ncoils); 
+for x=1:size(im1,1), 
+    unmix(x,:,:) = ismrm_calculate_sense_unmixing_1d(4, squeeze(smaps(x,:,:))); 
+end
+figure;showimage(sum(img_alias .* unmix,3));
+
