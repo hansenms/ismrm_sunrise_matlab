@@ -1,0 +1,4 @@
+This directory has filter-backproject (FBP) routines
+for image reconstruction.
+
+Run fbp2_example.m or fbp_fan_arc_example.m to see a complete example.

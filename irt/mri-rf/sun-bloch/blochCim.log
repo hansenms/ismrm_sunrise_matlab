@@ -1,0 +1,12 @@
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/MacPorts 2012_4) (format=mex 2012.9.2)  10 OCT 2012 13:36
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**blochCim.c
+(./blochCim.c
+This is MeX  Version 1.05  18 XII 1993  (B. Jackowski & M. Ry\'cko)
+! You can't use `macro parameter character #' in horizontal mode.
+l.8 #
+     include "mex.h"
+? x
+No pages of output.

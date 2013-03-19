@@ -1,0 +1,17 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}
+\BOOKMARK [1][-]{section.2}{Overview}{}
+\BOOKMARK [2][-]{subsection.2.1}{Getting started}{section.2}
+\BOOKMARK [2][-]{subsection.2.2}{Masking}{section.2}
+\BOOKMARK [1][-]{section.3}{Special structures}{}
+\BOOKMARK [2][-]{subsection.3.1}{The strum class}{section.3}
+\BOOKMARK [2][-]{subsection.3.2}{The fatrix2 class}{section.3}
+\BOOKMARK [3][-]{subsubsection.3.2.1}{Background}{subsection.3.2}
+\BOOKMARK [3][-]{subsubsection.3.2.2}{Creating a fatrix2 object}{subsection.3.2}
+\BOOKMARK [3][-]{subsubsection.3.2.3}{ Operations on a fatrix2 object that return another fatrix2 object }{subsection.3.2}
+\BOOKMARK [3][-]{subsubsection.3.2.4}{ Operations on a fatrix2 object that return a vector. }{subsection.3.2}
+\BOOKMARK [3][-]{subsubsection.3.2.5}{ Operations on a fatrix2 object that return a matrix. }{subsection.3.2}
+\BOOKMARK [3][-]{subsubsection.3.2.6}{ Other operations on a fatrix2 object. }{subsection.3.2}
+\BOOKMARK [3][-]{subsubsection.3.2.7}{ Support for arrays instead of columns }{subsection.3.2}
+\BOOKMARK [3][-]{subsubsection.3.2.8}{Defining fatrix2 methods}{subsection.3.2}
+\BOOKMARK [2][-]{subsection.3.3}{The Fatrix class}{section.3}
+\BOOKMARK [2][-]{subsection.3.4}{Related tools}{section.3}

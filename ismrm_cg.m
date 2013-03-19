@@ -45,7 +45,7 @@ rho_0           = 0;
 D               = [];
 limit           = 1e-5;
 maxit           = 100;
-show_iterations = 1;
+show_iterations = 0;
 print_residual  = 1;
 fL              = @L_default;
 
@@ -85,7 +85,7 @@ end
 %Initial residual, we will have a starting guess of rho - rho_0 = 0.
 r = D.*rhs;
 
-rr_0 = r(:)'*r(:);
+rr_0 = r(:)'*r(:)
 rr = 0;
 
 %Run iteration
