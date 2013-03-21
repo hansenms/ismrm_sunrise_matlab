@@ -1,6 +1,6 @@
-function [unmix, csm] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc_factor, data_mask, csm, target_data, verbose)
+function [unmix, gmap] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc_factor, data_mask, csm, target_data, verbose)
 %
-%   [unmix] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc_factor, csm, target_data, data_mask, verbose)
+%   [unmix, gmap] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc_factor, csm, target_data, data_mask, verbose)
 %   
 %   Calculates b1-weighted image space GRAPPA unmixing coefficients.
 %
@@ -16,6 +16,7 @@ function [unmix, csm] = ismrm_calculate_grappa_unmixing(source_data, kernel_size
 %
 %   OUTPUT:
 %       unmix [x,y,coil]           : Image unmixing coefficients
+%       gmap  [x, y]               : Noise enhancement map 
 %
 %   Typical usage:
 %       [unmix] = calculate_grappa_unmixing(source_data, [5 4], 4);
@@ -83,6 +84,9 @@ end
 
 %If csm is not provided, we will estimate it.
 if (isempty(csm)),
+    if (verbose),
+        fprintf('Estimating coil sensitivity...');
+    end
     %Apply some filtering to avoid ringing
     f = hamming(max(sum(data_mask,1))) * hamming(max(sum(data_mask,2)))';
     fmask = zeros(size(source_data));
@@ -90,8 +94,10 @@ if (isempty(csm)),
           (1:size(f,2))+bitshift(size(source_data,2),-1)-bitshift(size(f,2),-1), :) = ...
           repmat(f, [1 1 size(source_data,3)]);
     csm = ismrm_transform_kspace_to_image(source_data .* fmask, [1 2]);
-    %csm = ismrm_estimate_csm_inati(csm); %Estimate coil sensitivity maps.
     csm = ismrm_estimate_csm_walsh(csm); %Estimate coil sensitivity maps.
+    if (verbose),
+        fprintf('done.\n');
+    end
 end
     
 
@@ -180,15 +186,22 @@ if (verbose),
 end
 
 %Loop over target coils and fo b1-weighted combination in image space.
+csm_ss = sum(conj(csm).*csm,3);
+csm_ss(csm_ss < eps) = 1; %Avoid devision by zeros where coils are undefined
 for c=1:target_coils,
     kernel_pad = pad_grappa_kernel(kernel(:,:,:,c),size(target_data));
     kernel_pad = fftshift(ifft(ifftshift(kernel_pad,1),[],1),1);
     kernel_pad = fftshift(ifft(ifftshift(kernel_pad,2),[],2),2);
-    kernel_pad = kernel_pad*(size(kernel_pad,1)*size(kernel_pad,2)/acc_factor);
-    csm_rss = sqrt(sum(conj(csm).*csm,3));
-    csm_rss(csm_rss < eps) = 1; %Avoid devision by zeros where coils are undefined
-    unmix = unmix + (kernel_pad .* repmat(conj(csm(:,:,c)) ./csm_rss,[1 1 coils]))  ;
+    kernel_pad = kernel_pad*(size(kernel_pad,1)*size(kernel_pad,2));
+    unmix = unmix + (kernel_pad .* repmat(conj(csm(:,:,c)) ./csm_ss,[1 1 coils]));
 end
+
+unmix = unmix/acc_factor;
+
+if (nargout > 1),
+   gmap = sqrt(sum(abs(unmix).^2,3)) .* sqrt(sum(abs(csm).^2,3));
+end
+
 
 if (verbose),
     fprintf('done.\n');
@@ -199,7 +212,7 @@ return
 %Utility function for padding grappa kernel
 function padded_kernel = pad_grappa_kernel(gkernel, image_size)
     padded_kernel = zeros(image_size(1),image_size(2),size(gkernel,3));
-    padded_kernel([1:size(gkernel,1)]+bitshift(image_size(1)-size(gkernel,1)-1,-1)+1, ...
-        [1:size(gkernel,2)]+bitshift(image_size(2)-size(gkernel,2)-1,-1)+1, :) = gkernel;
+    padded_kernel([1:size(gkernel,1)]+bitshift(image_size(1)-size(gkernel,1),-1)+1, ...
+        [1:size(gkernel,2)]+bitshift(image_size(2)-size(gkernel,2),-1)+1, :) = gkernel;
 return
         

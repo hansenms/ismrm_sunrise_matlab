@@ -89,14 +89,29 @@ showimage(img);
 
 
 %%
-%Simple SENSE
+%Simple GRAPPA and SENSE
 close all;
-[data, sp] = ismrm_sample_data(im1, smaps, 4, 0);
-img_alias = ismrm_transform_kspace_to_image(data,[1,2]);
-figure;showimage(img_alias);
-unmix = zeros(size(im1,1),size(im1,2),ncoils); 
-for x=1:size(im1,1), 
-    unmix(x,:,:) = ismrm_calculate_sense_unmixing_1d(4, squeeze(smaps(x,:,:))); 
-end
-figure;showimage(sum(img_alias .* unmix,3));
+acc_factor = 4;
+noise_level = 0.05*max(im1(:));
+[data, sp] = ismrm_sample_data(im1, smaps, acc_factor, 32);
+data_noise = data + noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
 
+data       = data * acc_factor;
+data_noise = data_noise .* acc_factor;
+
+img_alias = ismrm_transform_kspace_to_image(data .* repmat(sp == 1 | sp == 3,[1 1 size(smaps,3)]),[1,2]);
+img_alias_noise = ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps,3)]),[1,2]);
+figure;showimage(img_alias);
+figure;showimage(img_alias_noise);
+
+[unmix_sense, gmap_sense]   = ismrm_calculate_sense_unmixing(acc_factor, smaps);
+[unmix_grappa, gmap_grappa] = ismrm_calculate_grappa_unmixing(data_noise, [4 5], acc_factor, (sp > 1));
+
+figure;
+showimage(sum(img_alias .* unmix_sense,3),[2 3 1]); colorbar;title('SENSE (noiseless)');
+showimage(sum(img_alias_noise .* unmix_sense,3),[2 3 2]); colorbar; title('SENSE (noise)'); 
+showimage(gmap_sense,[2 3 3]); colorbar; title('SENSE g-factor');
+
+showimage(sum(img_alias .* unmix_grappa,3),[2 3 4]); colorbar; title('GRAPPA (noiseless)');
+showimage(sum(img_alias_noise .* unmix_grappa,3),[2 3 5]); colorbar; title('GRAPPA (noise)');
+showimage(gmap_grappa,[2 3 6]); colorbar; title('GRAPPA g-factor');

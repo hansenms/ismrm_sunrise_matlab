@@ -1,4 +1,4 @@
-function [data, pat] = ismrm_sample_data(img_obj, csm, acc, ref)
+function [data, pat] = ismrm_sample_data(img_obj, csm, acc, ref, sshift)
 %
 %  [data, sampling_pattern] = ismrm_sample_data(img_obj, csm, acc, ref)
 %
@@ -10,6 +10,8 @@ function [data, pat] = ismrm_sample_data(img_obj, csm, acc, ref)
 %    - csm     [x,y,c]  : Coil sensitivity maps
 %    - acc     scalar   : Acceleration factor
 %    - ref     scalar   : Reference lines (in center of k-space)
+%    - sshift  scalar   : Sampling shift, i.e for undersampling, do we
+%                         start with line 1 or line 1+sshift?
 %
 %  OUPUT:
 %    - data    [kx,ky,c]: Sampled data in k-space (zeros where not sampled)
@@ -37,6 +39,12 @@ if nargin < 4,
     ref = 0;
 end
 
+if nargin < 5,
+    sshift = 0;
+end
+
+sshift = mod(sshift,acc);
+
 if (numel(size(img_obj)) ~= 2),
     error('Only two dimensions supported at the moment');
 end
@@ -51,7 +59,7 @@ end
 
 %Generate parallel imaging undersampling pattern
 pat_img = zeros(size(img_obj));
-pat_img(:,1:acc:end) = 1;
+pat_img(:,(1+sshift):acc:end) = 1;
 
 %Generate reference lines pattern
 pat_ref = zeros(size(img_obj));
