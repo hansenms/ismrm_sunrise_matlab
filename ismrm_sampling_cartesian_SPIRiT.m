@@ -1,4 +1,4 @@
-function outp =  ismrm_encoding_cartesian_SPIRiT(inp,sampling_mask,transpose_indicator)
+function outp =  ismrm_sampling_cartesian_SPIRiT(inp,sampling_mask,transpose_indicator)
 
 if (strcmp(transpose_indicator,'transp')),
     coils = numel(inp)/sum(sampling_mask(:));

@@ -284,3 +284,86 @@ figure;
 showimage(recon ./ dv);colorbar;axis off;
 colormap(gray);
 set(gcf,'color','w');
+
+%%
+%Cartesian SENSE with LSQR
+close all;
+acc_factor = 4;
+noise_level = 0.05*max(im1(:));
+[data, sp] = ismrm_sample_data(im1, smaps, acc_factor);
+data_noise = data + noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
+
+data       = data * acc_factor;
+data_noise = data_noise .* acc_factor;
+
+s = data_noise(repmat(sp,[1 1 size(smaps,3)]) > 0)/acc_factor;
+img_noise = lsqr(E, s, 1e-5,50);
+img_noise = reshape(img_noise,size(smaps,1),size(smaps,2));
+showimage(img_noise,[1 2 2]);colorbar;axis off;
+
+img_alias_noise = ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps,3)]),[1,2]);
+
+[unmix_sense, gmap_sense]   = ismrm_calculate_sense_unmixing(acc_factor, smaps);
+showimage(sum(img_alias_noise .* unmix_sense,3),[1 2 1]);;colorbar;axis off;
+colormap(gray);
+set(gcf,'color','w');
+
+%%
+%Non-Cartesian (Radial) SENSE
+close all;
+acc_factor = 12;
+
+noise_level = 0.05*max(im1(:));
+
+[k,w] = ismrm_generate_radial_trajectory(size(im1,1), size(im1,1)*pi/2); %Fully sampled
+area_weights = pi*(K(1)/2)^2; 
+w = w .* (area_weights/sum(w(:)));
+
+%Prepare NUFFT
+N = [size(im1,1) size(im1,2)];
+J = [5 5];
+K = N*2;
+nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
+
+data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(K));
+data_radial = data_radial + noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
+
+csm_sq = sum(smaps .* conj(smaps),3); csm_sq(csm_sq < eps) = 1;
+recon_full = (sum(conj(smaps).*nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+
+%Now undersampled
+projections = size(im1,1)/acc_factor;
+[k,w] = ismrm_generate_radial_trajectory(size(im1,1), projections);
+
+%Prepare NUFFT
+N = [size(im1,1) size(im1,2)];
+J = [5 5];
+K = N*2;
+nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
+
+%Scale weights such that the sum of the weights is the gridded area (oversampled)
+area_weights = pi*(K(1)/2)^2; 
+w = w .* (area_weights/sum(w(:)));
+
+data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(K));
+data_radial = data_radial + noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
+
+recon_undersampled = (sum(conj(smaps).*nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+
+E = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,smaps,nufft_st,w,tr);
+img = lsqr(E, data_radial(:) .* repmat(sqrt(w),[size(smaps,3),1]), 1e-3,30);
+img = reshape(img,size(smaps,1),size(smaps,2));
+
+showimage(recon_full,[1 3 1]);colorbar;axis off;
+showimage(recon_undersampled,[1 3 2]);colorbar;axis off;
+showimage(img,[1 3 3]);colorbar;axis off;
+
+colormap(gray);
+set(gcf,'color','w');
+
+%%
+%Non-Cartesian SPIRiT
+
+
+
+ismrm_system_non_cartesian_SPIRiT(inp,nufft_st,weights,im_kernel,transpose_indicator)
