@@ -355,14 +355,15 @@ acc_factor = 8;
 
 noise_level = 0.05*max(im1(:));
 
-[k,w] = ismrm_generate_radial_trajectory(size(im1,1), size(im1,1)*pi/2); %Fully sampled
-area_weights = pi*(K(1)/2)^2; 
-w = w .* (area_weights/sum(w(:)));
-
 %Prepare NUFFT
 N = [size(im1,1) size(im1,2)];
 J = [5 5];
 K = N*2;
+
+[k,w] = ismrm_generate_radial_trajectory(size(im1,1), size(im1,1)*pi/2); %Fully sampled
+area_weights = pi*(K(1)/2)^2; 
+w = w .* (area_weights/sum(w(:)));
+
 nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
 
 data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(K));
@@ -370,6 +371,15 @@ data_radial = data_radial + noise_level*complex(randn(size(data_radial)),randn(s
 
 csm_sq = sum(smaps .* conj(smaps),3); csm_sq(csm_sq < eps) = 1;
 recon_full = (sum(conj(smaps).*nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+
+if 0,
+    E = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,ones(size(im1)),nufft_st,w,tr);
+    for c=1:size(smaps,3),
+        cal_data(:,:,c) = reshape(lsqr(E, data_radial(:,c) .* sqrt(w), 1e-3,30),size(im1));
+    end
+    cal_data = ismrm_transform_image_to_kspace(cal_data,[1,2]);
+end
+%cal_data = ismrm_transform_image_to_kspace(nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st) ./ sqrt(prod(K)),[1,2]);
 
 %Now undersampled
 projections = size(im1,1)/acc_factor;
@@ -402,9 +412,16 @@ img = reshape(img,size(smaps,1),size(smaps,2));
 kernel_mask = ones(7,7);
 kernel_mask(4,4) = 0;
 
-cal_data = nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st) ./ sqrt(prod(K));
+%cal_data = ismrm_transform_image_to_kspace(nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st) ./ sqrt(prod(K)),[1,2]);
+%cal_data = data_noise;
 
-kernel = ismrm_estimate_convolution_kernel(cal_data(kx_cal(1):kx_cal(2),ky_cal(1):ky_cal(2),:), kernel_mask);
+cal_data = ismrm_transform_image_to_kspace(smaps,[1 2]);
+
+cal_idx = 1:floor(projections/(pi/2));
+cal_idx = cal_idx + bitshift(size(cal_data,1),-1)-bitshift(length(cal_idx),-1);
+
+%kernel = ismrm_estimate_convolution_kernel(cal_data(cal_idx, cal_idx, :), kernel_mask);
+kernel = ismrm_estimate_convolution_kernel(cal_data, kernel_mask);
 
 kernel = flipdim(flipdim(kernel,1),2);
 padded_kernel = zeros(size(data,1),size(data,2),size(data,3),size(data,3));
