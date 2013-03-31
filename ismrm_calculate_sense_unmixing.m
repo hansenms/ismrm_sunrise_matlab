@@ -15,7 +15,6 @@ function [unmix, gmap] = ismrm_calculate_sense_unmixing(acc_factor, csm)
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 
 %   Michael S. Hansen (michael.hansen@nih.gov)
-%   Philip Beatty (philip.beatty@sri.utoronto.ca)
 %
 
 unmix = zeros(size(csm));

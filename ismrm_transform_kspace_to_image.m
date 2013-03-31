@@ -16,7 +16,6 @@ function [img] = ismrm_transform_kspace_to_image(k, dim)
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 
 %   Michael S. Hansen (michael.hansen@nih.gov)
-%   Philip Beatty (philip.beatty@sri.utoronto.ca)
 %
 
 if nargin < 2,

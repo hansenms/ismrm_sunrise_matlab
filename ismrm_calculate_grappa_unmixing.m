@@ -38,7 +38,6 @@ function [unmix, gmap] = ismrm_calculate_grappa_unmixing(source_data, kernel_siz
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 
 %   Michael S. Hansen (michael.hansen@nih.gov)
-%   Philip Beatty (philip.beatty@sri.utoronto.ca)
 %
 
 if nargin < 3,

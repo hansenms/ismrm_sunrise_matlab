@@ -6,6 +6,9 @@ function dmtx = ismrm_calculate_noise_decorrelation_mtx(noise_samples, scale_fac
 %
 %  INPUT:
 %    - noise_samples   [samples, coils]   : Input noise samples
+%                                           In general it is assumed that
+%                                           last dimension is coil, [x,y,c]
+%                                           is rehsaped to [x*y,c]
 %    - scale_factor    scalar             : optional scale factor to take
 %                                           noise sample BW, etc. into consideration
 %
@@ -30,8 +33,11 @@ function dmtx = ismrm_calculate_noise_decorrelation_mtx(noise_samples, scale_fac
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 
 %   Michael S. Hansen (michael.hansen@nih.gov)
-%   Philip Beatty (philip.beatty@sri.utoronto.ca)
 %
+
+if nargin < 2,
+    scale_factor = 1;
+end
 
 noise = reshape(noise_samples,numel(noise_samples)/size(noise_samples,length(size(noise_samples))), size(noise_samples,length(size(noise_samples))));
 noise = permute(noise,[2 1]);
