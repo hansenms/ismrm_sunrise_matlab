@@ -243,7 +243,6 @@ colormap(gray);
 set(gcf,'color','w');
 
 %%
-%%
 %Recon in SNR Units
 acc_factor = 4;
 noise_level = 0.10*max(im1(:));
@@ -288,20 +287,57 @@ set(gcf,'color','w');
 %%
 %Cartesian SENSE with LSQR
 close all;
-acc_factor = 2;
+acc_factor = 4;
 noise_level = 0.05*max(im1(:));
+
+if 0,
+    load ../smaps_phantom.mat
+    [data, sp] = ismrm_sample_data(im1, smaps, 1);
+    noise = noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
+    data_noise = data + noise;
+    coil_images = ismrm_transform_kspace_to_image(data_noise);
+    smaps = ismrm_estimate_csm_walsh(coil_images);
+    noise_level = 0.01*max(im1(:));
+else
+    load ../smaps_phantom.mat    
+end
+
 [data, sp] = ismrm_sample_data(im1, smaps, acc_factor, 32);
-data_noise = data + noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
 
-data       = data * acc_factor;
-data_noise = data_noise .* acc_factor;
+noise = noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
+data_noise = data + noise;
 
-s = data_noise(repmat(sp,[1 1 size(smaps,3)]) > 0)/acc_factor;
+noise = reshape(noise,size(noise,1)*size(noise,2),size(noise,3));
+dmtx = ismrm_calculate_noise_decorrelation_mtx(noise(sp>0,:));
 
-E = @(x,tr) ismrm_encoding_cartesian_SENSE(x,smaps,sp>0,tr);
+data = ismrm_apply_noise_decorrelation_mtx(data,dmtx);
+data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
+smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
+
+data       = data; %* acc_factor;
+data_noise = data_noise;% .* acc_factor;
+
+s = data_noise(repmat(sp,[1 1 size(smaps_prew,3)]) > 0);%/acc_factor;
+E = @(x,tr) ismrm_encoding_cartesian_SENSE(x,smaps_prew,sp>0,tr);
 img_noise = lsqr(E, s, 1e-5,50);
 img_noise = reshape(img_noise,size(smaps,1),size(smaps,2));
 showimage(img_noise,[1 3 2]);colorbar;axis off;
+
+
+%Pseudo-replica
+if 0,
+    image_formation_func = @(x) lsqr(E,x,1e-5,50);
+    s = data_noise(repmat(sp,[1 1 size(smaps_prew,3)]) > 0);
+    [snr,g] = ismrm_pseudo_replica(s, image_formation_func,25);
+    snr = reshape(snr,size(im1));
+    g = reshape(g,size(im1));
+    snr = snr;
+    csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
+    g = g .* sqrt(csm_sq);
+    figure;
+    showimage(snr,[1 2 1]); colorbar; axis off;
+    showimage(g,[1 2 2]);colorbar; axis off;
+end
 
 [kx_cal,ky_cal] = ind2sub(size(sp),[find(sp > 1,1,'first') find(sp > 1,1,'last')]);
 
@@ -321,29 +357,35 @@ kernel = ismrm_estimate_convolution_kernel(data_noise(kx_cal(1):kx_cal(2),ky_cal
 % 	kernel(:,:,:,n) = calibrate(AtA,[7 7],8,n,CalibTyk);
 % end
 
+padded_kernel = ismrm_transform_kernel_to_image_space(kernel,[size(im1,1), size(im1,2)]);
 
-kernel = flipdim(flipdim(kernel,1),2);
-
-% data = zeros([N 5]);
-padded_kernel = zeros(size(data,1),size(data,2),size(data,3),size(data,3));
-padded_kernel([1:size(kernel,1)]+bitshift(size(data,1)-size(kernel,1)-1,-1)+1, ...
-    [1:size(kernel,2)]+bitshift(size(data,2)-size(kernel,2)-1,-1)+1, :, :) = kernel;
-
-padded_kernel = fftshift(ifft(ifftshift(padded_kernel,1),[],1),1);
-padded_kernel = fftshift(ifft(ifftshift(padded_kernel,2),[],2),2);
-padded_kernel = padded_kernel*(size(padded_kernel,1)*size(padded_kernel,2));
 
 E = @(x,tr) ismrm_system_cartesian_SPIRiT(x,sp>0,padded_kernel,tr);
 
-img_spirit_noise = lsqr(E, [s;zeros(numel(smaps),1)], 1e-5,50);
-img_spirit_noise = reshape(img_spirit_noise,size(smaps,1),size(smaps,2),size(smaps,3));
-csm_sq = sum(smaps .* conj(smaps),3); csm_sq(csm_sq < eps) = 1;
-img_spirit_noise = sum(conj(smaps) .* img_spirit_noise,3) ./ csm_sq;
+img_spirit_noise = lsqr(E, [s;zeros(numel(smaps_prew),1)], 1e-5,50);
+img_spirit_noise = reshape(img_spirit_noise,size(smaps_prew,1),size(smaps_prew,2),size(smaps_prew,3));
+csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
+img_spirit_noise = sum(conj(smaps_prew) .* img_spirit_noise,3) ./ csm_sq;
 showimage(img_spirit_noise,[1 3 3]);colorbar;axis off;
 
-img_alias_noise = ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps,3)]),[1,2]);
-[unmix_sense, gmap_sense]   = ismrm_calculate_sense_unmixing(acc_factor, smaps);
+
+img_alias_noise = sqrt(acc_factor)*ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]);
+[unmix_sense, gmap_sense]   = ismrm_calculate_sense_unmixing(acc_factor, smaps_prew);
 showimage(sum(img_alias_noise .* unmix_sense,3),[1 3 1]);colorbar;axis off;
+
+if 0,
+    img_form_func = @(x) sum(ismrm_transform_kspace_to_image(sqrt(acc_factor)*x .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]).*unmix_sense,3);
+    [snr,g] = ismrm_pseudo_replica(data_noise, img_form_func,256);
+    snr = snr;
+    csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
+
+    g = g .* sqrt(csm_sq);
+    figure;
+    showimage(snr,[1 3 1]); colorbar; axis off;
+    showimage(g,[1 3 2]);colorbar; axis off;
+    showimage(gmap_sense,[1 3 3]);colorbar; axis off;
+end
+
 
 colormap(gray);
 set(gcf,'color','w');
@@ -423,14 +465,7 @@ cal_idx = cal_idx + bitshift(size(cal_data,1),-1)-bitshift(length(cal_idx),-1);
 %kernel = ismrm_estimate_convolution_kernel(cal_data(cal_idx, cal_idx, :), kernel_mask);
 kernel = ismrm_estimate_convolution_kernel(cal_data, kernel_mask);
 
-kernel = flipdim(flipdim(kernel,1),2);
-padded_kernel = zeros(size(data,1),size(data,2),size(data,3),size(data,3));
-padded_kernel([1:size(kernel,1)]+bitshift(size(data,1)-size(kernel,1)-1,-1)+1, ...
-    [1:size(kernel,2)]+bitshift(size(data,2)-size(kernel,2)-1,-1)+1, :, :) = kernel;
-
-padded_kernel = fftshift(ifft(ifftshift(padded_kernel,1),[],1),1);
-padded_kernel = fftshift(ifft(ifftshift(padded_kernel,2),[],2),2);
-padded_kernel = padded_kernel*(size(padded_kernel,1)*size(padded_kernel,2));
+padded_kernel = ismrm_transform_kernel_to_image_space(kernel,[size(im1,1), size(im1,2)]);
 
 E = @(x,tr) ismrm_system_non_cartesian_SPIRiT(x,nufft_st,w(:),padded_kernel,tr);
 

@@ -17,7 +17,6 @@ function [k,w] = ismrm_generate_radial_trajectory(readout_length, projections)
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 
 %   Michael S. Hansen (michael.hansen@nih.gov)
-%   Philip Beatty (philip.beatty@sri.utoronto.ca)
 %
 
 kx = linspace(-.5,.5,readout_length);

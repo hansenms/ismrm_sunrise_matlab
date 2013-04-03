@@ -1,6 +1,5 @@
 function outp =  ismrm_encoding_cartesian_SENSE(inp,csm,sampling_mask,transpose_indicator)
 
-
 if (strcmp(transpose_indicator,'transp')),
     outp = zeros(size(csm));
     outp(repmat(sampling_mask,[1 1 size(csm,3)]) == 1) = inp(:);

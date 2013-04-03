@@ -19,7 +19,6 @@ function kernel = ismrm_estimate_convolution_kernel(source_data, kernel_mask, ta
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 
 %   Michael S. Hansen (michael.hansen@nih.gov)
-%   Philip Beatty (philip.beatty@sri.utoronto.ca)
 %
 
 if nargin < 2,
