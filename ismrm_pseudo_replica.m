@@ -1,4 +1,4 @@
-function [snr,g] = ismrm_pseudo_replica(in, image_formation_func, reps)
+function [snr,g,noise_psf] = ismrm_pseudo_replica(in, image_formation_func, reps)
 %
 %  [snr,g] = ismrm_pseudo_replica(in, image_formation_func, reps)
 %
@@ -16,16 +16,19 @@ function [snr,g] = ismrm_pseudo_replica(in, image_formation_func, reps)
 %
 %
 %  INPUT:
-%    - in      : Input data, any format that the image formation function
-%                expects.
+%    - in        : Input data, any format that the image formation function
+%                  expects.
 %  OUTPUT:
-%    - snr     : An image in SNR units.
-%    - g       : A g-map (assuming image_formation_func doesn't scale)
+%    - snr       : An image in SNR units.
+%    - g         : A g-map (assuming image_formation_func doesn't scale)
+%    - noise_psf : Point spread function of the noise
 %
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 
 %   Michael S. Hansen (michael.hansen@nih.gov)
 %
+
+baseline = image_formation_func(in);
 
 for r=1:reps,
     fprintf('Running pseudo replica %d/%d\n',r,reps);
@@ -38,8 +41,13 @@ end
 img_noise_rep = reshape(img_noise_rep,[size(tmp),reps]);
 rep_dim = length(size(img_noise_rep));
 
-g = std(abs(img_noise_rep),[],rep_dim);
+g = std(abs(img_noise_rep + max(abs(img_noise_rep(:)))),[],rep_dim); %Measure variation, but add offset to create "high snr condition"
 g(g < eps) = 1;
 snr = mean(img_noise_rep,3)./g;
+
+img_noise_rep = img_noise_rep - repmat(baseline,[ones(1,length(size(baseline))) reps]);
+
+ftdims = 1:(rep_dim-1);
+noise_psf = ismrm_transform_kspace_to_image(mean(abs(ismrm_transform_image_to_kspace(img_noise_rep,ftdims)).^2,3));
 
 return
