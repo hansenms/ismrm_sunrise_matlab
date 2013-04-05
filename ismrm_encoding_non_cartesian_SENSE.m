@@ -1,6 +1,6 @@
 function outp =  ismrm_encoding_non_cartesian_SENSE(inp,csm,nufft_st,weights,transpose_indicator)
 
-scale = sqrt(prod(prod(nufft_st.Nd))/numel(weights(:)));
+scale = sqrt(prod(prod(nufft_st.Kd))/numel(weights(:)));
 if (strcmp(transpose_indicator,'transp')),
     samples = size(nufft_st.om,1);
     coils = numel(inp)/samples;

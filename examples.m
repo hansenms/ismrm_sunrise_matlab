@@ -315,15 +315,12 @@ data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
 smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
 csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
 
-data       = data;
-data_noise = data_noise;
-
 samp_mat = (sp>0);%(sp == 1 | sp == 3);
 s = data_noise(repmat(samp_mat,[1 1 size(smaps_prew,3)]) > 0);
 E = @(x,tr) ismrm_encoding_cartesian_SENSE(x,smaps_prew,samp_mat,tr);
 img_noise = lsqr(E, s, 1e-5,50);
 img_noise = reshape(img_noise,size(smaps,1),size(smaps,2));
-showimage(img_noise.*sqrt(csm_sq),[1 3 2]);colorbar;axis off;
+showimage(img_noise,[1 3 2]);colorbar;axis off;
 
 
 %Pseudo-replica
@@ -367,22 +364,27 @@ img_spirit_noise = lsqr(E, [s;zeros(numel(smaps_prew),1)], 1e-5,50);
 img_spirit_noise = reshape(img_spirit_noise,size(smaps_prew,1),size(smaps_prew,2),size(smaps_prew,3));
 csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
 img_spirit_noise = sum(conj(smaps_prew) .* img_spirit_noise,3) ./ csm_sq;
-showimage(sqrt(csm_sq).*img_spirit_noise,[1 3 3]);colorbar;axis off;
+showimage(img_spirit_noise,[1 3 3]);colorbar;axis off;
 
 
 img_alias_noise = sqrt(acc_factor)*ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]);
 [unmix_sense, gmap_sense]   = ismrm_calculate_sense_unmixing(acc_factor, smaps_prew);
-showimage(sqrt(csm_sq).*sum(img_alias_noise .* unmix_sense,3),[1 3 1]);colorbar;axis off;
+[unmix_grappa, gmap_grappa] = ismrm_calculate_grappa_unmixing(data_noise, [4 5], acc_factor, (sp > 1),smaps_prew);
+
+showimage(sum(img_alias_noise .* unmix_sense,3),[1 3 1]);colorbar;axis off;
+%showimage(sum(img_alias_noise .* unmix_grappa,3),[1 3 2]);colorbar;axis off;
 
 if 0,
-    img_form_func = @(x) sum(ismrm_transform_kspace_to_image(sqrt(acc_factor)*x .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]).*unmix_sense,3);
+%    img_form_func = @(x) sum(ismrm_transform_kspace_to_image(sqrt(acc_factor)*x .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]).*unmix_sense,3);
+    img_form_func = @(x) sum(ismrm_transform_kspace_to_image(sqrt(acc_factor)*x .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]).*unmix_grappa,3);
     [snr,g,noise_psf] = ismrm_pseudo_replica(data_noise, img_form_func,256);
     csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
     g = g .* sqrt(csm_sq);
     figure;
     showimage(snr,[1 3 1]); colorbar; axis off;
     showimage(g,[1 3 2]);colorbar; axis off;
-    showimage(gmap_sense,[1 3 3]);colorbar; axis off;
+    %showimage(gmap_sense,[1 3 3]);colorbar; axis off;
+    showimage(gmap_grappa,[1 3 3]);colorbar; axis off;
 end
 
 
@@ -401,30 +403,56 @@ N = [size(im1,1) size(im1,2)];
 J = [5 5];
 K = N*2;
 
-[k,w] = ismrm_generate_radial_trajectory(size(im1,1), size(im1,1)*pi/2); %Fully sampled
+[k,w] = ismrm_generate_radial_trajectory(size(im1,1), size(im1,1)); %Fully sampled
 area_weights = pi*(K(1)/2)^2; 
 w = w .* (area_weights/sum(w(:)));
 
+if (0),
+[kx,ky] = meshgrid(linspace(-0.5,0.4961,256), linspace(-0.5,0.4961,256));
+k = [ky(:),kx(:)];
+w = ones(size(k,1),1);
+area_weights = K(1)^2; 
+w = w .* (area_weights/sum(w(:)));
+end
+
 nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
 
-data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(K));
-data_radial = data_radial + noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
+data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(N));
+noise = noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
+data_noise = data_radial + noise; 
 
-csm_sq = sum(smaps .* conj(smaps),3); csm_sq(csm_sq < eps) = 1;
-recon_full = (sum(conj(smaps).*nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+dmtx = ismrm_calculate_noise_decorrelation_mtx(noise);
 
-if 0,
-    E = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,ones(size(im1)),nufft_st,w,tr);
-    for c=1:size(smaps,3),
-        cal_data(:,:,c) = reshape(lsqr(E, data_radial(:,c) .* sqrt(w), 1e-3,30),size(im1));
-    end
-    cal_data = ismrm_transform_image_to_kspace(cal_data,[1,2]);
+data_radial = ismrm_apply_noise_decorrelation_mtx(data_radial,dmtx);
+data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
+smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
+csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
+
+recon_full = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(data_noise .* repmat(w,[1 size(data_radial,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+
+if (0),
+   image_formation_func = @(x) (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(x .* repmat(w,[1 size(data_noise,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+    reps = 256;
+    [snr,g,noise_psf] = ismrm_pseudo_replica(data_noise, image_formation_func,reps);
+    csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
+    g = g .* sqrt(csm_sq);
+    figure;
+    showimage(snr,[1 2 1]); colorbar; axis off;
+    showimage(g,[1 2 2]);colorbar; axis off;
+ 
 end
-%cal_data = ismrm_transform_image_to_kspace(nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st) ./ sqrt(prod(K)),[1,2]);
 
 %Now undersampled
 projections = size(im1,1)/acc_factor;
 [k,w] = ismrm_generate_radial_trajectory(size(im1,1), projections);
+
+if (0),
+    [ky,kx] = meshgrid(linspace(-0.5,0.4961,projections), linspace(-0.5,0.4961,size(im1,1)));
+    k = [kx(:),ky(:)];
+    w = ones(size(k,1),1);
+    area_weights = K(1)^2; 
+    w = w .* (area_weights/sum(w(:)));
+end
 
 %Prepare NUFFT
 N = [size(im1,1) size(im1,2)];
@@ -436,14 +464,22 @@ nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
 area_weights = pi*(K(1)/2)^2; 
 w = w .* (area_weights/sum(w(:)));
 
-data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(K));
-data_radial = data_radial + noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
+data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(N));
+noise = noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
+data_noise = data_radial + noise;
 
-recon_undersampled = (1/sqrt(acc_factor))*(sum(conj(smaps).*nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+dmtx = ismrm_calculate_noise_decorrelation_mtx(noise);
 
-E = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,smaps,nufft_st,w,tr);
-img = lsqr(E, data_radial(:) .* repmat(sqrt(w),[size(smaps,3),1]), 1e-3,30);
-img = reshape(img,size(smaps,1),size(smaps,2));
+data_radial = ismrm_apply_noise_decorrelation_mtx(data_radial,dmtx);
+data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
+smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
+csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
+
+recon_undersampled = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(data_noise .* repmat(w,[1 size(data_noise,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+
+w = w .* (pi*0.5^2/sum(w(:)));
+[img,snr,g,noise_psf] = ismrm_non_cartesian_sense(data_noise,k,w,smaps_prew,[],25);
+
 
 
 [kx_cal,ky_cal] = ind2sub(size(sp),[find(sp > 1,1,'first') find(sp > 1,1,'last')]);
@@ -452,25 +488,31 @@ img = reshape(img,size(smaps,1),size(smaps,2));
 kernel_mask = ones(7,7);
 kernel_mask(4,4) = 0;
 
-%cal_data = ismrm_transform_image_to_kspace(nufft_adj(data_radial .* repmat(w,[1 size(data_radial,2)]),nufft_st) ./ sqrt(prod(K)),[1,2]);
-%cal_data = data_noise;
-
-cal_data = ismrm_transform_image_to_kspace(smaps,[1 2]);
-
-cal_idx = 1:floor(projections/(pi/2));
-cal_idx = cal_idx + bitshift(size(cal_data,1),-1)-bitshift(length(cal_idx),-1);
-
-%kernel = ismrm_estimate_convolution_kernel(cal_data(cal_idx, cal_idx, :), kernel_mask);
+cal_data = ismrm_transform_image_to_kspace(smaps_prew,[1 2]);
 kernel = ismrm_estimate_convolution_kernel(cal_data, kernel_mask);
 
 padded_kernel = ismrm_transform_kernel_to_image_space(kernel,[size(im1,1), size(im1,2)]);
 
 E = @(x,tr) ismrm_system_non_cartesian_SPIRiT(x,nufft_st,w(:),padded_kernel,tr);
 
-img_spirit = lsqr(E, [data_radial(:) .* repmat(sqrt(w),[size(smaps,3),1]);zeros(numel(smaps),1)], 1e-5,50);
-img_spirit = reshape(img_spirit,size(smaps,1),size(smaps,2),size(smaps,3));
-csm_sq = sum(smaps .* conj(smaps),3); csm_sq(csm_sq < eps) = 1;
-img_spirit = sum(conj(smaps) .* img_spirit,3) ./ csm_sq;
+img_spirit = lsqr(E, [data_noise(:) .* repmat(sqrt(w),[size(smaps_prew,3),1]);zeros(numel(smaps_prew),1)], 1e-5,50);
+img_spirit = reshape(img_spirit,size(smaps_prew,1),size(smaps_prew,2),size(smaps_prew,3));
+csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
+img_spirit = sum(conj(smaps_prew) .* img_spirit,3) ./ csm_sq;
+
+%Pseudo-replica
+if 0,
+    image_formation_func = @(x) sum(conj(smaps_prew) .* reshape(lsqr(E,[x .* repmat(sqrt(w),[size(smaps_prew,3),1]);zeros(numel(smaps_prew),1)],1e-3,30),[size(im1) size(smaps_prew,3)]),3) ./ csm_sq;
+    reps = 25;
+    [snr,g,noise_psf] = ismrm_pseudo_replica(data_noise(:), image_formation_func,reps);
+    img_noise_rep = reshape(img_noise_rep,[size(im1,1),size(im1,2), reps]);
+    csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
+    g = g .* sqrt(csm_sq);
+    figure;
+    showimage(snr,[1 2 1]); colorbar; axis off;
+    showimage(g,[1 2 2]);colorbar; axis off;
+end
+
 
 showimage(recon_full,[1 4 1]);colorbar;axis off;
 showimage(recon_undersampled,[1 4 2]);colorbar;axis off;
