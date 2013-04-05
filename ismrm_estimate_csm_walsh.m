@@ -34,7 +34,7 @@ mag = sqrt(sum(img .* conj(img),3));
 s_raw=img ./ repmat(mag + eps,[1 1 ncoils]); clear mag; 
 
 % compute sample correlation estimates at each pixel location
-Rs=correlation_matrix(s_raw);
+Rs=ismrm_correlation_matrix(s_raw);
 
 % apply spatial smoothing to sample correlation estimates (NxN convolution)
 if smoothing>1,
@@ -47,7 +47,7 @@ if smoothing>1,
 end
 
 % compute dominant eigenvectors of sample correlation matrices
-[csm,lambda]=eig_powermethod(Rs); % using power method
+[csm,lambda]=ismrm_eig_power(Rs); % using power method
 
 return 
 
