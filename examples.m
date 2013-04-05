@@ -315,13 +315,14 @@ data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
 smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
 csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
 
-samp_mat = (sp>0);%(sp == 1 | sp == 3);
+samp_mat = (sp == 1 | sp == 3);
 s = data_noise(repmat(samp_mat,[1 1 size(smaps_prew,3)]) > 0);
 E = @(x,tr) ismrm_encoding_cartesian_SENSE(x,smaps_prew,samp_mat,tr);
 img_noise = lsqr(E, s, 1e-5,50);
 img_noise = reshape(img_noise,size(smaps,1),size(smaps,2));
 showimage(img_noise,[1 3 2]);colorbar;axis off;
 
+[img_noise,snr,g,noise_psf] = ismrm_cartesian_iterative_SENSE(s,samp_mat,smaps_prew,abs(im1)+1,25);
 
 %Pseudo-replica
 if 0,
@@ -421,39 +422,12 @@ csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
 
 recon_undersampled = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(data_noise .* repmat(w*prod(K),[1 size(data_noise,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
 
-[img] = ismrm_non_cartesian_sense(data_noise,k,w,smaps_prew,im1+1,25);
+[img] = ismrm_non_cartesian_sense(data_noise(:),k,w,smaps_prew,[],25);
 %[img,snr,g,noise_psf] = ismrm_non_cartesian_sense(data_noise,k,w,smaps_prew,[],25);
 
+[img_spirit]= ismrm_non_cartesian_SPIRiT(data_noise(:),k,w,size(im1),cal_data,smaps_prew,25);
 
-%Estimate SPIRiT kernel
-kernel_mask = ones(7,7);
-kernel_mask(4,4) = 0;
-
-cal_data = ismrm_transform_image_to_kspace(smaps_prew,[1 2]);
-kernel = ismrm_estimate_convolution_kernel(cal_data, kernel_mask);
-
-padded_kernel = ismrm_transform_kernel_to_image_space(kernel,[size(im1,1), size(im1,2)]);
-
-E = @(x,tr) ismrm_system_non_cartesian_SPIRiT(x,nufft_st,w(:),padded_kernel,tr);
-
-img_spirit = lsqr(E, [data_noise(:) .* repmat(sqrt(w),[size(smaps_prew,3),1]);zeros(numel(smaps_prew),1)], 1e-5,50);
-img_spirit = reshape(img_spirit,size(smaps_prew,1),size(smaps_prew,2),size(smaps_prew,3));
-csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
-img_spirit = sum(conj(smaps_prew) .* img_spirit,3) ./ csm_sq;
-
-%Pseudo-replica
-if 0,
-    image_formation_func = @(x) sum(conj(smaps_prew) .* reshape(lsqr(E,[x .* repmat(sqrt(w),[size(smaps_prew,3),1]);zeros(numel(smaps_prew),1)],1e-3,30),[size(im1) size(smaps_prew,3)]),3) ./ csm_sq;
-    reps = 25;
-    [snr,g,noise_psf] = ismrm_pseudo_replica(data_noise(:), image_formation_func,reps);
-    img_noise_rep = reshape(img_noise_rep,[size(im1,1),size(im1,2), reps]);
-    csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
-    g = g .* sqrt(csm_sq);
-    figure;
-    showimage(snr,[1 2 1]); colorbar; axis off;
-    showimage(g,[1 2 2]);colorbar; axis off;
-end
-
+%[img_spirit,snr,g,noise_psf]= ismrm_non_cartesian_SPIRiT(data_noise(:),k,w,size(im1),cal_data,smaps_prew,25);
 
 showimage(im1,[1 4 1]);colorbar;axis off;
 showimage(recon_undersampled,[1 4 2]);colorbar;axis off;
