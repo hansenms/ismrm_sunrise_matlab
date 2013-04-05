@@ -47,16 +47,37 @@ w = w*prod(K);
 
 nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
 
-E = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,csm,nufft_st,w,tr);
+if (isempty(reg)),
+    E = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,csm,nufft_st,w,tr);
+    reg_out = [];
+else
+    reg_mask = 1./reg;
+    reg_mask = reg_mask * (numel(reg_mask)/sum(reg_mask(:)));
+    E_base = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,csm,nufft_st,w,tr);
+    E = @(x,tr) regularized_E(x,E_base,reg_mask,tr);
+    reg_out = zeros(numel(reg_mask),1);
+end
 
-img = lsqr(E, inp(:) .* repmat(sqrt(w),[size(csm,3),1]), 1e-3,30);
+img = lsqr(E, [inp(:) .* repmat(sqrt(w),[size(csm,3),1]); reg_out], 1e-3,30);
 img = reshape(img,size(csm,1),size(csm,2));
 
 if (nargout > 1),
-    image_formation_func = @(x) reshape(lsqr(E,x .* repmat(sqrt(w),[size(csm,3),1]),1e-3,30),[size(csm,1) size(csm,2)]);
+    image_formation_func = @(x) reshape(lsqr(E,[x .* repmat(sqrt(w),[size(csm,3),1]); reg_out],1e-3,30),[size(csm,1) size(csm,2)]);
     [snr,g,noise_psf] = ismrm_pseudo_replica(inp(:), image_formation_func,replicas);
     csm_sq = sum(csm .* conj(csm),3); csm_sq(csm_sq < eps) = 1;
     g = g .* sqrt(csm_sq);
 end
 
+return
+
+function out = regularized_E(x,E,reg_mask,transpose_indicator)
+    numimgel = length(reg_mask(:));
+    if (strcmp(transpose_indicator,'transp')),
+        numkel = length(x(:))-numimgel;
+        out = E(x(1:numkel),transpose_indicator) + reg_mask(:).*x((numkel+1):end);
+    elseif (strcmp(transpose_indicator, 'notransp')),
+        out = [E(x,transpose_indicator);reg_mask(:).*x];
+    else
+        error('Transpose flag not appropriately defined');
+    end
 return

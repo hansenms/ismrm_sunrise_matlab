@@ -395,74 +395,18 @@ set(gcf,'color','w');
 %Non-Cartesian (Radial) SENSE and SPIRiT
 close all;
 acc_factor = 8;
-
 noise_level = 0.05*max(im1(:));
 
-%Prepare NUFFT
-N = [size(im1,1) size(im1,2)];
-J = [5 5];
-K = N*2;
-
-[k,w] = ismrm_generate_radial_trajectory(size(im1,1), size(im1,1)); %Fully sampled
-area_weights = pi*(K(1)/2)^2; 
-w = w .* (area_weights/sum(w(:)));
-
-if (0),
-[kx,ky] = meshgrid(linspace(-0.5,0.4961,256), linspace(-0.5,0.4961,256));
-k = [ky(:),kx(:)];
-w = ones(size(k,1),1);
-area_weights = K(1)^2; 
-w = w .* (area_weights/sum(w(:)));
-end
-
-nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
-
-data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(N));
-noise = noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
-data_noise = data_radial + noise; 
-
-dmtx = ismrm_calculate_noise_decorrelation_mtx(noise);
-
-data_radial = ismrm_apply_noise_decorrelation_mtx(data_radial,dmtx);
-data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
-smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
-csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
-
-recon_full = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(data_noise .* repmat(w,[1 size(data_radial,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
-
-if (0),
-   image_formation_func = @(x) (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(x .* repmat(w,[1 size(data_noise,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
-    reps = 256;
-    [snr,g,noise_psf] = ismrm_pseudo_replica(data_noise, image_formation_func,reps);
-    csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
-    g = g .* sqrt(csm_sq);
-    figure;
-    showimage(snr,[1 2 1]); colorbar; axis off;
-    showimage(g,[1 2 2]);colorbar; axis off;
- 
-end
-
-%Now undersampled
 projections = size(im1,1)/acc_factor;
 [k,w] = ismrm_generate_radial_trajectory(size(im1,1), projections);
-
-if (0),
-    [ky,kx] = meshgrid(linspace(-0.5,0.4961,projections), linspace(-0.5,0.4961,size(im1,1)));
-    k = [kx(:),ky(:)];
-    w = ones(size(k,1),1);
-    area_weights = K(1)^2; 
-    w = w .* (area_weights/sum(w(:)));
-end
+area_weights = pi*(0.5)^2; 
+w = w .* (area_weights/sum(w(:)));
 
 %Prepare NUFFT
 N = [size(im1,1) size(im1,2)];
 J = [5 5];
 K = N*2;
 nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
-
-%Scale weights such that the sum of the weights is the gridded area (oversampled)
-area_weights = pi*(K(1)/2)^2; 
-w = w .* (area_weights/sum(w(:)));
 
 data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(N));
 noise = noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
@@ -470,19 +414,16 @@ data_noise = data_radial + noise;
 
 dmtx = ismrm_calculate_noise_decorrelation_mtx(noise);
 
-data_radial = ismrm_apply_noise_decorrelation_mtx(data_radial,dmtx);
 data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
 smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
+
 csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
 
-recon_undersampled = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(data_noise .* repmat(w,[1 size(data_noise,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
+recon_undersampled = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(data_noise .* repmat(w*prod(K),[1 size(data_noise,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
 
-w = w .* (pi*0.5^2/sum(w(:)));
-[img,snr,g,noise_psf] = ismrm_non_cartesian_sense(data_noise,k,w,smaps_prew,[],25);
+[img] = ismrm_non_cartesian_sense(data_noise,k,w,smaps_prew,im1+1,25);
+%[img,snr,g,noise_psf] = ismrm_non_cartesian_sense(data_noise,k,w,smaps_prew,[],25);
 
-
-
-[kx_cal,ky_cal] = ind2sub(size(sp),[find(sp > 1,1,'first') find(sp > 1,1,'last')]);
 
 %Estimate SPIRiT kernel
 kernel_mask = ones(7,7);
@@ -514,7 +455,7 @@ if 0,
 end
 
 
-showimage(recon_full,[1 4 1]);colorbar;axis off;
+showimage(im1,[1 4 1]);colorbar;axis off;
 showimage(recon_undersampled,[1 4 2]);colorbar;axis off;
 showimage(img,[1 4 3]);colorbar;axis off;
 showimage(img_spirit,[1 4 4]);colorbar;axis off;
