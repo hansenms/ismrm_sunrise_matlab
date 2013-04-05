@@ -315,13 +315,14 @@ data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
 smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
 csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
 
-samp_mat = (sp>0);%(sp == 1 | sp == 3);
+samp_mat = (sp == 1 | sp == 3);
 s = data_noise(repmat(samp_mat,[1 1 size(smaps_prew,3)]) > 0);
 E = @(x,tr) ismrm_encoding_cartesian_SENSE(x,smaps_prew,samp_mat,tr);
 img_noise = lsqr(E, s, 1e-5,50);
 img_noise = reshape(img_noise,size(smaps,1),size(smaps,2));
 showimage(img_noise,[1 3 2]);colorbar;axis off;
 
+[img_noise,snr,g,noise_psf] = ismrm_cartesian_iterative_SENSE(s,samp_mat,smaps_prew,abs(im1)+1,25);
 
 %Pseudo-replica
 if 0,
