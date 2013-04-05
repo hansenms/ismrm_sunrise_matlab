@@ -47,6 +47,9 @@ w = w*prod(K);
 
 nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
 
+csm_sq = sum(csm .* conj(csm),3); csm_sq(csm_sq < eps) = 1;
+M = spdiag(sqrt(csm_sq)); %Preconditioner
+
 if (isempty(reg)),
     E = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,csm,nufft_st,w,tr);
     reg_out = [];
@@ -56,13 +59,14 @@ else
     E_base = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,csm,nufft_st,w,tr);
     E = @(x,tr) regularized_E(x,E_base,reg_mask,tr);
     reg_out = zeros(numel(reg_mask),1);
+    M = M + spdiag(reg_mask(:));
 end
 
-img = lsqr(E, [inp(:) .* repmat(sqrt(w),[size(csm,3),1]); reg_out], 1e-3,30);
+img = lsqr(E, [inp(:) .* repmat(sqrt(w),[size(csm,3),1]); reg_out], 1e-3,30,M);
 img = reshape(img,size(csm,1),size(csm,2));
 
 if (nargout > 1),
-    image_formation_func = @(x) reshape(lsqr(E,[x .* repmat(sqrt(w),[size(csm,3),1]); reg_out],1e-3,30),[size(csm,1) size(csm,2)]);
+    image_formation_func = @(x) reshape(lsqr(E,[x .* repmat(sqrt(w),[size(csm,3),1]); reg_out],1e-3,30,M),[size(csm,1) size(csm,2)]);
     [snr,g,noise_psf] = ismrm_pseudo_replica(inp(:), image_formation_func,replicas);
     csm_sq = sum(csm .* conj(csm),3); csm_sq(csm_sq < eps) = 1;
     g = g .* sqrt(csm_sq);
