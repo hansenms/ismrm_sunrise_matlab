@@ -290,18 +290,6 @@ close all;
 acc_factor = 4;
 noise_level = 0.05*max(im1(:));
 
-if 0,
-    load ../smaps_phantom.mat
-    [data, sp] = ismrm_sample_data(im1, smaps, 1);
-    noise = noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
-    data_noise = data + noise;
-    coil_images = ismrm_transform_kspace_to_image(data_noise);
-    smaps = ismrm_estimate_csm_walsh(coil_images);
-    noise_level = 0.01*max(im1(:));
-else
-    load ../smaps_phantom.mat    
-end
-
 [data, sp] = ismrm_sample_data(im1, smaps, acc_factor, 32);
 
 noise = noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
@@ -315,38 +303,13 @@ data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
 smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
 
 [img_noise] = ismrm_cartesian_iterative_SENSE(s,samp_mat,smaps_prew,abs(im1)+1,25);
-
 %[img_noise,snr,g,noise_psf] = ismrm_cartesian_iterative_SENSE(s,samp_mat,smaps_prew,abs(im1)+1,25);
 
 [kx_cal,ky_cal] = ind2sub(size(sp),[find(sp > 1,1,'first') find(sp > 1,1,'last')]);
+cal_data = data_noise(kx_cal(1):kx_cal(2),ky_cal(1):ky_cal(2),:);
 
-%Estimate SPIRiT kernel
-kernel_mask = ones(7,7);
-kernel_mask(4,4) = 0;
-
-kernel = ismrm_estimate_convolution_kernel(data_noise(kx_cal(1):kx_cal(2),ky_cal(1):ky_cal(2),:), kernel_mask);
-%kernel = ismrm_estimate_convolution_kernel(data_full, kernel_mask);
-
-% nCoil = 8;
-% CalibTyk = 0.02; 
-% [AtA,] = corrMatrix(data_full,[7 7]);
-% kernel = zeros([7 7 8 8]);
-% for n=1:nCoil
-%     disp(sprintf('Calibrating coil %d',n));
-% 	kernel(:,:,:,n) = calibrate(AtA,[7 7],8,n,CalibTyk);
-% end
-
-padded_kernel = ismrm_transform_kernel_to_image_space(kernel,[size(im1,1), size(im1,2)]);
-
-
-E = @(x,tr) ismrm_system_cartesian_SPIRiT(x,samp_mat,padded_kernel,tr);
-
-img_spirit_noise = lsqr(E, [s;zeros(numel(smaps_prew),1)], 1e-5,50);
-img_spirit_noise = reshape(img_spirit_noise,size(smaps_prew,1),size(smaps_prew,2),size(smaps_prew,3));
-csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
-img_spirit_noise = sum(conj(smaps_prew) .* img_spirit_noise,3) ./ csm_sq;
-showimage(img_spirit_noise,[1 3 3]);colorbar;axis off;
-
+[img_spirit_noise] = ismrm_cartesian_SPIRiT(s,samp_mat,cal_data,smaps_prew,25);
+%[img_spirit_noise,snr,g,noise_psf] = ismrm_cartesian_SPIRiT(s,samp_mat,cal_data,smaps_prew,25);
 
 img_alias_noise = sqrt(acc_factor)*ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]);
 [unmix_sense, gmap_sense]   = ismrm_calculate_sense_unmixing(acc_factor, smaps_prew);

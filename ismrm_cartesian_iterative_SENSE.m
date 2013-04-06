@@ -52,7 +52,6 @@ else
     M = M + spdiag(reg_mask(:));
 end
 
-
 img = lsqr(E, [inp(:); reg_out], 1e-3,30,M);
 img = reshape(img,size(csm,1),size(csm,2));
 
