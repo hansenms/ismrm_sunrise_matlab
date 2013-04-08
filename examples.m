@@ -302,6 +302,9 @@ data = ismrm_apply_noise_decorrelation_mtx(data,dmtx);
 data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
 smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
 
+samp_mat = sp == 3 | sp == 1;
+s = data_noise(repmat(samp_mat,[1 1 size(smaps_prew,3)]));
+
 [img_noise] = ismrm_cartesian_iterative_SENSE(s,samp_mat,smaps_prew,abs(im1)+1,25);
 %[img_noise,snr,g,noise_psf] = ismrm_cartesian_iterative_SENSE(s,samp_mat,smaps_prew,abs(im1)+1,25);
 
@@ -311,25 +314,18 @@ cal_data = data_noise(kx_cal(1):kx_cal(2),ky_cal(1):ky_cal(2),:);
 [img_spirit_noise] = ismrm_cartesian_SPIRiT(s,samp_mat,cal_data,smaps_prew,25);
 %[img_spirit_noise,snr,g,noise_psf] = ismrm_cartesian_SPIRiT(s,samp_mat,cal_data,smaps_prew,25);
 
-img_alias_noise = sqrt(acc_factor)*ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]);
-[unmix_sense, gmap_sense]   = ismrm_calculate_sense_unmixing(acc_factor, smaps_prew);
-[unmix_grappa, gmap_grappa] = ismrm_calculate_grappa_unmixing(data_noise, [4 5], acc_factor, (sp > 1),smaps_prew);
+
+[img_sense,gmap_sense,snr_sense,snr_pseudo_sense,gmap_pseudo_sense,noise_psf_pseudo_sense] = ismrm_cartesian_SENSE(data_noise .* repmat(samp_mat,[1 1 size(smaps_prew,3)]),smaps_prew,acc_factor,256);
+
+showimage(img_sense, [2 3 1]);axis off; colorbar;
+showimage(gmap_sense, [2 3 2]); axis off; colorbar;
+showimage(snr_sense, [2 3 3]); axis off; colorbar;
+showimage(snr_pseudo_sense, [2 3 4]); axis off; colorbar;
+showimage(gmap_pseudo_sense, [2 3 5]); axis off; colorbar;
+showimage(noise_psf_pseudo_sense, [2 3 6]); axis off; colorbar;
 
 showimage(sum(img_alias_noise .* unmix_sense,3),[1 3 1]);colorbar;axis off;
 %showimage(sum(img_alias_noise .* unmix_grappa,3),[1 3 2]);colorbar;axis off;
-
-if 0,
-%    img_form_func = @(x) sum(ismrm_transform_kspace_to_image(sqrt(acc_factor)*x .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]).*unmix_sense,3);
-    img_form_func = @(x) sum(ismrm_transform_kspace_to_image(sqrt(acc_factor)*x .* repmat(sp == 1 | sp == 3,[1 1 size(smaps_prew,3)]),[1,2]).*unmix_grappa,3);
-    [snr,g,noise_psf] = ismrm_pseudo_replica(data_noise, img_form_func,256);
-    csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
-    g = g .* sqrt(csm_sq);
-    figure;
-    showimage(snr,[1 3 1]); colorbar; axis off;
-    showimage(g,[1 3 2]);colorbar; axis off;
-    %showimage(gmap_sense,[1 3 3]);colorbar; axis off;
-    showimage(gmap_grappa,[1 3 3]);colorbar; axis off;
-end
 
 
 colormap(gray);
