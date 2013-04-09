@@ -316,6 +316,7 @@ cal_data = data_noise(kx_cal(1):kx_cal(2),ky_cal(1):ky_cal(2),:);
 
 
 [img_sense,gmap_sense,snr_sense,snr_pseudo_sense,gmap_pseudo_sense,noise_psf_pseudo_sense] = ismrm_cartesian_SENSE(data_noise .* repmat(samp_mat,[1 1 size(smaps_prew,3)]),smaps_prew,acc_factor,256);
+[img_sense,gmap_sense,snr_sense,snr_pseudo_sense,gmap_pseudo_sense,noise_psf_pseudo_sense] = ismrm_cartesian_GRAPPA(data_noise,sp,acc_factor,smaps_prew,256);
 
 showimage(img_sense, [2 3 1]);axis off; colorbar;
 showimage(gmap_sense, [2 3 2]); axis off; colorbar;
