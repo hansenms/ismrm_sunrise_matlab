@@ -8,7 +8,7 @@ function [csm] = ismrm_estimate_csm_walsh(img, smoothing)
 %
 %   INPUT:
 %     - img     [x,y,coil]   : Coil images
-%     - smooth  scalar       : Smoothin block size (defaults to 5)
+%     - smooth  scalar       : Smoothing block size (defaults to 5)
 %
 %   OUTPUT:
 %
@@ -105,7 +105,7 @@ v=ones(rows,cols,ncoils); % initialize e.v.
 d=zeros(rows,cols);
 for i=1:N_iterations
     v=squeeze(sum(R.*repmat(v,[1 1 1 ncoils]),3));
-	d=rss(v);
+	d=ismrm_rss(v);
 	v=v./repmat(d,[1 1 ncoils]);
 end
 
