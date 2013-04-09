@@ -32,10 +32,6 @@ figure;imagescn(abs(ismrm_transform_kspace_to_image(permute(data,[2 1 3]),[1,2])
 figure;imagescn(sqrt(sum(abs(ismrm_transform_kspace_to_image(permute(data,[2 1 3]),[1,2])).^2,3)));
 
 
-
-
-
-
 %%
 %Direct examplex
 %
@@ -325,10 +321,6 @@ showimage(snr_pseudo_sense, [2 3 4]); axis off; colorbar;
 showimage(gmap_pseudo_sense, [2 3 5]); axis off; colorbar;
 showimage(noise_psf_pseudo_sense, [2 3 6]); axis off; colorbar;
 
-showimage(sum(img_alias_noise .* unmix_sense,3),[1 3 1]);colorbar;axis off;
-%showimage(sum(img_alias_noise .* unmix_grappa,3),[1 3 2]);colorbar;axis off;
-
-
 colormap(gray);
 set(gcf,'color','w');
 
@@ -365,14 +357,15 @@ recon_undersampled = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_ad
 [img] = ismrm_non_cartesian_sense(data_noise(:),k,w,smaps_prew,[],25);
 %[img,snr,g,noise_psf] = ismrm_non_cartesian_sense(data_noise,k,w,smaps_prew,[],25);
 
+
 [img_spirit]= ismrm_non_cartesian_SPIRiT(data_noise(:),k,w,size(im1),cal_data,smaps_prew,25);
 
 %[img_spirit,snr,g,noise_psf]= ismrm_non_cartesian_SPIRiT(data_noise(:),k,w,size(im1),cal_data,smaps_prew,25);
 
-showimage(im1,[1 4 1]);colorbar;axis off;
-showimage(recon_undersampled,[1 4 2]);colorbar;axis off;
-showimage(img,[1 4 3]);colorbar;axis off;
-showimage(img_spirit,[1 4 4]);colorbar;axis off;
+showimage(abs(im1),[1 4 1]);colorbar;axis off;
+showimage(abs(recon_undersampled),[1 4 2]);colorbar;axis off;
+showimage(abs(img),[1 4 3]);colorbar;axis off;
+showimage(abs(img_spirit),[1 4 4]);colorbar;axis off;
 
 colormap(gray);
 set(gcf,'color','w');

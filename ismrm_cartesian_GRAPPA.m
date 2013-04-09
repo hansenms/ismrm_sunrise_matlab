@@ -39,7 +39,7 @@ if nargin<4,
    csm = []; 
 end
 
-[unmix, gmap] = ismrm_calculate_grappa_unmixing(inp, [4 5], acc_factor, (samp_mat > 1),csm);
+[unmix, gmap] = ismrm_calculate_grappa_unmixing(inp, [5 4], acc_factor, (samp_mat > 1),csm);
 
 
 img_alias = sqrt(acc_factor)*ismrm_transform_kspace_to_image(inp .* repmat((samp_mat == 1 | samp_mat == 3),[1 1 size(inp,3)]),[1,2]);
