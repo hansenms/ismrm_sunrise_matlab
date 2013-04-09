@@ -29,22 +29,7 @@ end
 
 out_dimensions = [out_size(:);source_coils;target_coils].';
 
-im_kernel = zeros(out_dimensions);
-
-if (spatial_dimensions == 2),
-    im_kernel((1:size(kernel,1))+bitshift(out_dimensions(1)-size(kernel,1)-1,-1)+1, ...
-    (1:size(kernel,2))+bitshift(out_dimensions(2)-size(kernel,2)-1,-1)+1, :, :) = kernel;    
-elseif (spatial_dimensions == 3),
-    im_kernel((1:size(kernel,1))+bitshift(out_dimensions(1)-size(kernel,1)-1,-1)+1, ...
-    (1:size(kernel,2))+bitshift(out_dimensions(2)-size(kernel,2)-1,-1)+1, ...
-    (1:size(kernel,3))+bitshift(out_dimensions(3)-size(kernel,3)-1,-1)+1,:, :) = kernel;        
-else
-    error('Only two and three dimensional kernels supported');
-end
-
-for d = 1:spatial_dimensions,
-    im_kernel = fftshift(ifft(ifftshift(im_kernel,d),[],d),d);
-    im_kernel = im_kernel*size(im_kernel,d);
-end
+im_kernel = ismrm_transform_kspace_to_image(kernel, [spatial_dimensions:-1:1], out_dimensions);
+im_kernel = im_kernel ./ sqrt(numel(im_kernel)); % trying not to change MH scaling.
 
 return 

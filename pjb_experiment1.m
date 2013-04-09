@@ -24,7 +24,7 @@ ismrm_imshow(angle(channel_im)); colormap('hsv');
 
 %%
 % Synthesize Data
-noise_scale = 1.0 * max(im1(:));
+noise_scale = 0.1 * max(im1(:));
 noise = noise_scale .* ismrm_generate_correlated_noise(imsize, eye(ncoils));
 data = ismrm_transform_image_to_kspace(channel_im, [1 2]) + noise;
 
@@ -35,16 +35,20 @@ data = ismrm_transform_image_to_kspace(channel_im, [1 2]) + noise;
 
 channel_im_hat = ismrm_transform_kspace_to_image(data, [1 2]);
 
-%csm_walsh = ismrm_estimate_csm_walsh(channel_im_hat);
+csm_walsh = ismrm_estimate_csm_walsh(channel_im_hat);
 
 csm_mckenzie = ismrm_estimate_csm_mckenzie(channel_im_hat);
 
-im_hat = sum( channel_im_hat .* conj(csm_mckenzie), 3 );
+im_hat = sum( channel_im_hat .* conj(csm_walsh), 3 );
 
-%ismrm_imshow(abs(csm_walsh));
-%ismrm_imshow(angle(csm_walsh), []);
+ismrm_imshow(abs(csm_walsh));
+ismrm_imshow(angle(csm_walsh), []); colormap('hsv');
 
 ismrm_imshow(abs(im_hat));
 ismrm_imshow(angle(im_hat), [-pi pi]); colormap('hsv');
 
+im_hat2 = sum( channel_im_hat, 3);
 
+
+ismrm_imshow(abs(im_hat2));
+ismrm_imshow(angle(im_hat2), [-pi pi]); colormap('hsv');

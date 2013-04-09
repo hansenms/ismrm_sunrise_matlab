@@ -1,4 +1,4 @@
-function kernel = ismrm_estimate_convolution_kernel(source_data, kernel_mask, target_data, verbose)
+function kernel = ismrm_estimate_convolution_kernel2(source_data, kernel_mask, target_data, verbose)
 %
 %   kernel = ismrm_estimate_convolution_kernel(source_data, kernel_mask, target_data, verbose)
 %   
@@ -74,16 +74,17 @@ if (verbose == 1),
 end
 
 %tic
-S = svd(A,0);
-A_inv = pinv(A'*A + eye(size(A'*A)).*(1e-3*max(abs(S(:)))).^2)*A';
-x = A_inv*b;
+%S = svd(A,0);
+%A_inv = pinv(A'*A + eye(size(A'*A)).*(1e-3*max(abs(S(:)))).^2)*A';
+%x = A_inv*b;
 %toc
 
 %tic
-%Caa = A'*A;
-%Cas = A'*b;
-%Caa = Caa + 0.001 * trace(Caa);
-%x = Caa \ Cas;
+Rss = A'*A;
+num_basis = size(Rss,1);
+Rst = A'*b;
+Rss = Rss + eye(num_basis)*0.01 * trace(Rss) / num_basis;
+x = Rss \ Rst;
 %toc
 
 kernel = repmat(kernel_mask,[1 1 size(source_data,3) size(source_data,3)]);
