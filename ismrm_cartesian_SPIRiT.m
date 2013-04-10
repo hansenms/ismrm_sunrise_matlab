@@ -27,6 +27,9 @@ function [img,snr,g,noise_psf] = ismrm_cartesian_SPIRiT(inp,samp_mat,cal,csm,rep
 %   Michael S. Hansen (michael.hansen@nih.gov)
 %
 
+max_iterations = 50;
+limit = 1e-3;
+
 if nargin<5,
     replicas = 100;
 end
@@ -49,9 +52,8 @@ kernel = ismrm_estimate_convolution_kernel(cal, kernel_mask);
 
 padded_kernel = ismrm_transform_kernel_to_image_space(kernel,mat_size);
 
-
 E = @(x,tr) ismrm_system_cartesian_SPIRiT(x,samp_mat,padded_kernel,tr);
-img = lsqr(E, [inp(:);zeros(recon_elements,1)], 1e-5,50);
+img = lsqr(E, [inp(:);zeros(recon_elements,1)], limit,max_iterations);
 img = reshape(img,mat_size(1),mat_size(2),coils);
 
 if (isempty(csm)),
@@ -65,9 +67,9 @@ end
 
 if (nargout > 1),
     if (isempty(csm)),
-        image_formation_func = @(x) sum(abs(reshape(lsqr(E,[x;zeros(recon_elements,1)],1e-3,30),[mat_size(:); coils]')).^2,3);     
+        image_formation_func = @(x) sum(abs(reshape(lsqr(E,[x;zeros(recon_elements,1)],limit,max_iterations),[mat_size(:); coils]')).^2,3);     
     else
-        image_formation_func = @(x) sum(conj(csm) .* reshape(lsqr(E,[x;zeros(recon_elements,1)],1e-3,30),[mat_size(:); coils]'),3) ./ csm_sq;
+        image_formation_func = @(x) sum(conj(csm) .* reshape(lsqr(E,[x;zeros(recon_elements,1)],limit,max_iterations),[mat_size(:); coils]'),3) ./ csm_sq;
     end
     [snr,g,noise_psf] = ismrm_pseudo_replica(inp(:), image_formation_func,replicas);
     if (~isempty(csm)),

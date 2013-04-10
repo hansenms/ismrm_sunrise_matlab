@@ -30,6 +30,10 @@ function [img,snr,g,noise_psf] = ismrm_non_cartesian_sense(inp,k,w,csm,reg,repli
 %   Michael S. Hansen (michael.hansen@nih.gov)
 %
 
+
+max_iterations = 10;
+limit = 1e-3;
+
 if nargin<5,
     reg = [];
 end
@@ -62,11 +66,11 @@ else
     M = M + spdiag(reg_mask(:));
 end
 
-img = lsqr(E, [inp(:) .* repmat(sqrt(w),[size(csm,3),1]); reg_out], 1e-3,30,M);
+img = lsqr(E, [inp(:) .* repmat(sqrt(w),[size(csm,3),1]); reg_out], limit,max_iterations,M);
 img = reshape(img,size(csm,1),size(csm,2));
 
 if (nargout > 1),
-    image_formation_func = @(x) reshape(lsqr(E,[x .* repmat(sqrt(w),[size(csm,3),1]); reg_out],1e-3,30,M),[size(csm,1) size(csm,2)]);
+    image_formation_func = @(x) reshape(lsqr(E,[x .* repmat(sqrt(w),[size(csm,3),1]); reg_out],limit,max_iterations,M),[size(csm,1) size(csm,2)]);
     [snr,g,noise_psf] = ismrm_pseudo_replica(inp(:), image_formation_func,replicas);
     csm_sq = sum(csm .* conj(csm),3); csm_sq(csm_sq < eps) = 1;
     g = g .* sqrt(csm_sq);

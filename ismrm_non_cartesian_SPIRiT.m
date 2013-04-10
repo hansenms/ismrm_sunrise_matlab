@@ -31,6 +31,9 @@ function [img,snr,g,noise_psf] = ismrm_non_cartesian_SPIRiT(inp,k,w,mat_size,cal
 %   Michael S. Hansen (michael.hansen@nih.gov)
 %
 
+max_iterations = 20;
+limit = 1e-3;
+
 if nargin<7,
     replicas = 100;
 end
@@ -62,7 +65,7 @@ nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
 
 
 E = @(x,tr) ismrm_system_non_cartesian_SPIRiT(x,nufft_st,w(:),padded_kernel,tr);
-img_spirit = lsqr(E, [inp(:) .* repmat(sqrt(w(:)),[coils,1]);zeros(recon_elements,1)], 1e-5,50);
+img_spirit = lsqr(E, [inp(:) .* repmat(sqrt(w(:)),[coils,1]);zeros(recon_elements,1)], limit,max_iterations);
 img_spirit = reshape(img_spirit,mat_size(1),mat_size(2),coils);
 
 if (isempty(csm)),
@@ -76,9 +79,9 @@ end
 
 if (nargout > 1),
     if (isempty(csm)),
-        image_formation_func = @(x) sum(abs(reshape(lsqr(E,[x .* repmat(sqrt(w),[coils,1]);zeros(recon_elements,1)],1e-3,30),[mat_size(:); coils]')).^2,3);     
+        image_formation_func = @(x) sum(abs(reshape(lsqr(E,[x .* repmat(sqrt(w),[coils,1]);zeros(recon_elements,1)],limit,max_iterations),[mat_size(:); coils]')).^2,3);     
     else
-        image_formation_func = @(x) sum(conj(csm) .* reshape(lsqr(E,[x .* repmat(sqrt(w),[size(csm,3),1]);zeros(recon_elements,1)],1e-3,30),[mat_size(:); coils]'),3) ./ csm_sq;
+        image_formation_func = @(x) sum(conj(csm) .* reshape(lsqr(E,[x .* repmat(sqrt(w),[size(csm,3),1]);zeros(recon_elements,1)],limit,max_iterations),[mat_size(:); coils]'),3) ./ csm_sq;
     end
     [snr,g,noise_psf] = ismrm_pseudo_replica(inp(:), image_formation_func,replicas);
     if (~isempty(csm)),

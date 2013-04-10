@@ -324,51 +324,6 @@ showimage(noise_psf_pseudo_sense, [2 3 6]); axis off; colorbar;
 colormap(gray);
 set(gcf,'color','w');
 
-%%
-%Non-Cartesian (Radial) SENSE and SPIRiT
-close all;
-acc_factor = 8;
-noise_level = 0.05*max(im1(:));
-
-projections = size(im1,1)/acc_factor;
-[k,w] = ismrm_generate_radial_trajectory(size(im1,1), projections);
-area_weights = pi*(0.5)^2; 
-w = w .* (area_weights/sum(w(:)));
-
-%Prepare NUFFT
-N = [size(im1,1) size(im1,2)];
-J = [5 5];
-K = N*2;
-nufft_st = nufft_init(k*2*pi,N,J,K,N/2,'minmax:kb');
-
-data_radial = nufft(repmat(im1,[1 1 size(smaps,3)]).*smaps,nufft_st)  ./ sqrt(prod(N));
-noise = noise_level*complex(randn(size(data_radial)),randn(size(data_radial)));
-data_noise = data_radial + noise;
-
-dmtx = ismrm_calculate_noise_decorrelation_mtx(noise);
-
-data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
-smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
-
-csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
-
-recon_undersampled = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(data_noise .* repmat(w*prod(K),[1 size(data_noise,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
-
-[img] = ismrm_non_cartesian_sense(data_noise(:),k,w,smaps_prew,[],25);
-%[img,snr,g,noise_psf] = ismrm_non_cartesian_sense(data_noise,k,w,smaps_prew,[],25);
-
-
-[img_spirit]= ismrm_non_cartesian_SPIRiT(data_noise(:),k,w,size(im1),cal_data,smaps_prew,25);
-
-%[img_spirit,snr,g,noise_psf]= ismrm_non_cartesian_SPIRiT(data_noise(:),k,w,size(im1),cal_data,smaps_prew,25);
-
-showimage(abs(im1),[1 4 1]);colorbar;axis off;
-showimage(abs(recon_undersampled),[1 4 2]);colorbar;axis off;
-showimage(abs(img),[1 4 3]);colorbar;axis off;
-showimage(abs(img_spirit),[1 4 4]);colorbar;axis off;
-
-colormap(gray);
-set(gcf,'color','w');
 
 
 
