@@ -53,5 +53,5 @@ end
 ismrm_imshow(cat(3,abs(img_sense_prew{1}), abs(img_sense_prew{2}), abs(img_sense_prew{3}), abs(img_sense{1}), abs(img_sense{2}), abs(img_sense{3})),[],[2 3]);
 ismrm_imshow(cat(3,abs(img_grappa_prew{1}), abs(img_grappa_prew{2}), abs(img_grappa_prew{3}), abs(img_grappa{1}), abs(img_grappa{2}), abs(img_grappa{3})),[],[2 3]);
 
-ismrm_imshow(cat(3,abs(g_sense_prew{1}), abs(g_sense_prew{2}), abs(g_sense_prew{3}), abs(g_sense{1}), abs(g_sense{2}), abs(g_sense{3})),[],[2 3]);colormap(jet);
-ismrm_imshow(cat(3,abs(g_grappa_prew{1}), abs(g_grappa_prew{2}), abs(g_grappa_prew{3}), abs(g_grappa{1}), abs(g_grappa{2}), abs(g_grappa{3})),[],[2 3]);colormap(jet);
+ismrm_imshow(cat(3,abs(g_sense_prew{1}), abs(g_sense_prew{2}), abs(g_sense_prew{3}), abs(g_sense{1}), abs(g_sense{2}), abs(g_sense{3})),[1 5],[2 3]);colormap(jet);
+ismrm_imshow(cat(3,abs(g_grappa_prew{1}), abs(g_grappa_prew{2}), abs(g_grappa_prew{3}), abs(g_grappa{1}), abs(g_grappa{2}), abs(g_grappa{3})),[1 5],[2 3]);colormap(jet);

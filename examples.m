@@ -136,6 +136,12 @@ Rn_broken = Rn;
 figure;
 showimage(Rn_normal / Rn_normal(1),[1 2 1]);caxis([0 2]);colorbar;
 showimage(Rn_broken / Rn_normal(1),[1 2 2]);caxis([0 2]);colorbar;
+
+figure;
+showimage(Rn_broken / Rn_normal(1),[1 2 1]);caxis([0 2]);colorbar;
+showimage(eye(32),[1 2 2]);caxis([0 2]);colorbar;
+
+
 set(gcf,'color','w');
 colormap(jet);
 
@@ -167,89 +173,6 @@ set(gcf,'color','w');
 colormap(jet);
 
 
-%%
-%Simple SENSE with coloured noise
-acc_factor = 4;
-noise_level = 0.05*max(im1(:));
-ncoils = size(smaps,3);
-[data, sp] = ismrm_sample_data(im1, smaps, acc_factor, 32);
-noise_white = noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
-
-noise_mtx{1} = zeros(size(smaps,3)); % No noise
-noise_mtx{2} = eye(size(smaps,3));   % white noise
-noise_mtx{3} = L_normal_8;           % Coil with some correlation
-noise_mtx{4} = L_broken_8;           % Coil with some correlation
-
-figure;
-for n=1:length(noise_mtx),
-    noise_color = reshape(permute(noise_mtx{n} * permute(reshape(noise_white, numel(data)/ncoils,ncoils),[2 1]),[2 1]),size(data));
-
-    data_noise = data + noise_color;
-    
-    if (n > 1),
-        data_prew  = reshape(permute(inv(noise_mtx{n}) * permute(reshape(data_noise, numel(data)/ncoils,ncoils),[2 1]),[2 1]),size(data));
-        smaps_prew  = reshape(permute(inv(noise_mtx{n}) * permute(reshape(smaps, numel(data)/ncoils,ncoils),[2 1]),[2 1]),size(data));
-    else
-        data_prew   = data_noise;
-        smaps_prew  = smaps;
-    end        
-    data_prew       = data_prew * acc_factor;
-    data_noise      = data_noise .* acc_factor;
-
-    img_alias_prew = ismrm_transform_kspace_to_image(data_prew .* repmat(sp == 1 | sp == 3,[1 1 size(smaps,3)]),[1,2]);
-    img_alias_noise = ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps,3)]),[1,2]);
-
-    [unmix_sense, gmap_sense]   = ismrm_calculate_sense_unmixing(acc_factor, smaps);
-    [unmix_sense_prew, gmap_sense_prew]   = ismrm_calculate_sense_unmixing(acc_factor, smaps_prew);
-
-    showimage(sum(img_alias_noise .* unmix_sense,3),[2, length(noise_mtx), n]);axis off;
-    showimage(sum(img_alias_prew .* unmix_sense_prew,3),[2, length(noise_mtx), length(noise_mtx)+n]);axis off;
-end
-
-colormap(gray);
-set(gcf,'color','w');
-
-%%
-%Recon in SNR Units
-acc_factor = 4;
-noise_level = 0.10*max(im1(:));
-ncoils = size(smaps,3);
-[data, sp] = ismrm_sample_data(im1, smaps, acc_factor, 32);
-noise_white = noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
-noise_color = reshape(permute(L_broken_8 * permute(reshape(noise_white, numel(data)/ncoils,ncoils),[2 1]),[2 1]),size(data));
-
-data_noise = data + noise_color;
-
-eta = reshape(noise_color,numel(data)/ncoils,ncoils);
-eta = permute(eta(find(sp > 0),:),[2 1]);
-
-M = size(eta,2);
-Psi = (1/(M-1))*(eta*eta');
-L_inv = inv(chol(Psi,'lower'));
-
-data_prew  = reshape(permute(L_inv * permute(reshape(data_noise, numel(data)/ncoils,ncoils),[2 1]),[2 1]),size(data));
-smaps_prew  = reshape(permute(L_inv * permute(reshape(smaps, numel(data)/ncoils,ncoils),[2 1]),[2 1]),size(data));
-
-data_prew       = data_prew * acc_factor;
-
-img_alias_prew = ismrm_transform_kspace_to_image(data_prew .* repmat(sp == 1 | sp == 3,[1 1 size(smaps,3)]),[1,2]);
-img_alias_noise = ismrm_transform_kspace_to_image(data_noise .* repmat(sp == 1 | sp == 3,[1 1 size(smaps,3)]),[1,2]);
-
-[unmix, gmap]   = ismrm_calculate_sense_unmixing(acc_factor, smaps_prew);
-%[unmix, gmap] = ismrm_calculate_grappa_unmixing(data_noise, [4 5], acc_factor, (sp > 1));
-
-recon = sum(img_alias_prew .* unmix,3);
-showimage(recon,[1 3 1]);colorbar;axis off;
-showimage(gmap,[1 3 2]);colorbar;axis off;
-dv = rssq(unmix,3);dv(dv < 1) = 1;
-showimage(recon ./ dv,[1 3 3]);colorbar;axis off;
-colormap(gray);
-set(gcf,'color','w');
-
-figure;
-showimage(recon ./ dv);colorbar;axis off;
-colormap(gray);
-set(gcf,'color','w');
 
 
 
