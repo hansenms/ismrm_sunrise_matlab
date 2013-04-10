@@ -124,35 +124,6 @@ colormap(gray);
 set(gcf,'color','w');
 
 
-%%
-% SENSE example figures
-close all;
-acc_factor = 2;
-[data, sp] = ismrm_sample_data(im1, smaps, acc_factor);
-[data_full, sp_full] = ismrm_sample_data(im1, smaps, 1);
-img_alias = ismrm_transform_kspace_to_image(data .* repmat(sp > 0,[1 1 size(smaps,3)]), [1,2]);
-
-
-figure;
-showimage(im1,[2 3 1]);axis off;
-showimage(smaps(:,:,1),[2 3 2]);axis off;
-showimage(ismrm_transform_kspace_to_image(data_full(:,:,1)),[2 3 3]);axis off;
-showimage(log(abs(data_full(:,:,1))),[2 3 4]);axis off;
-showimage(log(abs(data(:,:,1))),[2 3 5]);axis off;
-showimage(ismrm_transform_kspace_to_image(data(:,:,1)),[2 3 6]);axis off;
-set(gcf,'color','w');
-colormap(gray);
-
-figure;
-showimage(im1,[2 3 1]);axis off;
-showimage(smaps(:,:,1),[2 3 2]);axis off;
-showimage(ismrm_transform_kspace_to_image(data(:,:,1)),[2 3 3]);axis off;
-
-showimage(im1,[2 3 4]);axis off;
-showimage(smaps(:,:,4),[2 3 5]);axis off;
-showimage(ismrm_transform_kspace_to_image(data(:,:,4)),[2 3 6]);axis off;
-set(gcf,'color','w');
-colormap(gray);
 
 %%
 % Noise covariance
@@ -280,49 +251,6 @@ showimage(recon ./ dv);colorbar;axis off;
 colormap(gray);
 set(gcf,'color','w');
 
-%%
-%Cartesian SENSE with LSQR
-close all;
-acc_factor = 4;
-noise_level = 0.05*max(im1(:));
-
-[data, sp] = ismrm_sample_data(im1, smaps, acc_factor, 32);
-
-noise = noise_level*complex(randn(size(data)),randn(size(data))) .* repmat(sp > 0,[1 1 size(smaps,3)]);
-data_noise = data + noise;
-
-noise = reshape(noise,size(noise,1)*size(noise,2),size(noise,3));
-dmtx = ismrm_calculate_noise_decorrelation_mtx(noise(sp>0,:));
-
-data = ismrm_apply_noise_decorrelation_mtx(data,dmtx);
-data_noise = ismrm_apply_noise_decorrelation_mtx(data_noise,dmtx);
-smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
-
-samp_mat = sp == 3 | sp == 1;
-s = data_noise(repmat(samp_mat,[1 1 size(smaps_prew,3)]));
-
-[img_noise] = ismrm_cartesian_iterative_SENSE(s,samp_mat,smaps_prew,abs(im1)+1,25);
-%[img_noise,snr,g,noise_psf] = ismrm_cartesian_iterative_SENSE(s,samp_mat,smaps_prew,abs(im1)+1,25);
-
-[kx_cal,ky_cal] = ind2sub(size(sp),[find(sp > 1,1,'first') find(sp > 1,1,'last')]);
-cal_data = data_noise(kx_cal(1):kx_cal(2),ky_cal(1):ky_cal(2),:);
-
-[img_spirit_noise] = ismrm_cartesian_SPIRiT(s,samp_mat,cal_data,smaps_prew,25);
-%[img_spirit_noise,snr,g,noise_psf] = ismrm_cartesian_SPIRiT(s,samp_mat,cal_data,smaps_prew,25);
-
-
-[img_sense,gmap_sense,snr_sense,snr_pseudo_sense,gmap_pseudo_sense,noise_psf_pseudo_sense] = ismrm_cartesian_SENSE(data_noise .* repmat(samp_mat,[1 1 size(smaps_prew,3)]),smaps_prew,acc_factor,256);
-[img_sense,gmap_sense,snr_sense,snr_pseudo_sense,gmap_pseudo_sense,noise_psf_pseudo_sense] = ismrm_cartesian_GRAPPA(data_noise,sp,acc_factor,smaps_prew,256);
-
-showimage(img_sense, [2 3 1]);axis off; colorbar;
-showimage(gmap_sense, [2 3 2]); axis off; colorbar;
-showimage(snr_sense, [2 3 3]); axis off; colorbar;
-showimage(snr_pseudo_sense, [2 3 4]); axis off; colorbar;
-showimage(gmap_pseudo_sense, [2 3 5]); axis off; colorbar;
-showimage(noise_psf_pseudo_sense, [2 3 6]); axis off; colorbar;
-
-colormap(gray);
-set(gcf,'color','w');
 
 
 

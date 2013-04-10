@@ -43,7 +43,6 @@ end
 if isempty(tile_shape)
     tile_shape = [1 size(image_matrix,3)];
 end
-
 assert( prod(tile_shape) == size(image_matrix, 3), 'image tile rows x columns must equal the 3rd dim extent of image_matrix');
 
 
