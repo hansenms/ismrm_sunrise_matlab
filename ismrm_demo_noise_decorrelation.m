@@ -15,7 +15,7 @@ L_broken_8 = chol(Rn_broken_8,'lower');
 
 %Some settings
 acc_factor = 4;
-noise_level = 0.10*max(im1(:));
+noise_level = 0.05*max(im1(:));
 pseudo_replicas = 256;
 
 
@@ -50,8 +50,8 @@ for n=1:length(noise_mtx),
 end
 
 
-ismrm_imshow(cat(3,abs(img_sense_prew{1}), abs(img_sense_prew{2}), abs(img_sense_prew{3}), abs(img_sense{1}), abs(img_sense{2}), abs(img_sense{3})),[],[2 3]);
-ismrm_imshow(cat(3,abs(img_grappa_prew{1}), abs(img_grappa_prew{2}), abs(img_grappa_prew{3}), abs(img_grappa{1}), abs(img_grappa{2}), abs(img_grappa{3})),[],[2 3]);
+ismrm_imshow(cat(3,abs(img_sense{1}), abs(img_sense{2}), abs(img_sense{3}),abs(img_sense_prew{1}), abs(img_sense_prew{2}), abs(img_sense_prew{3})),[],[2 3]);
+ismrm_imshow(cat(3,abs(img_grappa{1}), abs(img_grappa{2}), abs(img_grappa{3}),abs(img_grappa_prew{1}), abs(img_grappa_prew{2}), abs(img_grappa_prew{3})),[],[2 3]);
 
-ismrm_imshow(cat(3,abs(g_sense_prew{1}), abs(g_sense_prew{2}), abs(g_sense_prew{3}), abs(g_sense{1}), abs(g_sense{2}), abs(g_sense{3})),[1 5],[2 3]);colormap(jet);
-ismrm_imshow(cat(3,abs(g_grappa_prew{1}), abs(g_grappa_prew{2}), abs(g_grappa_prew{3}), abs(g_grappa{1}), abs(g_grappa{2}), abs(g_grappa{3})),[1 5],[2 3]);colormap(jet);
+ismrm_imshow(cat(3,abs(g_sense{1}), abs(g_sense{2}), abs(g_sense{3}),abs(g_sense_prew{1}), abs(g_sense_prew{2}), abs(g_sense_prew{3})),[1 5],[2 3]);colormap(jet);
+ismrm_imshow(cat(3,abs(g_grappa{1}), abs(g_grappa{2}), abs(g_grappa{3}),abs(g_grappa_prew{1}), abs(g_grappa_prew{2}), abs(g_grappa_prew{3})),[1 5],[2 3]);colormap(jet);
