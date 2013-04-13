@@ -1,4 +1,4 @@
-function noise_covariance_matrix = ismrm_estimate_covariance_matrix(noise_data)
+function n_matrix = ismrm_estimate_covariance_matrix(noise_data)
 %
 %   Estimate covariance matrix from noise samples
 %
@@ -15,8 +15,10 @@ function noise_covariance_matrix = ismrm_estimate_covariance_matrix(noise_data)
 
 nc = size(noise_data, ndims(noise_data));
 
-num_samples = numel(noise_data) / nc
+num_samples = numel(noise_data) / nc;
 
 noise_data_matrix = reshape(noise_data, [num_samples, nc]);
 
-noise_covariance_matrix = noise_data_matrix.' * conj(noise_data_matrix);    
+n_matrix = noise_data_matrix.' * conj(noise_data_matrix);
+n_matrix = n_matrix / (num_samples * 2);
+n_matrix = 0.5 * (n_matrix + n_matrix');

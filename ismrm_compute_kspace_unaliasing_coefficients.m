@@ -39,7 +39,8 @@ end
 num_basis = num_source * num_channel;
 Rss = reshape(Rss, [num_basis num_basis]);
 Rst = reshape(Rst, [num_basis num_channel]);
-w = (Rss + eye(num_basis)*0.01 * trace(Rss) / num_basis ) \ Rst;
+reg_term = 0.001;
+w = (Rss + eye(num_basis).* (reg_term*reg_term * trace(Rss) / num_basis) ) \ Rst;
 
 kernel = repmat(kernel_mask,[1 1 num_channel num_channel]);
 kernel(kernel == 1) = w(:);
