@@ -75,10 +75,18 @@ end
 
 %tic
 S = svd(A,0);
-A_inv = pinv(A'*A + eye(size(A'*A)).*(1e-3*max(abs(S(:)))).^2)*A';
-x = A_inv*b;
+%A_inv = pinv(A'*A + eye(size(A'*A)).*(1e-3*max(abs(S(:)))).^2)*A';
+%x = A_inv*b;
 %toc
 
+
+Rss = A'*A;
+Rst = A'*b;
+num_basis = size(Rss,1);
+regTerm1 = eye(num_basis) .*(1e-3*max(abs(S(:)))).^2;
+regTerm2 = eye(num_basis)* 0.00001 * trace(Rss) / num_basis;
+fprintf('reg term ratio: %d\n', regTerm1(1,1)/regTerm2(1,1));
+x = (Rss + regTerm2 ) \ Rst;
 %tic
 %Caa = A'*A;
 %Cas = A'*b;

@@ -10,7 +10,7 @@ end
 
 csm_matrix = reshape(csm, [nx*ny nc]);
 
-relative_ccm = conj(csm_matrix) * noise_matrix;
+relative_ccm = conj(csm_matrix) * pinv(noise_matrix);
 
 ccm = relative_ccm ./ repmat(sum(relative_ccm .* csm_matrix, 2), [1 nc]);
 
