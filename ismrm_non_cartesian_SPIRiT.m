@@ -31,7 +31,7 @@ function [img,snr,g,noise_psf] = ismrm_non_cartesian_SPIRiT(inp,k,w,mat_size,cal
 %   Michael S. Hansen (michael.hansen@nih.gov)
 %
 
-max_iterations = 20;
+max_iterations = 100;
 limit = 1e-3;
 
 if nargin<7,

@@ -1,4 +1,4 @@
-function [img,snr,g,noise_psf] = ismrm_non_cartesian_sense(inp,k,w,csm,reg,replicas)
+function [img,snr,g,noise_psf] = ismrm_non_cartesian_sense(inp,k,w,csm,reg,lambda,replicas)
 %
 %   [img,snr,g,noise_psf] = ismrm_non_cartesian_sense(inp,k,w,csm,replicas)
 %
@@ -15,6 +15,7 @@ function [img,snr,g,noise_psf] = ismrm_non_cartesian_sense(inp,k,w,csm,reg,repli
 %     - w           [nsamples]           : vector of gridding weights
 %     - csm         [x,y,coil]           : Coil sensitivities 
 %     - reg         [x,y]                : Image space regularization mask
+%     - lambda      scalar               : regularization factor
 %     - replicas    scalar (dafault 100) : Number of replicas to run if SNR
 %                                          is requested
 %
@@ -31,7 +32,7 @@ function [img,snr,g,noise_psf] = ismrm_non_cartesian_sense(inp,k,w,csm,reg,repli
 %
 
 
-max_iterations = 10;
+max_iterations = 20;
 limit = 1e-3;
 
 if nargin<5,
@@ -39,6 +40,10 @@ if nargin<5,
 end
 
 if nargin<6,
+    lambda = 1;
+end
+
+if nargin<7,
     replicas = 100;
 end
 
@@ -61,7 +66,7 @@ else
     reg_mask = 1./reg;
     reg_mask = reg_mask * (numel(reg_mask)/sum(reg_mask(:)));
     E_base = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,csm,nufft_st,w,tr);
-    E = @(x,tr) regularized_E(x,E_base,reg_mask,tr);
+    E = @(x,tr) regularized_E(x,E_base,reg_mask,lambda,tr);
     reg_out = zeros(numel(reg_mask),1);
     M = M + spdiag(reg_mask(:));
 end
@@ -78,13 +83,13 @@ end
 
 return
 
-function out = regularized_E(x,E,reg_mask,transpose_indicator)
+function out = regularized_E(x,E,reg_mask,lambda,transpose_indicator)
     numimgel = length(reg_mask(:));
     if (strcmp(transpose_indicator,'transp')),
         numkel = length(x(:))-numimgel;
-        out = E(x(1:numkel),transpose_indicator) + reg_mask(:).*x((numkel+1):end);
+        out = E(x(1:numkel),transpose_indicator) + lambda*reg_mask(:).*x((numkel+1):end);
     elseif (strcmp(transpose_indicator, 'notransp')),
-        out = [E(x,transpose_indicator);reg_mask(:).*x];
+        out = [E(x,transpose_indicator);lambda*reg_mask(:).*x];
     else
         error('Transpose flag not appropriately defined');
     end

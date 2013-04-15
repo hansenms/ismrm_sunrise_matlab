@@ -1,6 +1,5 @@
 %%
-% Simple demo of non-Cartesian parallel imaging using the iteratieve SENSE
-% and SPIRiT methods
+% Simple demo of non-Cartesian parallel imaging with regularization
 
 %%
 %Load Data
@@ -12,11 +11,10 @@ load smaps_phantom.mat
 
 %Some settings
 acc_factor = 4;
-noise_level = 0.05*max(im1(:));
+noise_level = 0.30*max(im1(:));
 trajectory = 'spiral';
-pseudo_replicas = 0; %zero means no pseudo replicas will be done. 
-
-
+pseudo_replicas = 100; %zero means no pseudo replicas will be done. 
+lambda = 1.2; %Regularization
 
 %%
 % Simlate data
@@ -63,22 +61,19 @@ reg_img = abs(reg_img)+1;
 
 %%
 % Reconstruct undersampled data
-csm_sq = sum(smaps_prew .* conj(smaps_prew),3); csm_sq(csm_sq < eps) = 1;
-recon_undersampled = (sqrt(numel(w(:))/prod(K)))*(sum(conj(smaps_prew).*nufft_adj(data .* repmat(w*prod(K),[1 size(data,2)]),nufft_st),3) ./ csm_sq) ./ sqrt(prod(K));
-cal_data = ismrm_transform_image_to_kspace(smaps_prew,[1,2]);
 
 if (pseudo_replicas > 1),
-    [img_sense,snr_sense,g_sense,noise_psf_sense] = ismrm_non_cartesian_sense(data,k,w,smaps_prew,reg_img,pseudo_replicas);
-    [img_spirit,snr_spirit,g_spirit,noise_psf_spirit]= ismrm_non_cartesian_SPIRiT(data(:),k,w,size(im1),cal_data,smaps_prew,pseudo_replicas);
+    [img_reg,snr_reg,g_reg,noise_psf_reg] = ismrm_non_cartesian_sense(data,k,w,smaps_prew,reg_img,lambda,pseudo_replicas);
+    [img_sense,snr_sense,g_sense,noise_psf_sense] = ismrm_non_cartesian_sense(data,k,w,smaps_prew,[],lambda,pseudo_replicas);
 else
-    [img_sense] = ismrm_non_cartesian_sense(data(:),k,w,smaps_prew,reg_img);
-    [img_spirit]= ismrm_non_cartesian_SPIRiT(data(:),k,w,size(im1),cal_data,smaps_prew);
+    [img_reg] = ismrm_non_cartesian_sense(data(:),k,w,smaps_prew,reg_img,lambda);
+    [img_sense] = ismrm_non_cartesian_sense(data(:),k,w,smaps_prew,[],lambda);
 end
 
-ismrm_imshow(cat(3,abs(recon_undersampled), abs(img_sense), abs(img_spirit))); colormap(gray);
+ismrm_imshow(cat(3,abs(img_sense), abs(img_reg))); colormap(gray);
 if (pseudo_replicas > 1),
-    ismrm_imshow(cat(3,abs(snr_sense), abs(snr_spirit))); colormap(gray);
-    ismrm_imshow(cat(abs(g_sense), abs(g_spirit))); colormap(gray);    
+    ismrm_imshow(cat(3,abs(snr_sense), abs(snr_reg))); colormap(gray);
+    ismrm_imshow(cat(3,abs(g_sense), abs(g_reg))); colormap(jet);    
 end
 
 
