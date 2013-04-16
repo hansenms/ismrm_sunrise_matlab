@@ -13,8 +13,9 @@ load smaps_phantom.mat
 acc_factor = 4;
 noise_level = 0.30*max(im1(:));
 trajectory = 'spiral';
-pseudo_replicas = 100; %zero means no pseudo replicas will be done. 
-lambda = 1.2; %Regularization
+pseudo_replicas = 0; %zero means no pseudo replicas will be done. 
+lambda = [1.2]; %Regularization
+%lambda = [0.1 0.5 0.8 1.0 1.2 1.5 2.0 5.0]; %Regularization
 
 %%
 % Simlate data
@@ -66,15 +67,20 @@ if (pseudo_replicas > 1),
     [img_reg,snr_reg,g_reg,noise_psf_reg] = ismrm_non_cartesian_sense(data,k,w,smaps_prew,reg_img,lambda,pseudo_replicas);
     [img_sense,snr_sense,g_sense,noise_psf_sense] = ismrm_non_cartesian_sense(data,k,w,smaps_prew,[],lambda,pseudo_replicas);
 else
-    [img_reg] = ismrm_non_cartesian_sense(data(:),k,w,smaps_prew,reg_img,lambda);
+    for la=1:length(lambda),
+        [img_reg(:,:,la)] = ismrm_non_cartesian_sense(data(:),k,w,smaps_prew,reg_img,lambda(la));
+    end
     [img_sense] = ismrm_non_cartesian_sense(data(:),k,w,smaps_prew,[],lambda);
 end
 
-ismrm_imshow(cat(3,abs(img_sense), abs(img_reg))); colormap(gray);
+ismrm_imshow(cat(3,abs(img_sense), abs(img_reg(:,:,1)))); colormap(gray);
 if (pseudo_replicas > 1),
     ismrm_imshow(cat(3,abs(snr_sense), abs(snr_reg))); colormap(gray);
     ismrm_imshow(cat(3,abs(g_sense), abs(g_reg))); colormap(jet);    
 end
 
+if (length(lambda) > 1),
+    ismrm_imshow(abs(img_reg),[],[2 4]); colormap(gray);
+end
 
 
