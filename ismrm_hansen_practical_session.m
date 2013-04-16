@@ -137,5 +137,25 @@ ismrm_imshow(abs(gmap)); colormap(jet); colorbar;
 
 
 %% Pseudo Replica Method
+%
+% What if we didn't have access to the unmixing coefficients directly?
+% We can obtain SNR scaled reconstructions using the pseudo replica method.
+% 
+
+for r=1:100,
+    noise_white = complex(randn(size(data)),randn(size(data)));
+    noise_white = noise_white.*repmat(smask,[1 1 ncoils]);
+    s = data_prew + noise_white;
+    tmp = sqrt(acc_factor).*ismrm_transform_kspace_to_image(s .* repmat(smask,[1 1 ncoils]),[1,2]);
+    img_noise_rep(:,:,r) = sum(tmp .* unmix_prew,3);
+end
+
+g_pseudo = std(abs(img_noise_rep + max(abs(img_noise_rep(:)))),[],3); 
+g_pseudo(g_pseudo < eps) = 1;
+snr_pseudo = mean(img_noise_rep,3)./g_pseudo;
+g_pseudo = g_pseudo.*sqrt(sum(abs(smaps_prew).^2,3));
+ismrm_imshow([abs(img_snr) abs(snr_pseudo)]); colorbar;
+ismrm_imshow([abs(gmap) abs(g_pseudo)]); colormap(jet); colorbar;
+
 
 %% Iterative Non-Cartesian SENSE
