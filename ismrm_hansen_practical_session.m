@@ -101,10 +101,10 @@ noise_white = noise_white.*repmat(smask,[1 1 ncoils]);
 noise_test = ismrm_transform_kspace_to_image(noise_white,[1,2]);
 
 %%
-% Get the standard deviation, we add a large value to simulate a high SNR
-% situation.
+% Get the standard deviation
 % 
-sd = std(abs(noise_test(:) + 1000))
+
+sd = std(real(noise_test(:)))
 
 %%
 % As we can see the noise level is now about half of what it is supposed to
@@ -116,7 +116,7 @@ sd = std(abs(noise_test(:) + 1000))
 noise_test = sqrt(acc_factor)*ismrm_transform_kspace_to_image(noise_white,[1,2]);
 
 %Now the standard deviation
-sd = std(abs(noise_test(:) + 1000))
+sd = std(real(noise_test(:)))
 
 %%
 % By scaling by the acceleration factor we have maintained unit noise
@@ -159,3 +159,59 @@ ismrm_imshow([abs(gmap) abs(g_pseudo)]); colormap(jet); colorbar;
 
 
 %% Iterative Non-Cartesian SENSE
+% 
+% Now let's look at non-Cartesian imaging. A spiral dataset is included in
+% the example dataset. 
+
+%%
+% First we noise pre-whiten
+dmtx = ismrm_calculate_noise_decorrelation_mtx(noise_spiral);
+data_spiral = ismrm_apply_noise_decorrelation_mtx(data_spiral,dmtx);
+smaps_prew = ismrm_apply_noise_decorrelation_mtx(smaps,dmtx);
+
+%%
+% Then let us inspect the undersampled data
+
+%Prepare NUFFT
+N = [size(smaps,1) size(smaps,2)];
+J = [5 5];
+K = N*2;
+
+nufft_st = nufft_init(k_spiral*2*pi,N,J,K,N/2,'minmax:kb');
+recon_undersampled = nufft_adj(data_spiral .* repmat(w_spiral,[1 size(data_spiral,2)]),nufft_st);
+ismrm_imshow(abs(recon_undersampled),[],[2 4]);
+
+%%
+% Low let's set up the non-Cartesian reconstruction
+% First we need an encoding function to feed into LSQR:
+
+dbtype ismrm_encoding_non_cartesian_SENSE.m
+
+%%
+% Now let's set up the LSQR solver using this function
+
+w = w_spiral*prod(K);
+E = @(x,tr) ismrm_encoding_non_cartesian_SENSE(x,smaps_prew,nufft_st,w,tr);
+
+img_spiral = lsqr(E, data_spiral(:) .* repmat(sqrt(w),[size(smaps_prew,3),1]),1e-3,50);
+img_spiral = reshape(img_spiral,size(smaps_prew,1),size(smaps_prew,2));
+
+ismrm_imshow(abs(img_spiral));
+
+%%
+% This functionality is encapsulated in the |ismrm_non_cartesian_sense.m|
+% function. 
+
+help ismrm_non_cartesian_sense
+
+%% 
+% To reconstruct using this function use:
+
+img_spiral2 = ismrm_non_cartesian_sense(data_spiral(:),k_spiral,w_spiral,smaps_prew);
+
+ismrm_imshow(cat(3,abs(img_spiral),abs(img_spiral2)));
+
+%%
+% For a demo on regularized non-Cartesian parallel imaging look in
+% |ismrm_demo_regularization_iterative_sense.m|
+
