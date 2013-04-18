@@ -3,6 +3,7 @@
 % This document contains the second set of practical exercises for the
 % ISMRM course on parallel imaging.
 
+
 %% Excercise Data
 % All the data used in this set of exercises can be found in the file
 % hansen_exercises.mat.
@@ -215,3 +216,27 @@ ismrm_imshow(cat(3,abs(img_spiral),abs(img_spiral2)));
 % For a demo on regularized non-Cartesian parallel imaging look in
 % |ismrm_demo_regularization_iterative_sense.m|
 
+
+%% Additional Demos
+% 
+% * |ismrm_demo_cartesian_snr_units.m|
+%
+% Reconstruction in SNR units using Cartesian data
+%
+% * |ismrm_demo_iterative_cartesian.m| 
+%
+% Cartesian iterative reconstruction. Demonstrates both SENSE and SPIRiT
+% reconstruction techniques
+% 
+% * |ismrm_demo_noise_decorrelation.m|
+% 
+% Demonstration of the effects of noise decorrelation.
+%
+% *|ismrm_demo_regularization_iterative_sense.m|
+%
+% Demonstration of the effects of regularization in non-Cartesian parallel
+% imaging
+%
+% * |ismrm_demo_non_cartesian.m|
+% 
+% Demonstration of non-Cartesian parallel imaging with SENSE and SPIRiT
