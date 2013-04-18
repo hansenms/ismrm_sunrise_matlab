@@ -36,6 +36,15 @@ if isempty(noise_matrix),
     noise_matrix = eye(size(unmixing,3));
 end
 
-accel_na = ismrm_calculate_noise_amplification(unmixing, noise_matrix); 
-full_na  = ismrm_calculate_noise_amplification(ccm, noise_matrix);
-gmap = accel_na ./ (full_na .* acc_factor);    
+nx = size(unmixing,1);
+ny = size(unmixing,2);
+
+accel_na = vec(ismrm_calculate_noise_amplification(unmixing, noise_matrix)); 
+full_na  = vec(ismrm_calculate_noise_amplification(ccm, noise_matrix));
+
+nonzero_ind = full_na > 0;
+
+gmap = zeros(size(full_na));
+gmap(nonzero_ind) = accel_na(nonzero_ind) ./ (full_na(nonzero_ind) .* acc_factor); 
+
+gmap = reshape(gmap, [nx ny]);

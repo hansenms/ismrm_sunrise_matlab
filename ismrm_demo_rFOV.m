@@ -73,9 +73,9 @@ jer_lookup_md = ismrm_compute_jer_model_driven(cal_im, kernel_shape);
 num_recons = 5;
 titles = {'SENSE true csm', 'SENSE walsh csm', 'SENSE mckenzie csm', 'PARS', 'GRAPPA'};
 unmix = zeros([im_shape ncoils num_recons]);
-unmix(:,:,:,1) = ismrm_calculate_sense_unmixing(acc_factor, csm_true, Rn);
-unmix(:,:,:,2) = ismrm_calculate_sense_unmixing(acc_factor, csm_walsh, Rn);
-unmix(:,:,:,3) = ismrm_calculate_sense_unmixing(acc_factor, csm_mckenzie, Rn);
+unmix(:,:,:,1) = ismrm_calculate_sense_unmixing(acc_factor, csm_true, Rn) .* acc_factor;
+unmix(:,:,:,2) = ismrm_calculate_sense_unmixing(acc_factor, csm_walsh, Rn) .* acc_factor;
+unmix(:,:,:,3) = ismrm_calculate_sense_unmixing(acc_factor, csm_mckenzie, Rn) .* acc_factor;
 unmix(:,:,:,4) = ismrm_calculate_jer_unmixing(jer_lookup_md, acc_factor, ccm_mckenzie, 0.001, true);
 unmix(:,:,:,5) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0.001, true);
 

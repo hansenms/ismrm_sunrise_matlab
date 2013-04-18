@@ -35,10 +35,10 @@ for a_ind = 1:acc_factor,
 
     im_hat = abs(sum(im_alias .* unmix_im, 3)) ./ acc_factor;
 
-    im_start = zeros(im_shape);
-    im_start(:,signal_ind) = pixel_mask(:,signal_ind);
-    ismrm_imshow(im_start, [0 1]);
-    ismrm_imshow(im_hat, [0 .1]);
+%    im_start = zeros(im_shape);
+%    im_start(:,signal_ind) = pixel_mask(:,signal_ind);
+%    ismrm_imshow(im_start, [0 1]);
+%    ismrm_imshow(im_hat, [0 .1]);
 
     im_hat(:,signal_ind) = 0;
     aem = aem + im_hat.^2;

@@ -70,8 +70,10 @@ for index = 1:n_blocks
     if max(abs(A(:))) > 0,  
 %        unmix1d(index:n_blocks:ny, :) = pinv(A);
         AHA = A'*noise_matrix_inv * A;
-        scaled_reg_factor = regularization_factor.^2 * trace(AHA)/size(AHA,1);
-        unmix1d(index:n_blocks:ny, :) = pinv(AHA + eye(size(AHA,1)) * scaled_reg_factor) * A' * noise_matrix_inv;
+        reduced_eye = diag(abs(diag(AHA))>0);
+        n_alias = sum(reduced_eye(:));
+        scaled_reg_factor = regularization_factor * trace(AHA)/n_alias;
+        
+        unmix1d(index:n_blocks:ny, :) = pinv(AHA + reduced_eye .* scaled_reg_factor) * A' * noise_matrix_inv;
     end
 end
-
