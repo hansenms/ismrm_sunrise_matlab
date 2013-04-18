@@ -3,7 +3,7 @@
 close all;
 clear all
 
-num_cal_lines = 8;
+num_cal_lines = 20;
 acc_factor = 2;
 kernel_shape = [5 3];
 
@@ -19,7 +19,7 @@ channel_im = smaps .* repmat(im1, [1 1 ncoils]);
 
 %%
 % create accelerated data
-noise_level = 0.01*max(im1(:));
+noise_level = 0.05*max(im1(:));
 data = ismrm_transform_image_to_kspace(channel_im, [1 2]);
 data = data + noise_level*complex(randn(size(data)),randn(size(data)));
 % halve FOV
@@ -61,24 +61,24 @@ jer_lookup_md = ismrm_compute_jer_model_driven(cal_im, kernel_shape);
 
 
 
-unmix_grappa = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm, 0.0001, true);
-unmix_pars   = ismrm_calculate_jer_unmixing(jer_lookup_md, acc_factor, ccm, 0.0001, true);
-unmix_sense = ismrm_calculate_sense_unmixing(acc_factor, csm);
+unmix_grappa = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm, 0.000, true);
+unmix_grappa2   = ismrm_calculate_jer_unmixing(jer_lookup_md, acc_factor, ccm, 0.0001, true);
+%unmix_sense = ismrm_calculate_sense_unmixing(acc_factor, csm);
 %unmix_grappa2 = ismrm_calculate_grappa_unmixing(data_accel, [5 4], acc_factor, (sp>1), csm);
 
-num_images = 4;
+num_images = 3;
 m_array = zeros([im_shape num_images]);
 m_array(:,:,1)   = abs(sum(im_full .* ccm, 3));
 m_array(:,:,2) = abs(sum(im_alias .* unmix_grappa,3));
-m_array(:,:,3) = abs(sum(im_alias .* unmix_pars,3));
-m_array(:,:,4) = abs(sum(im_alias .* unmix_sense,3));
+m_array(:,:,3) = abs(sum(im_alias .* unmix_grappa2,3));
+%m_array(:,:,4) = abs(sum(im_alias .* unmix_sense,3));
 %m_array(:,:,5) = abs(sum(im_alias .* unmix_grappa2,3));
 
 titles = {'unaccelerated', 'grappa', 'pars', 'sense'};
-ismrm_imshow(m_array, [], [2 2], titles);
+ismrm_imshow(m_array);
 
 diff_array = abs(m_array - repmat(m_array(:,:,1), [1 1 num_images]));
-ismrm_imshow(diff_array, [], [], titles);
+ismrm_imshow(diff_array, [], []);% titles);
 %ismrm_imshow(m_grappa);
 %ismrm_imshow(m_pars);
 %ismrm_imshow(m_sense);

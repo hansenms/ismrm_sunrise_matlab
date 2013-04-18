@@ -3,9 +3,9 @@ function n_matrix = ismrm_estimate_covariance_matrix(noise_data)
 %   Estimate covariance matrix from noise samples
 %
 %    INPUT:
-%        TODO
+%        noise_data [samples, coils] : zero mean gaussian complex noise samples
 %    OUTPUT:
-%        TODO
+%        n_matrix [coils, coils] : estimate of the noise covariance matrix
 % 
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
 % 

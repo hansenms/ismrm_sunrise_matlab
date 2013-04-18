@@ -86,13 +86,17 @@ num_basis = size(Rss,1);
 regTerm1 = eye(num_basis) .*(1e-3*max(abs(S(:)))).^2;
 regTerm2 = eye(num_basis)* 0.00001 * trace(Rss) / num_basis;
 fprintf('reg term ratio: %d\n', regTerm1(1,1)/regTerm2(1,1));
-x = (Rss + regTerm2 ) \ Rst;
-%tic
-%Caa = A'*A;
-%Cas = A'*b;
-%Caa = Caa + 0.001 * trace(Caa);
-%x = Caa \ Cas;
-%toc
+x = (Rss + regTerm1 ) \ Rst;
+
+%%
+svals = svd(Rss);
+rt = diag(regTerm1);
+figure; semilogy(svals);
+hold on; plot(rt, 'r'); title('eigenvalues');
+
+figure; semilogy(1./ svals);
+hold on; semilogy(1./ (svals + rt), 'r'); title('amplification');
+
 
 kernel = repmat(kernel_mask,[1 1 size(source_data,3) size(source_data,3)]);
 kernel(kernel == 1) = x(:);
