@@ -1,5 +1,34 @@
-function gmap = ismrm_calculate_gmap(unmixing, ccm, noise_matrix)
-
+function gmap = ismrm_calculate_gmap(unmixing, ccm, noise_matrix, acc_factor)
+%
+%  ismrm_calculate_gmap(unmixing, ccm, noise_matrix, acc_factor)
+%
+%  Computes g-factor map (relative noise enhancement between unaccelerated
+%  and accelerated case normalized by scan time.
+%
+%  N.B. This function assumes that unmixing operates on aliased images
+%  formed from data that is scaled the same as the fully sampled case, but
+%  with (R-1)/R of the data set to zero.  As such, std dev. noise of fully
+%  sampled channel-by-channel images = sqrt(R) * std dev. noise of
+%  channel-by-channel aliased images.  This is accounted for by dividing by
+%  R in this function instead of sqrt(R).  When the unmixing and ccm are
+%  applied to the accelerated and fully sampled data, the final images
+%  should be scaled identically.
+%
+%  INPUT:
+%    - unmixing [x,y, coil]     : unmixing images for accelerated case.
+%    - ccm [x,y,coil]           : channel combination maps
+%    - noise_matrix [coil,coil] : noise covariance matrix
+%    - acc_factor [int]      : acceleration factor corresponding to
+%                              unmixing
+%
+%  OUTPUT:
+%    - gmap [x,y]             : g-factor map
+%
+%   Code made available for the ISMRM 2013 Sunrise Educational Course
+% 
+%   Michael S. Hansen (michael.hansen@nih.gov)
+%   Philip J. Beatty (philip.beatty@sri.utoronto.ca)
+%
 if nargin < 3,
     noise_matrix = [];
 end
@@ -9,4 +38,4 @@ end
 
 accel_na = ismrm_calculate_noise_amplification(unmixing, noise_matrix); 
 full_na  = ismrm_calculate_noise_amplification(ccm, noise_matrix);
-gmap = accel_na ./ full_na;    
+gmap = accel_na ./ (full_na .* acc_factor);    

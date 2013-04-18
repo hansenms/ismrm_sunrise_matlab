@@ -1,5 +1,41 @@
-function kernel = ismrm_compute_kspace_unaliasing_coefficients(jer_lookup, kernel_mask)
+function kernel = ismrm_compute_kspace_unaliasing_coefficients(jer_lookup, kernel_mask, regularization_scale)
+%
+%   kernel = ismrm_compute_kspace_unaliasing_coefficients(jer_lookup, kernel_mask, regularization_scale)
+%   
+%   Compute kspace unaliasing coefficients from joint encoding relations.
+%
+%
+%   INPUT:
+%       jer_lookup [kx,ky,coil, kx, ky, coil] : joint encoding relations lookup table
+%       kernel_mask [kx,ky]        : e.g [1 1 1; 0 0 0; 1 1 1] for a 3x3
+%                                    kernel with an acceleration factor of
+%                                    2.
+%       regularization_scale       : amount of Tychonov regularization to
+%                                    apply.
+%                                    0 (default) = no regularization.
+%                                    0.001 moderate regularization
+%                                    higher value for more regularization.
+%
+%
+%   OUTPUT:
+%       kernel [kx, ky, num_source_coils, num_target_coils] : k-space
+%                 unaliasing kernels (for uniform undersampling pattern)
+%
+%
+%   Code made available for the ISMRM 2013 Sunrise Educational Course
+% 
+%   Michael S. Hansen (michael.hansen@nih.gov)
+%   Philip J. Beatty (philip.beatty@sri.utoronto.ca)
+%
+if nargin < 3,
+    regularization_scale = [];
+end
 
+if isempty(regularization_scale)
+    regularization_scale = 0.0;
+end
+
+assert( regularization_scale >= 0, 'regularization_scale must be positive');
 
 [kx_offsets, ky_offsets] = ind2sub(size(kernel_mask), find(kernel_mask == 1));
 
@@ -38,9 +74,21 @@ end
 
 num_basis = num_source * num_channel;
 Rss = reshape(Rss, [num_basis num_basis]);
+
+%%
+svals = svd(Rss);
+%svals = svals / max(svals);
+regThreshold = ones(size(svals)) .* regularization_scale * mean(svals);
+figure; semilogy(svals);
+hold on; plot(regThreshold, 'r'); title('eigenvalues');
+
+figure; semilogy(1./ svals);
+hold on; semilogy(1./ (svals + regThreshold), 'r'); title('amplification');
+
+%%
 Rst = reshape(Rst, [num_basis num_channel]);
-reg_term = 0.001;
-w = (Rss + eye(num_basis).* (reg_term*reg_term * trace(Rss) / num_basis) ) \ Rst;
+
+w = (Rss + eye(num_basis).* (regularization_scale * trace(Rss) / num_basis) ) \ Rst;
 
 kernel = repmat(kernel_mask,[1 1 num_channel num_channel]);
 kernel(kernel == 1) = w(:);

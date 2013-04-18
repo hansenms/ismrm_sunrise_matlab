@@ -35,7 +35,7 @@ function jer_lookup = ismrm_compute_jer_data_driven(cal_data, kernel_shape)
 %
 assert(nargin==2, '2 arguments needed');
 assert(ndims(cal_data)==3, 'cal_data must have 3 dimensions');
-assert(ndims(kernel_shape)==1 && length(kernel_shape)==2, 'kernel_shape must be a length 2 vector');
+assert(length(kernel_shape)==2, 'kernel_shape must be a length 2 vector');
 
 nc = size(cal_data, 3);
 cal_shape = [size(cal_data,1) size(cal_data,2)];

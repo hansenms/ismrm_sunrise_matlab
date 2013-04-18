@@ -3,9 +3,9 @@
 close all;
 clear all
 
-num_cal_lines = 32;
-acc_factor = 4;
-kernel_shape = [5 7];
+num_cal_lines = 8;
+acc_factor = 2;
+kernel_shape = [5 3];
 
 
 %%
@@ -54,15 +54,15 @@ ccm = ismrm_compute_ccm(csm) .* (1.0/acc_factor);
 fprintf('computing jer lookup\n')
 
 
-jer_lookup_dd = compute_jer_data_driven(cal_data, kernel_shape);
+jer_lookup_dd = ismrm_compute_jer_data_driven(cal_data, kernel_shape);
 %jer_lookup_dd = jer_ref(cal_data, kernel_shape);
 cal_im = ismrm_transform_kspace_to_image(cal_data, [1,2], 2 * size(cal_data));
-jer_lookup_md = compute_jer_model_driven(cal_im, kernel_shape);
+jer_lookup_md = ismrm_compute_jer_model_driven(cal_im, kernel_shape);
 
 
 
-unmix_grappa = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm, true);
-unmix_pars   = ismrm_calculate_jer_unmixing(jer_lookup_md, acc_factor, ccm, true);
+unmix_grappa = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm, 0.0001, true);
+unmix_pars   = ismrm_calculate_jer_unmixing(jer_lookup_md, acc_factor, ccm, 0.0001, true);
 unmix_sense = ismrm_calculate_sense_unmixing(acc_factor, csm);
 %unmix_grappa2 = ismrm_calculate_grappa_unmixing(data_accel, [5 4], acc_factor, (sp>1), csm);
 
