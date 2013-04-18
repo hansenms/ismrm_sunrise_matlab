@@ -1,7 +1,7 @@
 function ismrm_imshow(image_matrix, scale, tile_shape, titles)
 %
 %  ismrm_imshow(image_matrix, [low high], [image_tile_rows
-%  image_tile_columns]
+%  image_tile_columns], titles )
 %
 %  Displays a collection of images in a tiled figure
 %
@@ -11,6 +11,8 @@ function ismrm_imshow(image_matrix, scale, tile_shape, titles)
 %    - [low high]      : low displays as black, high as white
 %    - [image_tile_rows image_tile_columns] : specifies how to tile
 %                                             subimages in display
+%    - titles  : {'title1', 'title2',...}
+%
 %
 %
 %   Code made available for the ISMRM 2013 Sunrise Educational Course
