@@ -3,9 +3,11 @@
 close all;
 clear all
 
-acc_factor = 4;
+acc_factor = 2;
 cal_noise_scale = 0.05;
 accel_noise_scale = 0.05;
+cal_shape = [64 6];
+kernel_shape = [5 3];
 
 %%
 %Load Image & Sensitivity Maps
@@ -14,7 +16,7 @@ load im1.mat
 load smaps_phantom.mat
 load noise_covariances.mat
 %smaps = smaps(:,:,1:2:end);
-%im1 = im1.';
+im1 = im1.';
 
 ncoils = size(smaps,3);
 Rn = eye(ncoils);
@@ -27,7 +29,7 @@ pixel_mask = sum(abs(smaps),3) > 0;
 %%
 % Create Calibration Data
 fprintf('Calibrating - Creating Calibration Data\n');
-cal_shape = [64 64];
+
 channel_im = smaps .* repmat(im1, [1 1 ncoils]);
 cal_data = ismrm_transform_image_to_kspace(channel_im, [1 2], cal_shape);
 noise = cal_noise_scale * max(im1(:)) * ismrm_generate_correlated_noise(cal_shape, Rn);
@@ -55,22 +57,22 @@ ccm_walsh = ismrm_compute_ccm(csm_walsh);
 %%
 % Calibrate
 fprintf('Calibrating - Generating Unmixing Images\n');
-kernel_shape = [5 7];
 jer_lookup_dd = ismrm_compute_jer_data_driven(cal_data, kernel_shape);
-ccm_mckenzie = ismrm_compute_ccm(csm_mckenzie, Rn);
+jer_lookup_md1 = ismrm_compute_jer_model_driven(cal_im, kernel_shape);
 
-num_recons = 8;
-titles = {'SENSE true csm', 'SENSE ture csm reg','SENSE mckenzie csm', 'SENSE mckenzie reg','SENSE walsh csm', 'SENSE walsh reg','GRAPPA no reg', 'GRAPPA reg'};
+unfiltered_cal_im = ismrm_transform_kspace_to_image(cal_data, [1,2], 2 * size(cal_data));
+jer_lookup_md2 = ismrm_compute_jer_model_driven(unfiltered_cal_im, kernel_shape);
+
+num_recons = 6;
+titles = {'SENSE true csm', 'SENSE mckenzie csm', 'SENSE walsh csm', 'PARS filtered cal im', 'PARS unfiltered cal im', 'GRAPPA'};
 
 unmix = zeros([imsize ncoils num_recons]);
 unmix(:,:,:,1) = ismrm_calculate_sense_unmixing(acc_factor, csm_true, Rn, 0) .* acc_factor;
-unmix(:,:,:,2) = ismrm_calculate_sense_unmixing(acc_factor, csm_true, Rn, 0.005) .* acc_factor;
-unmix(:,:,:,3) = ismrm_calculate_sense_unmixing(acc_factor, csm_mckenzie, Rn, 0) .* acc_factor;
-unmix(:,:,:,4) = ismrm_calculate_sense_unmixing(acc_factor, csm_mckenzie, Rn, 0.005) .* acc_factor;
-unmix(:,:,:,5) = ismrm_calculate_sense_unmixing(acc_factor, csm_walsh, Rn, 0) .* acc_factor;
-unmix(:,:,:,6) = ismrm_calculate_sense_unmixing(acc_factor, csm_walsh, Rn, 0.005) .* acc_factor;
-unmix(:,:,:,7) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0, false);
-unmix(:,:,:,8) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0.001, false);
+unmix(:,:,:,2) = ismrm_calculate_sense_unmixing(acc_factor, csm_mckenzie, Rn, 0) .* acc_factor;
+unmix(:,:,:,3) = ismrm_calculate_sense_unmixing(acc_factor, csm_walsh, Rn, 0) .* acc_factor;
+unmix(:,:,:,4) = ismrm_calculate_jer_unmixing(jer_lookup_md1, acc_factor, ccm_mckenzie, 0, false);
+unmix(:,:,:,5) = ismrm_calculate_jer_unmixing(jer_lookup_md2, acc_factor, ccm_mckenzie, 0, false);
+unmix(:,:,:,6) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0, false);
 
 
 %%
@@ -109,5 +111,5 @@ end
 
 ismrm_imshow(aem, [0 0.1], [], titles); colormap(jet);
 ismrm_imshow(gmap, [0 6], [], titles); colormap(jet);
-ismrm_imshow(im_hat, [], [], titles);
+ismrm_imshow(im_hat, [0 0.7 .* max(im_hat(:))], [], titles);
 ismrm_imshow(im_diff, [0 0.1 * max(im_hat(:))], [], titles);
