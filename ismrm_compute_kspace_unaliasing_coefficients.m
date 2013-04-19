@@ -76,14 +76,14 @@ num_basis = num_source * num_channel;
 Rss = reshape(Rss, [num_basis num_basis]);
 
 %%
-svals = svd(Rss);
+%svals = svd(Rss);
 %svals = svals / max(svals);
-regThreshold = ones(size(svals)) .* regularization_scale * mean(svals);
-figure; semilogy(svals);
-hold on; plot(regThreshold, 'r'); title('eigenvalues');
+%regThreshold = ones(size(svals)) .* regularization_scale * mean(svals);
+%figure; plot(svals);
+%hold on; plot(regThreshold, 'r'); title('eigenvalues');
 
-figure; semilogy(1./ svals);
-hold on; semilogy(1./ (svals + regThreshold), 'r'); title('amplification');
+%figure; plot(1./ svals);
+%hold on; plot(1./ (svals + regThreshold), 'r'); title('amplification');
 
 %%
 Rst = reshape(Rst, [num_basis num_channel]);

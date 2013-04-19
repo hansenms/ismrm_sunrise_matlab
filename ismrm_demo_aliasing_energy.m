@@ -56,17 +56,19 @@ kernel_shape = [5 7];
 jer_lookup_dd = ismrm_compute_jer_data_driven(cal_data, kernel_shape);
 ccm_mckenzie = ismrm_compute_ccm(csm_mckenzie, Rn);
 
-num_recons = 8;
-titles = {'SENSE true csm', 'SENSE ture csm 0.001 reg','SENSE mckenzie csm', 'SENSE mckenzie 0.001 reg', 'SENSE walsh csm', 'GRAPPA no reg', 'GRAPPA 0.001 reg', 'GRAPPA 0.01 reg'};
+num_recons = 6;
+%titles = {'SENSE true csm', 'SENSE ture csm 0.001 reg','SENSE mckenzie csm', 'SENSE mckenzie 0.001 reg', 'SENSE walsh csm', 'GRAPPA no reg', 'GRAPPA 0.001 reg', 'GRAPPA 0.01 reg'};
+titles = {'SENSE true csm', 'SENSE ture csm reg','SENSE mckenzie csm', 'SENSE mckenzie reg','GRAPPA no reg', 'GRAPPA reg'};
+
 unmix = zeros([imsize ncoils num_recons]);
 unmix(:,:,:,1) = ismrm_calculate_sense_unmixing(acc_factor, csm_true, Rn, 0) .* acc_factor;
-unmix(:,:,:,2) = ismrm_calculate_sense_unmixing(acc_factor, csm_true, Rn, 0.01) .* acc_factor;
+unmix(:,:,:,2) = ismrm_calculate_sense_unmixing(acc_factor, csm_true, Rn, 0.005) .* acc_factor;
 unmix(:,:,:,3) = ismrm_calculate_sense_unmixing(acc_factor, csm_mckenzie, Rn, 0) .* acc_factor;
-unmix(:,:,:,4) = ismrm_calculate_sense_unmixing(acc_factor, csm_mckenzie, Rn, 0.01) .* acc_factor;
-unmix(:,:,:,5) = ismrm_calculate_sense_unmixing(acc_factor, csm_walsh, Rn, 0) .* acc_factor;
-unmix(:,:,:,6) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0, true);
-unmix(:,:,:,7) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0.001, true);
-unmix(:,:,:,8) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0.01, true);
+unmix(:,:,:,4) = ismrm_calculate_sense_unmixing(acc_factor, csm_mckenzie, Rn, 0.005) .* acc_factor;
+%unmix(:,:,:,5) = ismrm_calculate_sense_unmixing(acc_factor, csm_walsh, Rn, 0) .* acc_factor;
+unmix(:,:,:,5) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0, true);
+unmix(:,:,:,6) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0.001, true);
+%unmix(:,:,:,8) = ismrm_calculate_jer_unmixing(jer_lookup_dd, acc_factor, ccm_mckenzie, 0.01, true);
 
 
 %%
@@ -103,6 +105,6 @@ end
 
 
 ismrm_imshow(aem, [0 0.1], [], titles); colormap(jet);
-ismrm_imshow(gmap, [], [], titles); colormap(jet);
+ismrm_imshow(gmap, [0 6], [], titles); colormap(jet);
 ismrm_imshow(im_hat, [], [], titles);
-ismrm_imshow(im_diff, [], [], titles);
+ismrm_imshow(im_diff, [0 0.1 * max(im_hat(:))], [], titles);
