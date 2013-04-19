@@ -49,6 +49,7 @@ end
 % compute dominant eigenvectors of sample correlation matrices
 [csm,lambda]=ismrm_eig_power(Rs); % using power method
 
+
 return 
 
 

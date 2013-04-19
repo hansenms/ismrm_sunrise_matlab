@@ -1,4 +1,4 @@
-function im_out = ismrm_normalize_shading_to_sos(im_in)
+function [im_out, correction_image] = ismrm_normalize_shading_to_sos(im_in)
 %
 %  ismrm_normalize_shading_to_sos(im_in)
 %
@@ -26,7 +26,12 @@ im_in_matrix = reshape(im_in, [nx*ny nc]);
 shading_correction = sqrt(sum(abs(im_in_matrix).^2, 2));
 nonzero_ind = shading_correction > 0;
 
-im_out = zeros(size(im_in_matrix));
-im_out(nonzero_ind,:) = im_in_matrix(nonzero_ind,:) ./ repmat(shading_correction(nonzero_ind), [1 nc]);
+correction_image = zeros(size(shading_correction));
+correction_image(nonzero_ind) = 1 ./ shading_correction(nonzero_ind);
+correction_image = reshape(correction_image, [nx ny]);
 
-im_out = reshape(im_out, [nx ny nc]);
+im_out = im_in .* repmat(correction_image, [1 1 nc]);
+%im_out = zeros(size(im_in_matrix));
+%im_out(nonzero_ind,:) = im_in_matrix(nonzero_ind,:) ./ repmat(shading_correction(nonzero_ind), [1 nc]);
+
+%im_out = reshape(im_out, [nx ny nc]);
