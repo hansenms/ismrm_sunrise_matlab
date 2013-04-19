@@ -31,7 +31,7 @@ switch nargin
         titles = [];
     case 2
         tile_shape = [];
-        titles = []
+        titles = [];
     case 3
         titles = [];
     case 4

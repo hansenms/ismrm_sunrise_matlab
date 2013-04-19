@@ -40,7 +40,7 @@ function unmix = ismrm_calculate_jer_unmixing(jer_lookup, acc_factor, ccm, regul
 if (verbose),
     fprintf('Calculating unaliasing kernels...\n');
 end
-tic
+%tic
 kernel_size = [size(jer_lookup,1) size(jer_lookup,2)];
 target_location = bitshift(kernel_size, -1)+1;
 num_channels = size(ccm, 3);
@@ -56,16 +56,16 @@ for s=1:(acc_factor-1),
    k = ismrm_compute_kspace_unaliasing_coefficients(jer_lookup, kernel_mask, regularization_scale);
    kernel = kernel + k;
 end
-toc
+%toc
 
 %%
 % Form unmixing images from channel combination maps and kernels
 if (verbose),
     fprintf('Merging unaliasing and channel combination images...\n');
 end
-tic
+%tic
 unmix = ismrm_calculate_unmixing_images_from_kspace_kernels(kernel, ccm);
-toc
+%toc
 
 if (verbose),
     fprintf('done.\n');
