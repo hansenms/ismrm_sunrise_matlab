@@ -43,4 +43,4 @@ reg_img = ismrm_transform_kspace_to_image(padarray(hamming(reg_size)*hamming(reg
 reg_img = abs(reg_img)+1;
 
 %Save the variables that we need
-save hansen_exercises.mat noise_color data sp smaps data_spiral noise_spiral k_spiral w_spiral reg_img
+save -v6 hansen_exercises.mat noise_color data sp smaps data_spiral noise_spiral k_spiral w_spiral reg_img
