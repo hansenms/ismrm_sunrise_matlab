@@ -1,6 +1,6 @@
 function [unmix, gmap] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc_factor, data_mask, csm, target_data, verbose)
 %
-%   [unmix, gmap] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc_factor, csm, target_data, data_mask, verbose)
+%   [unmix, gmap] = ismrm_calculate_grappa_unmixing(source_data, kernel_size, acc_factor, data_mask, csm, target_data, verbose)
 %   
 %   Calculates b1-weighted image space GRAPPA unmixing coefficients.
 %

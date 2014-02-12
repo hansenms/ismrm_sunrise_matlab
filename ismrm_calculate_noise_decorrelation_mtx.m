@@ -44,6 +44,6 @@ noise = permute(noise,[2 1]);
 M = size(noise,2);
 dmtx = (1/(M-1))*(noise*noise');
 dmtx = inv(chol(dmtx,'lower'));
-dmtx = dmtx*sqrt(2*scale_factor);
+dmtx = dmtx*sqrt(2)*sqrt(scale_factor);
     
 return

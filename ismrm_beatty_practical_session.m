@@ -20,6 +20,9 @@ load im1.mat
 load smaps_phantom.mat
 load noise_covariances.mat
 
+ismrm_imshow(abs(smaps));
+ismrm_imshow(angle(smaps)); colormap('hsv');
+
 ncoils = size(smaps,3);
 Rn = Rn_normal_8;
 imsize = size(im1);
@@ -100,6 +103,7 @@ filtered_cal_data = cal_data .* fmask;
 
 cal_im = ismrm_transform_kspace_to_image(filtered_cal_data, [1 2], imsize);
 
+ismrm_imshow(abs(cal_im));
 %
 % Use a circular region of support for pixels
 %
