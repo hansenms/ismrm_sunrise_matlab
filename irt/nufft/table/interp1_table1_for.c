@@ -1,14 +1,13 @@
-/*
-* interp1_table1_for.c
-* 1D periodic interpolation using table lookup.
-*
-* forward direction: (for m = 1,...,M)
-* f(t_m) = \sum_{k=0}^{K-1} c_k h( (t_m - k) mod K )
-*
-* The interpolator h is nonzero (and tabulated) for -J/2 <= t <= J/2.
-*
-* Copyright 2004-3 Yingying Zhang and Jeff Fessler, University of Michigan
-*/
+// interp1_table1_for.c
+// 1D periodic interpolation using table lookup.
+//
+// forward direction: (for m = 1,...,M)
+// f(t_m) = \sum_{k=0}^{K-1} c_k h( (t_m - k) mod K )
+//
+// The interpolator h is nonzero (and tabulated) for -J/2 <= t <= J/2.
+//
+// Copyright 2004-3 Yingying Zhang and Jeff Fessler, University of Michigan
+
 #include <math.h>
 #include <stdio.h>
 #include "def,table1.h"
@@ -34,7 +33,7 @@ double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	i_h1 += ncenter1;
 	}
@@ -87,7 +86,7 @@ double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	}
 
@@ -143,7 +142,7 @@ double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	}
 

@@ -1,16 +1,16 @@
- function xaxis_pi(varargin)
-%function xaxis_pi(varargin)
-% label x axis with various forms of "pi"
-% the argument can be a string with p's in it, or fractions of pi:
-% [0 1/2 1] or '0 p/2 p' -> [0 pi/2 pi]
-% [-1 0 1] or '-p 0 p' -> [-pi 0 pi]
-% etc.
-%
-% There is one catch: this changes the axes font, so subsequent
-% calls to title or xlabel or ylabel will have the wrong font.
-% so title, xlabel, ylabel should be done *before* calling this routine.
-%
-% Jeff Fessler
+  function xaxis_pi(varargin)
+%|function xaxis_pi(varargin)
+%| label x axis with various forms of "pi"
+%| the argument can be a string with p's in it, or fractions of pi:
+%| [0 1/2 1] or '0 p/2 p' -> [0 pi/2 pi]
+%| [-1 0 1] or '-p 0 p' -> [-pi 0 pi]
+%| etc.
+%|
+%| There is one catch: this changes the axes font, so subsequent
+%| calls to title or xlabel or ylabel will have the wrong font.
+%| so title, xlabel, ylabel should be done *before* calling this routine.
+%|
+%| Jeff Fessler
 
 if length(varargin) == 0
 	ticks = '0 p';
@@ -23,7 +23,7 @@ end
 if ischar(ticks)
 	str = ticks;
 	str = strrep(str, ' ', ' | ');
-	str = strrep(str, '*', '');	% we don't need the "*" in label
+	str = strrep(str, '*', ''); % we don't need the "*" in label
 	ticks = strrep(ticks, '2p', '2*p');
 	ticks = strrep(ticks, '4p', '4*p');
 	ticks = strrep(ticks, 'p', 'pi');
@@ -53,6 +53,9 @@ xtick(ticks)
 set(gca, 'xticklabel', str)
 set_gca_fontname('symbol')
 
+if ir_is_octave
+	warn 'may not print properly'
+end
 
 %
 % set_gca_fontname()
@@ -75,7 +78,11 @@ set(gca, 'fontname', type)
 for ii=1:length(ax)
 	if ax(ii) ~= gca
 		if ~streq(name{ii}, get(ax(ii), 'fontname'))
-			warn 'fixing matlab font bug, hopefully!'
+			persistent warned
+			if isempty(warned)
+				warned = true;
+				warn 'fixing matlab font bug, hopefully!'
+			end
 			set(ax(ii), 'fontname', name{ii})
 		end
 	end

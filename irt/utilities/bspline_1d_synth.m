@@ -6,14 +6,14 @@
 %| and given sorted sample locations ti, synthesize signal samples f(t_i).
 %|
 %| in
-%|	coef	[N,(L)]			bspline coefficients for k=0,...,N-1
+%|	coef	[N (L)]			bspline coefficients for k=0,...,N-1
 %|					usually from bspline_1d_coef
-%|	ti	[M,1] or [M,(L)]	desired sample points (unitless)
+%|	ti	[M 1] or [M (L)]	desired sample points (unitless)
 %| option
 %|	order	1|2|3	b-spline order, default: 3
 %|	ending		end / boundary conditions: mirror / periodic / zero
 %| out
-%|	ft	[M,(L)]			f(t_i) interpolated signal values
+%|	ft	[M (L)]			f(t_i) interpolated signal values
 %|
 %| Copyright 2005-12-7, Jeff Fessler, University of Michigan
 
@@ -36,14 +36,18 @@ if arg.mex
 			int32(arg.order), int32(ii));
 		return
 	catch
-		printm 'Warn: mex version failed; reverting to matlab version'
+		persistent warned
+                if isempty(warned)
+                        warned = 1;
+			warn 'mex version failed; reverting to matlab version'
+		end
 	end
 end
 
 dims = size(coef);
-dims(1) = size(ti,1); % output dim is [M,(L)]
+dims(1) = size(ti,1); % output dim is [M (L)]
 N = size(coef, 1);
-coef = reshape(coef, N, []); % [N,*L]
+coef = reshape(coef, N, []); % [N *L]
 nc = ncol(coef);
 
 [coef ti] = bspline_1d_setup(coef, ti, arg.order, arg.ending);
@@ -74,14 +78,12 @@ otherwise
 	fail('order %d not done', arg.order)
 end
 
-ft = reshape(ft, dims); % [N,(L)]
+ft = reshape(ft, dims); % [N (L)]
 
 
-%
 % bspline_1d_setup()
 % trick: preprocess locations and pad coefficients to avoid conditionals!
 % and to handle boundary conditions cleanly.
-%
 function [coef, ti] = bspline_1d_setup(coef, ti, order, ending)
 
 [N L] = size(coef);
@@ -135,25 +137,22 @@ elseif streq(ending, 'zero')
 end
 
 
-%
+% bspline1_1d_synth()
 % 1d linear bspline
-% coef [N,L]	b-spline coefficients. trick: with padding at head and tail!
-% ti [M,1]	trick: must be in range [0,N-2]
-% ft [M,L]
-%
+% coef [N L]	b-spline coefficients. trick: with padding at head and tail!
+% ti [M 1]	trick: must be in range [0,N-2]
+% ft [M L]
 function ft = bspline1_1d_synth(coef, ti)
 
 n0 = floor(ti);
-%if any((n0 < 0) | (2+n0 > length(coef))), keyboard, error bug, end
 ft = coef(1+n0) .* (1 - (ti - n0)) + coef(2+n0) .* (ti - n0);
 
 
-%
+% bspline2_1d_synth()
 % 1d quadratic bspline
-% coef [N,L]	b-spline coefficients. trick: with padding at head and tail!
-% ti [M,1]	trick: must be in range [1/2,N-7/2)
-% ft [M,L]
-%
+% coef [N L]	b-spline coefficients. trick: with padding at head and tail!
+% ti [M 1]	trick: must be in range [1/2,N-7/2)
+% ft [M L]
 function ft = bspline2_1d_synth(coef, ti)
 
 N = size(coef,1);
@@ -168,14 +167,13 @@ ft =	coef(1+n0) .* b2f1(ti - (n0)) + ...
 	coef(3+n0) .* b2f1(ti - (n0+2));
 
 
-%
+% bspline3_1d_synth()
 % 1d cubic bspline
-% coef [N,L], ti [M,1]
-% ft [M,L]
-% coef [N,L]	b-spline coefficients. trick: with padding at head and tail!
-% ti [M,1]	trick: must be in range [1,N-4)
-% ft [M,L]
-%
+% coef [N L], ti [M 1]
+% ft [M L]
+% coef [N L]	b-spline coefficients. trick: with padding at head and tail!
+% ti [M 1]	trick: must be in range [1,N-4)
+% ft [M L]
 function ft = bspline3_1d_synth(coef, ti)
 
 N = size(coef,1);
@@ -189,11 +187,10 @@ ft =	coef(1+n0) .* b3f0(ti - (n0)) + ...
 	coef(4+n0) .* b3f3(ti - (n0+3));
 
 
-%
+% bspline3_1d_synth_old()
 % 1d cubic bspline.  this version does not require padding, but is slow
-% coef [N,L], ti [M,1]
-% ft [M,L]
-%
+% coef [N L], ti [M 1]
+% ft [M L]
 function ft = bspline3_1d_synth_old(coef, ti, is_periodic)
 
 N = size(coef,1);
@@ -235,9 +232,7 @@ function out = b3f2(t), out = 2/3 - t.^2 .* (1 + t/2);
 function out = b3f3(t), out = (2 + t).^3 / 6;
 
 
-%
 % test
-%
 function bspline_1d_synth_test
 
 N = 12;

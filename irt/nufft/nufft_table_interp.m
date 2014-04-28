@@ -1,6 +1,8 @@
-  function X = nufft_table_interp(st, Xk, order, flips, om)
-%|function X = nufft_table_interp(st, Xk, order, flips, [om])
+ function X = nufft_table_interp(st, Xk, order, flips, om)
+%function X = nufft_table_interp(st, Xk, order, flips, [om])
+%|
 %| table-based nufft 
+%|
 %| in
 %|	st	structure	formed by nufft_init (through nufft_init_table)
 %|	Xk	[*Kd,nc]	over-sampled DFT coefficients
@@ -11,6 +13,7 @@
 %|	om	[M,1]		frequency locations, overriding st.om
 %| out
 %|	X	[M,nc]		NUFFT values
+%|
 %| Copyright 2004-3-30, Jeff Fessler and Yingying Zhang, University of Michigan
 
 if nargin < 2, help(mfilename), error(mfilename), end
@@ -56,11 +59,15 @@ case 3
 	Xk = reshape(Xk, [st.Kd nc]);
 	X = interp3_table_mex(complexify(Xk), st.h{1}, st.h{2}, st.h{3}, arg{:});
 
+case 4
+	Xk = reshape(Xk, [st.Kd nc]);
+	X = interp4_table_mex(complexify(Xk), st.h{1}, st.h{2}, st.h{3}, st.h{4}, arg{:});
+
 otherwise
-	error '> 3d not done'
+	error '> 4d not done'
 end
 
 % apply phase shift
-if isfield(st, 'phase_shift') & ~isempty(st.phase_shift)
+if isfield(st, 'phase_shift') && ~isempty(st.phase_shift)
 	X = X .* repmat(st.phase_shift, [1 nc]);
 end

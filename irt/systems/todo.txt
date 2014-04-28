@@ -14,18 +14,21 @@ Gmri.m
 Gmri_gram.m
 Gnufft.m
 Gnufft_gram.m
+Gsparse.m
 Gtomo2_strip.m
+Gtomo2_table.m
 Gtomo_nufft.m
 Gtranslate.m (todo: bspline and interpn adjoints not matched)
 
 
 todo:
 
-Gsparse.m
 Gtomo2_dscmex.m
-Gtomo2_table.m
 Gtomo2_wtmex.m % todo: block version
 Gtomo3.m
+
+unfinished anyway:
+
 Gtomo_blob.m
 
 

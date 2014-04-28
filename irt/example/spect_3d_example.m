@@ -172,7 +172,7 @@ if 1
 	end
 
 	% incremental EM
-	if 0 & ~isvar('xinc1'), printm 'xinc1'
+	if 0 && ~isvar('xinc1'), printm 'xinc1'
 		f.os1 = 5;
 		xinc1 = eml_inc_em(xinit(ig.mask), Gb, os_data{:}, ...
 				'niter', f.niter, 'os', f.os1);
@@ -181,7 +181,7 @@ if 1
 	prompt
 	end
 
-	if 0 & ~isvar('xinc3'), printm 'xinc3'
+	if 0 && ~isvar('xinc3'), printm 'xinc3'
 		xinc3 = eml_inc_em(xinit(ig.mask), Gb, os_data{:}, ...
 				'niter', f.niter, 'os', f.os1, 'hds', 3);
 		xinc3 = ig.embed(xinc3);

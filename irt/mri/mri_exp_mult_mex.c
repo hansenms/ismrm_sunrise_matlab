@@ -3,7 +3,8 @@
 // 2004-6-21 modified by JF
 
 #include "mex.h"
-#include "math.h"
+#include <math.h>
+#include <stdio.h>
 
 #define Usage \
 "Usage: D = function(A, u, v);\n\
@@ -75,10 +76,11 @@ const mxArray *mx_v)
 		mxCOMPLEX)))
 		Fail("allocate output")
 
-	if (!(work_r = calloc(NN, sizeof(*work_r)))) Fail("alloc")
-	if (!(work_i = calloc(NN, sizeof(*work_i)))) Fail("alloc")
+	if (!(work_r = (double *) calloc(NN, sizeof(*work_r)))) Fail("alloc")
+	if (!(work_i = (double *) calloc(NN, sizeof(*work_i)))) Fail("alloc")
 
-	if (is_single) {
+	if (is_single)
+	{
 #define dtype float
 		const dtype *Ar = (const dtype *) mxGetData(mx_A);
 		const dtype *Ai = (const dtype *) mxGetImagData(mx_A);
@@ -95,7 +97,8 @@ const mxArray *mx_v)
 			Fail("mri_exp_mult")
 	}
 
-	else {
+	else
+	{
 #define dtype double
 		const dtype *Ar = (const dtype *) mxGetData(mx_A);
 		const dtype *Ai = (const dtype *) mxGetImagData(mx_A);

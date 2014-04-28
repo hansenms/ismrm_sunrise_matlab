@@ -20,10 +20,10 @@ if nargin < 3, help(mfilename), error(mfilename), end
 arg.kernel = ones(3,1)/3;
 arg = vararg_pair(arg, varargin);
 
-if ~isvar('bi') | isempty(bi)
+if ~isvar('bi') || isempty(bi)
 	bi = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
 

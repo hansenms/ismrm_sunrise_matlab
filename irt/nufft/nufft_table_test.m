@@ -3,7 +3,7 @@
 
 % 3D test
 if 1, printm '3d'
-	if 1 | ~isfield(s, 't'), printm 'precompute structure'
+	if 1 || ~isfield(s, 't'), printm 'precompute structure'
 %		ktype = 'minmax:kb';
 		ktype = 'kaiser';
 		Jd = [3 4 3];
@@ -37,7 +37,7 @@ if 1, printm '3d'
 		x(4, 2, 3) = 1;
 
 		tic
-		Y.d = dtft(x, om, n_shift); % exact
+		Y.d = dtft(x, om, 'n_shift', n_shift); % exact
 		printm('dtft3 time %g', toc)
 
 		tic
@@ -88,7 +88,7 @@ end
 
 % 2D test
 if 1
-	if 1 | ~isfield(s, 't'), printm 'precompute structure'
+	if 1 || ~isfield(s, 't'), printm 'precompute structure'
 %		ktype = 'minmax:kb';
 		ktype = 'kaiser';
 		Jd = [4 5];
@@ -165,7 +165,7 @@ end
 
 
 % 1D test
-if 1 | ~isfield(s, 't'), printm '1d'
+if 1 || ~isfield(s, 't'), printm '1d'
 %	ktype = 'minmax:kb';
 	ktype = 'kaiser';
 	Jd = 4;
@@ -193,8 +193,8 @@ end
 if 0
 	ramp = [1:Nd]';
 
-	Y.dr = dtft(ramp, om, n_shift);
-	Y.de = dtft(eye(Nd), om, n_shift);
+	Y.dr = dtft(ramp, om, 'n_shift', n_shift);
+	Y.de = dtft(eye(Nd), om, 'n_shift', n_shift);
 	printm('dtft max%%diff = %g', max_percent_diff(Y.dr,Y.de*ramp))
 
 	Y.pr = nufft(ramp, s.p);
@@ -216,7 +216,7 @@ if 1, printm '1d forward'
 	x = [1:Nd]';
 	% x = unitv(Nd, ii);
 
-	Y.d = dtft(x, om, n_shift); % exact
+	Y.d = dtft(x, om, 'n_shift', n_shift); % exact
 	cpu etic
 	Y.p = nufft(x, s.p);
 	cpu etoc 'pre time nufft'

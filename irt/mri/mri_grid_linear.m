@@ -17,7 +17,7 @@
 %|
 %| Copyright 2003-7-23, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(kspace, 'test'), mri_grid_linear_test, return, end
+if nargin == 1 && streq(kspace, 'test'), mri_grid_linear_test, return, end
 if nargin < 4, help(mfilename), error(' '), end
 
 if length(N) == 1, N = [N N];, end

@@ -25,6 +25,9 @@
 %| from the usual approach of two readouts with a short delay.
 %| It also smoothly interpolates over regions with signal voids.
 %|
+%| Caution: the sign of the field map estimated here is the opposite (negative)
+%| of the sign of the field map needed for input to the Gmri object.
+%|
 %| Copyright 1999, Jeff Fessler, University of Michigan
 
 if nargin < 1, help(mfilename), error(mfilename), end
@@ -225,4 +228,4 @@ nrms(xml_qpwls, xpl)
 nrms(xq, xpl)
 %im(4, xpl-xq), cbar
 
-%savefig fig_mr_phase_pl
+% ir_savefig fig_mr_phase_pl

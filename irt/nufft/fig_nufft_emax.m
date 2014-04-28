@@ -2,7 +2,7 @@
 % compare max error of gridding interpolators
 % for several choices of scaling factors
 
-if 0 | ~isvar('st'), printm 'kernels'
+if 0 || ~isvar('st'), printm 'kernels'
 	J = 5;
 	% note: optimizing sn with N=2^8, starting with Gaussian, yielded
 	% slightly worse error than nufft with KB scaling factors.
@@ -65,7 +65,7 @@ prompt
 end
 
 
-if 0 | ~isvar('err'), printm 'err'
+if 0 || ~isvar('err'), printm 'err'
 	err = zeros(M, length(st));
 	for in=1:length(st)
 		err(:,in) = st{in}.err;

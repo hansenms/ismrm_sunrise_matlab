@@ -21,11 +21,11 @@
 
 warning 'obsolete.  use pwls_sps_os'
 
-if ~isvar('gi') | isempty(gi)
+if ~isvar('gi') || isempty(gi)
 	gi = sum(Gt)';		% g_i = sum_j g_ij
 end
 
-if ~isvar('wi') | isempty(wi)
+if ~isvar('wi') || isempty(wi)
 	wi = ones(size(yi));
 end
 
@@ -34,7 +34,7 @@ if ~isvar('pixmax'), pixmax = []; end
 %
 %	denominator array for likelihood terms
 %
-if ~isvar('ldenom') | isempty(ldenom)
+if ~isvar('ldenom') || isempty(ldenom)
 	ldenom = Gt * (gi .* wi);
 end
 

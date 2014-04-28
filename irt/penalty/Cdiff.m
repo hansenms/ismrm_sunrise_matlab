@@ -44,7 +44,7 @@
 %|
 %| Copyright 2004-5-18, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(kappa, 'test'), Cdiff_test, return, end
+if nargin == 1 && streq(kappa, 'test'), Cdiff_test, return, end
 if nargin < 1
 	help(mfilename)
 	if has_mex_jf, penalty_mex('help'), end

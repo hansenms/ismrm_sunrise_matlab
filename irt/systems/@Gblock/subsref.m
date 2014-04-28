@@ -44,11 +44,11 @@ elseif length(arg) > 1
 % ob{i_block}
 % this is primary method 'handled' by this object!
 %
-elseif arg.type == '{}' & length(arg.subs) == 1
+elseif arg.type == '{}' && length(arg.subs) == 1
 
 	out = ob;
 	out.i_block = arg.subs{1};
-	if out.i_block < 1 | out.i_block > out.nblock
+	if out.i_block < 1 || out.i_block > out.nblock
 		error 'bad block index'
 	end
 
@@ -56,12 +56,12 @@ elseif arg.type == '{}' & length(arg.subs) == 1
 % ob(i_block)
 % included for backward compatibility
 %
-elseif arg.type == '()' & length(arg.subs) == 1
+elseif arg.type == '()' && length(arg.subs) == 1
 
 	warning 'please use {} instead of () now for block objects'
 	out = ob;
 	out.i_block = arg.subs{1};
-	if out.i_block < 1 | out.i_block > out.nblock
+	if out.i_block < 1 || out.i_block > out.nblock
 		error 'bad block index'
 	end
 

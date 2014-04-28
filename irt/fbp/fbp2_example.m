@@ -62,7 +62,7 @@ end
 
 
 % dsc is too slow to be worth it
-if 0 & ~isvar('r_dsc'), printm 'fbp dsc'
+if 0 && ~isvar('r_dsc'), printm 'fbp dsc'
 	fg.dsc = fbp2(sg, ig, 'type', 'dsc');
 	cpu etic
 	r_dsc = fbp2(sino, fg.dsc);

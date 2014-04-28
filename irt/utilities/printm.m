@@ -12,3 +12,6 @@ if length(varargin)
 else
 	disp([caller ': '])
 end
+if ir_is_octave
+	fflush(stdout);
+end

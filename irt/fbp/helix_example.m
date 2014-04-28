@@ -52,10 +52,12 @@ end
 if ~isvar('xtrue'), printm 'xtrue: true image volume'
 	xtrue = ellipsoid_im(ig, ell, 'oversample', 2);
 
-	figure(1), im plc 2 3
 	clim = [0 2000];
-	im(1, ig.x, ig.y, xtrue, clim), cbar
-	titlef('x true, z=%g to %g', ig.z(1), ig.z(end))
+	if im
+		figure(1), im plc 2 3
+		im(1, ig.x, ig.y, xtrue, clim), cbar
+		titlef('x true, z=%g to %g', ig.z(1), ig.z(end))
+	end
 prompt
 end
 
@@ -102,9 +104,9 @@ prompt
 end
 	im(3, xssrb - xtrue, 'error', [-500 500]), cbar
 
-if 1 % profile, for checking HU accuracy
+if im % profile, for checking HU accuracy
 	im subplot 6
-	iz=1:ig.nz;
+	iz = 1:ig.nz;
 	ix = ig.nx/2+1; iy = ig.ny/2+1;
 	plot(	ig.z, squeeze(xtrue(ix,iy,iz)), 'o-', ...
 		ig.z, squeeze(xssrb(ix,iy,iz)), '.--')
@@ -136,7 +138,7 @@ if 0
 	im_toggle(fun(xssrb .* ig.circ), fun(xssrb_gh .* ig.circ), clim)
 end
 
-if 1 % profile
+if im % profile
 	iz = 21;
 	iz = 1:ig.nz;
 	im(3, xssrb_gh(:,:,iz) - xtrue(:,:,iz), 'GH Error'), cbar

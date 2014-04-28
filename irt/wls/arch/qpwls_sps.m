@@ -24,7 +24,7 @@ end
 %
 %	denominator
 %
-if ~isvar('denom') | isempty(denom)
+if ~isvar('denom') || isempty(denom)
 	denom = full(G' * (W * sum(G')'));
 	denom = denom + abs(C)' * sum(abs(C)')';
 	printm('denom min,max=%g,%g', min(denom(:)), max(denom(:)))

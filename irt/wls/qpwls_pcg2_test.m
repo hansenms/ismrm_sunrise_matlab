@@ -75,7 +75,7 @@ if ~isvar('x4t') % test stopper
 	jf_equal(x3t(:,1:ncol(x4t)), x4t)
 end
 
-if 1 & im % plot showing convergence
+if 1 && im % plot showing convergence
 	ii = 0:niter;
 	semilogy(...
 		ii, nrms(x1g, xh), 'c.-', ...

@@ -37,7 +37,7 @@ if nargin > 3
 	end
 end
 
-if ndims(yi) > 2 & ~is_fbp
+if ndims(yi) > 2 && ~is_fbp
 	error 'most routines need column yi(:), except OS routines need "2D" yi, using "reshaper()"'
 end
 

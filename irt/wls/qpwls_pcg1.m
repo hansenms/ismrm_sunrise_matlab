@@ -64,7 +64,7 @@ if arg.stop_grad_tol
 	norm_grad = @(g) norm(g, arg.stop_grad_norm) / reale(yi' * (W * yi));
 end
 
-if ~isreal(yi) & ~isequal(arg.precon, 1)
+if ~isreal(yi) && ~isequal(arg.precon, 1)
 	persistent warned
 	if isempty(warned), warned = 0; end
 	if ~warned

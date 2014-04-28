@@ -15,7 +15,7 @@ prompt
 end
 
 
-if 0 & ~isvar('vb'), disp 'make vb'
+if 0 && ~isvar('vb'), disp 'make vb'
 	vb = G' * (W * yi(:));
 	im(7, ig.embed(vb), 'vb'), cbar
 prompt
@@ -95,7 +95,7 @@ end
 %
 % compare CG and PCG
 %
-if 1 & im
+if 1 && im
 	cost.sps	= pwls_cost(xsps,	G, W, yi(:), R, ig.mask);
 	cost.cg		= pwls_cost(xcg,	G, W, yi(:), R, ig.mask);
 	cost.pcg	= pwls_cost(xpcg,	G, W, yi(:), R, ig.mask);

@@ -37,7 +37,7 @@ if ~isvar('yi'), printm 'simulate noisy data'
 	im(5, x.u, 'matlab unwrap', x.clim), cbar
 end
 
-if 1 | ~isvar('x.sps'),	printm 'iterative estimation'
+if 1 || ~isvar('x.sps'), printm 'iterative estimation'
 	f.l2b_q = -3;	% choosing this beta may be the hardest part!
 	Rq = Robject(true(nx,ny), 'type_denom', 'matlab', ...
 		'beta', 2^f.l2b_q);

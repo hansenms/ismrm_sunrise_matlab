@@ -109,5 +109,5 @@ if 1
 		axisy(-5000, 500)
 	end
 
-%	savefig 'fig_qpwls_qn_vs_sps'
+%	ir_savefig 'fig_qpwls_qn_vs_sps'
 end

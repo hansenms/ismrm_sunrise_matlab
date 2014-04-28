@@ -24,7 +24,7 @@
 if nargin < 1, help(mfilename), error(mfilename), end
 
 % self-test compares Nuyts design to Fourier-NNLS design.
-if nargin == 1 & streq(type, 'test')
+if nargin == 1 && streq(type, 'test')
 	penalty2_nuyts_test
 return
 end
@@ -49,7 +49,7 @@ np = nx*ny;
 wang = reshape(wang, [na np]);
 if length(ang) ~= na, error 'ang size', end
 
-if ~isvar('mask') | isempty(mask)
+if ~isvar('mask') || isempty(mask)
 	mask = true(nx,ny);
 else
 	if any(size(mask) ~= [nx ny]), error 'mask dims', end

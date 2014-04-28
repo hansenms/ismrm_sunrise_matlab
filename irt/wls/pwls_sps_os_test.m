@@ -75,7 +75,7 @@ end
 
 
 % exact solution
-if ~isvar('xhat') & streq(f.pot, 'quad'), printm 'exact xhat'
+if ~isvar('xhat') && streq(f.pot, 'quad'), printm 'exact xhat'
 	Atmp = Awtr(:,:);
 	F = full(Atmp' * W * Atmp);
 	C1 = R.C1(:,:);

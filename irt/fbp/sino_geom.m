@@ -64,7 +64,7 @@
 %|	st.ones			ones(nb,na)
 %|	st.zeros		zeros(nb,na)
 %|	st.rfov			radial fov
-%|	st.xds			[nb 1] center of detector elements
+%|	st.xds			[nb 1] center of detector elements (beta=0)
 %|	st.yds			[nb 1] ""
 %|	st.shape(sino(:))	reshape to [nb na ?]
 %|	st.unitv(ib,ia)		unit 'vector' with single nonzero element
@@ -364,9 +364,7 @@ if streq(st.strip_width, 'd') || streq(st.strip_width, 'dr')
 end
 
 
-%
 % sino_geom_moj()
-%
 function st = sino_geom_moj(st, varargin);
 
 % defaults
@@ -383,10 +381,8 @@ subs = { ...
 st = vararg_pair(st, varargin, 'subs', subs);
 
 
-%
 % sino_geom_xds()
-% center positions of detectors
-%
+% center positions of detectors (for beta = 0)
 function xds = sino_geom_xds(st, varargin)
 switch st.type
 case 'par'
@@ -404,12 +400,11 @@ case 'fan'
 otherwise
 	error 'bug'
 end
+xds = xds + st.source_offset;
 
 
-%
 % sino_geom_yds()
-% center positions of detectors
-%
+% center positions of detectors (for beta = 0)
 function yds = sino_geom_yds(st, varargin)
 switch st.type
 case 'par'
@@ -436,6 +431,7 @@ end
 %
 function out = sino_geom_plot(st, ig)
 switch st.type
+
 case 'par'
 	if isvar('ig') && ~isempty(ig)
 		im(ig.x, ig.y, ig.mask(:,:,1))
@@ -477,6 +473,21 @@ case 'fan'
 	axis equal, axis tight
 	hold off
 
+case 'moj'
+	if isvar('ig') && ~isempty(ig)
+		im(ig.x, ig.y, ig.mask(:,:,1))
+		hold on
+	end
+	t = linspace(0,2*pi,1001);
+	rmax = max(st.s);
+	rphi = st.nb/2 * st.dx ./ (max(abs(cos(t)), abs(sin(t))));
+	plot(0, 0, '.', rmax * cos(t), rmax * sin(t), '-') % fov circle
+	plot(0, 0, '.', rphi .* cos(t), rphi .* sin(t), '-m') % fov circle
+	if isvar('ig') && ~isempty(ig)
+		hold off
+	end
+	axis([-1 1 -1 1] * max([rmax ig.fov/2]) * 1.1)
+
 otherwise
 	error 'bug'
 end
@@ -513,8 +524,9 @@ case 'par'
 	tau = (x * cos(st.ar) + y * cos(st.ar)) / st.dr;
 case 'fan'
 	b = st.ar'; % row vector, for outer-product
-	tangam = (x * cos(b) + y * sin(b) - st.source_offset) ...
-                ./ (st.dso + x * sin(b) - y * cos(b));
+	xb = x * cos(b) + y * sin(b);
+	yb = -x * sin(b) + y * cos(b);
+	tangam = (xb - st.source_offset) ./ (st.dso - yb); % e,tomo,fan,L,gam
 	switch st.dfs
 	case 0 % arc
 		tau = st.dsd / st.ds * atan(tangam);
@@ -528,7 +540,6 @@ otherwise
 end
 
 
-%
 % sino_geom_ge1()
 % sinogram geometry for GE lightspeed system
 % these numbers are published in IEEE T-MI Oct. 2006, p.1272-1283 wang:06:pwl
@@ -567,17 +578,18 @@ end
 geom = sino_geom('fan', 'nb', 888, 'na', na, ...
 	'ds', 1.0239/scale, 'offset_s', 1.25, ...
 	'dsd', 949.075/scale, 'dod', 408.075/scale, 'dfs', 0, ...
+	'strip_width', 'd', ...
 	'units', units, ...
 	varargin{:});
 
 
-%
 % sino_geom_test()
-%
 function sino_geom_test
 for dfs = [0 inf] % arc flat
 	st = sino_geom('fan', 'nb', 888, 'na', 984, ...
 		'orbit_start', 20, ...
+		'strip_width', 'd', ...
+		'source_offset', 0, ...
 		'dsd', 949.075, 'dod', 408.075, 'dfs', dfs);
 	if im
 		clf, st.plot;
@@ -586,7 +598,7 @@ for dfs = [0 inf] % arc flat
 end
 st.ad(2);
 st = sino_geom('par', 'strip_width', 'd');
-st = sino_geom('moj');
-st = sino_geom('ge1');
+st = sino_geom('moj', 'strip_width', 'd');
+st = sino_geom('ge1', 'strip_width', 'd');
 st.rfov;
 st.downsample(2);

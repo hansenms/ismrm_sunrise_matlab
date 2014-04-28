@@ -21,7 +21,7 @@ cdf = cumsum(dens / sum(dens));
 m1 =  [1:M]-0.5;
 m1 = m1(ii);
 uu = ([1:L]-0.5)/L;
-m2 = interp1(cdf, m1, uu, 'cubic');
+m2 = interp1(cdf, m1, uu, 'pchip');
 %plot(cdf, m1, '.', uu, m2, 'o')
 m2 = max(m2,1);
 %try
@@ -59,10 +59,12 @@ rl_high = highrate_centers(f, L, 2^9);
 rl_ideal = lloyd_max_hist(f, rl_compand, 10^3);
 
 im subplot 2
-plot(l1, rl_compand, '-o', l1, rl_high, '-+', l1, rl_ideal, '-*')
-legend('companding', 'high rate', 'lloyd-max', 2)
+plot(	l1, rl_high, '-+', ...
+	l1, rl_compand, '-o', ...
+ 	l1, rl_ideal, '-*')
+legend('high rate', 'companding', 'lloyd-max', 'location', 'northwest')
 axis([0 L 1 2])
 xlabel 'l'
 ylabel 'r_l'
 
-%savefig cw highrate_centers
+% ir_savefig cw highrate_centers

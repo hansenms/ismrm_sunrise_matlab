@@ -36,8 +36,8 @@ if nargin < 2
 	return
 end
 
-if ~isvar('n_shift') | isempty(n_shift), n_shift = [0 0]; end
-if ~isvar('useloop') | isempty(useloop), useloop = 0; end
+if ~isvar('n_shift') || isempty(n_shift), n_shift = [0 0]; end
+if ~isvar('useloop') || isempty(useloop), useloop = 0; end
 
 [N1 N2] = size(x);
 x = reshape(x, N1*N2, numel(x)/N1/N2);	% [N1*N2,L]

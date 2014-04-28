@@ -6,7 +6,7 @@
 % generate data
 %
 if ~isvar('yi'), disp 'setup tql_osps_test'
-	if has_aspire & has_mex_jf
+	if has_aspire && has_mex_jf
 		f.dir	= test_dir;
 		f.wtf	= [f.dir 't,g.wtf'];
 		f.wtr	= strrep(f.wtf, 'wtf', 'wtr');
@@ -51,7 +51,7 @@ if ~isvar('xmat'), disp 'matlab T-QPL-OS-SPS'
 prompt
 end
 
-if ~has_aspire | ~has_mex_jf, return, end
+if ~has_aspire || ~has_mex_jf, return, end
 
 %
 % aspire iterations

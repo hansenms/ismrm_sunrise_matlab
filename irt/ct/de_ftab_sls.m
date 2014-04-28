@@ -43,17 +43,13 @@ sls = vararg_pair(sls, varargin);
 sls = strum(sls, {'sll', @de_ftab_sls_sll, '()'});
 
 
-%
 % de_ftab_sls_sll()
-%
 function out = de_ftab_sls_sll(sls, varargin)
 sll = ndgrid_jf('mat', sls.sl);
 out = sll(varargin{:});
 
 
-%
 % de_ftab_sls_do()
-%
 function [sl, s_n, s_min, s_max] = de_ftab_sls_do(sl, s_n, s_min, s_max)
 
 % number of samples of the material integrals "s"
@@ -99,10 +95,8 @@ if isempty(sl)
 end
 
 
-%
 % de_ftab_sls_test
-%
 function de_ftab_sls_test
 sls = de_ftab_sls;
-pr size(sls.sll)
-pr size(sls.sll(:,:,1))
+pr 'size(sls.sll)'
+pr 'size(sls.sll(:,:,1))'

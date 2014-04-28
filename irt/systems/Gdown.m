@@ -9,20 +9,20 @@
 %|
 %| options
 %|	mask	logical			default: true(Nd)
-%|	down	1|2|3|...		down sampling factor
+%|	down	1|2|3|...		down sampling factor (default 2)
 %|	type	func|Gsparse|...	not done.  default: 'func'
 %| out
-%|	ob			Fatrix object
+%|	ob			fatrix2 object
 %|
 %| Copyright 2006-8-25, Jeff Fessler, University of Michigan
 
 if nargin == 1 && streq(Nd, 'test'), Gdown_test, return, end
-if nargin < 2, help(mfilename), error(mfilename), end
+if nargin < 1, help(mfilename), error(mfilename), end
 
 % defaults
 arg.mask = [];
 arg.idim = Nd;
-arg.down = 1;
+arg.down = 2;
 arg.type = 'func';
 arg.class = 'fatrix2';
 

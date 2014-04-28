@@ -11,7 +11,7 @@
 %
 % Copyright 2005-4-24, Jeff Fessler, The University of Michigan
 
-if nargin == 1 & streq(pot_orig, 'test'), potential_shift_test, return, end
+if nargin == 1 && streq(pot_orig, 'test'), potential_shift_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 
 pot_new.pot = pot_orig;

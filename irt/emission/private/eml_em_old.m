@@ -12,13 +12,13 @@
 
 if nargin < 3, help(mfilename), error(mfilename), end
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = 1;	% ones(size(yi(:)));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = 0; % zeros(size(yi(:)));
 end
-if ~isvar('Asum') | isempty(Asum)
+if ~isvar('Asum') || isempty(Asum)
 	if length(ci) == 1
 		Asum = sum(G)' * ci;
 	else
@@ -28,7 +28,7 @@ end
 
 if any(Asum <= 0), error 'Asum must be positive.  Adjust mask.', end
 
-if ~isvar('niter') | isempty(niter)
+if ~isvar('niter') || isempty(niter)
 	niter = 1;
 end
 

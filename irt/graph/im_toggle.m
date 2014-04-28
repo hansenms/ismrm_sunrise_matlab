@@ -40,7 +40,7 @@ if ~im, return, end
 ft.args = {{}, {'horizontalalignment', 'right'}};
 ft.pos = [0.01, 0.99];
 
-if ir_is_octave
+if ir_is_octave % && exist('uicontrol') ~= 2
 	im_toggle_key(iall, ft, names, varargin);
 else % matlab
 	im_toggle_gui(iall, ft, names, varargin);

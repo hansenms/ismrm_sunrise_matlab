@@ -30,7 +30,9 @@
 %|
 %| Copyright 2004-8-28 Nicole Caparanis, Patty Laskowsky, Taka Masuda,
 %| and Jeff Fessler, University of Michigan
-%| arc detector case contributed by Yingying Zhang 2005-6-13
+%| 2005-06-13 arc detector case contributed by Yingying Zhang
+%| 2013-03-20 weighting for arc detector case corrected by Rebecca Malinas,
+%| thanks to suggestion by Jinyi Qi.
 
 if nargin == 1 && streq(cg, 'test')
 	run_mfile_local('feldkamp_example')
@@ -64,9 +66,7 @@ img = feldkamp_do(proj, ...
 end % feldkamp()
 
 
-%
 % feldkamp_do()
-%
 function img = feldkamp_do(proj, ...
 	cg, ig, ...
 	ds, dt, offset_s, offset_t, offset_source, ...
@@ -94,10 +94,8 @@ cpu etoc 'fdk backprojection time:'
 end % feldkamp_do()
 
 
-%
 % feldkamp_weight1()
 % step 1: weight the projections as in fan-beam case
-%
 function proj = feldkamp_weight1(proj, ds, dt, offset_s, offset_t, ...
 	dsd, dso, dfs, w1cyl);
 [ns nt na] = size(proj);
@@ -106,14 +104,19 @@ tt = ([-(nt-1)/2:(nt-1)/2]' - offset_t) * dt;
 
 [ss tt] = ndgrid(ss, tt);
 if isinf(dfs) % flat
-	ww1 = dso ./ sqrt(dsd^2 + ss.^2 + tt.^2);
-	if ~w1cyl % Jinyi Qi suggested not to do this for cylinder objects
-		ww1 = ww1 .* sqrt(1 + (tt/dsd).^2); % original version in book
+	if w1cyl % weighting that is "exact" for cylindrical-like objects
+		ww1 = dso ./ sqrt(dsd^2 + ss.^2 + tt.^2);
+	else
+		warn 'using old and wrong version of w1 weighting!'
+		ww1 = dso ./ sqrt(dsd^2 + ss.^2 + tt.^2) ...
+			.* sqrt(1 + (tt/dsd).^2); % original version in book
 	end
 elseif dfs == 0 % arc
-	ww1 = (dso/dsd) * cos(ss ./ (dsd * sqrt(1 + (tt/dsd).^2)));
-	if w1cyl
-		ww1 = ww1 ./ sqrt(1 + (tt/dsd).^2); % todo: new version
+	if w1cyl % weighting that is "exact" for cylindrical-like objects
+		ww1 = (dso/dsd) * cos(ss/dsd) ./ sqrt(1 + (tt/dsd).^2);
+	else
+		warn 'using old and wrong version of w1 weighting!'
+		ww1 = (dso/dsd) * cos(ss ./ (dsd * sqrt(1 + (tt/dsd).^2))); % wrong!
 	end
 else
 	error 'other configurations not implemented'

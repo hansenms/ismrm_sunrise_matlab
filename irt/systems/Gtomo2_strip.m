@@ -264,7 +264,7 @@ for it=1:3
 	end
 
 	% verify consistency with Gtomo2_wtmex (aspire)
-	if 1 & has_aspire %& streq(sg.type, 'par')
+	if 1 && has_aspire %& streq(sg.type, 'par')
 	prompt
 		Aw = Gtomo2_wtmex(sg, ig, 'pairs', {'strip_width', sg.d});
 		cpu etic

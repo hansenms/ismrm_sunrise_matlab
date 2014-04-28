@@ -3,6 +3,7 @@
 % Copyright 2008-1-1, Jeff Fessler, University of Michigan
 
 printm 'todo: check user_source_zs vs hct2 with file_source_z' 
+% todo: sf0
 
 pn = jf_protected_names;
 
@@ -18,23 +19,27 @@ systypes = { ... % lots of variations on system models!
 };
 if 0 && exist('dd_ge1_mex') == 3 % UM only
 	systypes{end+1} = 'dd1';
-	systypes{end+1} = 'dd2';
+	systypes{end+1} = 'dd2'; % todo
 end
 % systypes = {'nn1', 'pd1'};
-%systypes = {'dd2'};
+%systypes = {'dd2'}; % todo! fails adjoint test!?
 %systypes = {'sf2'};
 %systypes = f.sf2;
 nn = numel(systypes);
 
-f.class = 'Fatrix';
+%f.class = 'Fatrix';
 f.class = 'fatrix2';
 
 % small systems for basic tests
-if 0 | ~isvar('A1'), printm 'setup small'
+if 0 || ~isvar('A1'), printm 'setup small'
 	f.down = 16;
 
 	dfs_list = [0 inf inf]; % arc flat parallel
 	dsd_list = [949.075 949.075 inf]; % arc flat parallel
+
+% todo
+dfs_list = [0]; % arc
+dsd_list = [949.075]; % arc
 
 	for kk = 1:numel(dfs_list)
 
@@ -56,6 +61,7 @@ if 0 | ~isvar('A1'), printm 'setup small'
 				end
 			else
 				f.dy = 0.7; % stress test SF with non-square
+f.dy = 'dx'; % todo
 			end
 
 			igs = image_geom('nx', 512, 'ny', 480, 'nz', 416, ...
@@ -130,6 +136,25 @@ if 0 | ~isvar('A1'), printm 'setup small'
 		end % systype
 	end % dfs
 end % small
+
+
+if 0 % todo: test sf0 vs dd2
+	A0 = Gcone(args{:}, 'type', 'sf0');
+	Ad = Gcone(args{:}, 'type', 'dd2');
+	x0 = single(igs.mask);
+	im(x0)
+	cpu etic
+	yd = Ad * x0;
+	cpu etoc dd
+	if 0
+		cpu etic
+		y0 = A0 * x0; % todo: crashes matlab
+		cpu etoc sf0
+	end
+	im plc 1 3
+	im(1, yd), im(2, y0), im(3, y0-yd)
+return
+end
 
 
 if ~isvar('x0'), printm 'x0 big'

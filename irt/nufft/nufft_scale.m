@@ -18,7 +18,7 @@ if nargin < 4, help(mfilename), help(mfilename), error(mfilename), end
 if nargin < 5, Nmid = (Nd-1)/2; end
 
 dd = length(Nd);
-if dd == 1 & ~iscell(alpha) % 1D case
+if dd == 1 && ~iscell(alpha) % 1D case
 	sn = nufft_scale1(Nd(1), Kd(1), alpha, beta, Nmid(1));
 return
 end

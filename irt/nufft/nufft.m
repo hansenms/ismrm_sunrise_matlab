@@ -13,7 +13,7 @@
 %| Copyright 2003-5-30, Jeff Fessler, University of Michigan
 
 % if no arguments, then run some self tests
-if (nargin < 1) || (nargin == 1 & streq(x, 'test'))
+if (nargin < 1) || (nargin == 1 && streq(x, 'test'))
 	help([mfilename '.m'])
 
 	printm('Starting nufft() self test; after a wait, shows small errors')
@@ -60,7 +60,7 @@ if (nargin < 1) || (nargin == 1 & streq(x, 'test'))
 			om = [	[o1(:); [0 7.2 2.6 3.3]'], ...
 				[o2(:); [0 4.2 -1. 5.5]'] ];
 		end
-		Y.d = dtft(x, om, n_shift);
+		Y.d = dtft(x, om, 'n_shift', n_shift);
 	end
 
 	s.tab = nufft_init(om, Nd, Jd, Kd, n_shift, 'table', 2^12, 'minmax:kb');

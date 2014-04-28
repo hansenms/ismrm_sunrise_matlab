@@ -8,7 +8,7 @@
 %| Copyright 2000-01-01, Jeff Fessler, University of Michigan
 %| modified 2010-04-21 to use 'exist' and 'isfield'
 
-function tf = isvar(name, field)
+function tf = isvar(name)
 
 if nargin < 1, help(mfilename), error(mfilename), end
 
@@ -24,7 +24,7 @@ end
 str = sprintf('exist(''%s'', ''var'');', base);
 tf = evalin('caller', str);
 
-while tf && length(dots)
+while tf && ~isempty(dots)
 	if length(dots) == 1
 		str = sprintf('isfield(%s, ''%s'');', base, tail);
 		tf = tf & evalin('caller', str);
@@ -34,10 +34,7 @@ while tf && length(dots)
 		next = tail(1:dots(1)-1);
 		str = sprintf('isfield(%s, ''%s'');', base, next);
 		tf = tf & evalin('caller', str);
-		base = [base '.' next];
+		base = [base '.' next]; %#ok<AGROW>
 		tail = tail((dots(1)+1):end);
 	end
 end
-
-%tf = true;
-%evalin('caller', [name ';'], 'tf=false;') % old way

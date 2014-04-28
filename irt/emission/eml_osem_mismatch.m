@@ -23,14 +23,14 @@ Gf = block_ob(Gf, 'ensure'); % make it a block object (if not already)
 nblock = Gf.nblock;
 starts = subset_start(nblock);
 
-if ~isa(Gback, 'Gblock') | nblock ~= Gback.nblock
+if ~isa(Gback, 'Gblock') || nblock ~= Gback.nblock
 	error 'Gback must be Gblock with same number of blocks'
 end
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
 if ~isvar('niter')	| isempty(niter),	niter = 1;	end
@@ -52,13 +52,13 @@ eml_check(yi, ci, ri, 'os', nblock);
 [nb, na] = size(yi);
 
 flag_classic = false;
-if ~isvar('precon') | isempty(precon)
+if ~isvar('precon') || isempty(precon)
 	warning 'Using fast preconditioner rather than classic OSEM'
 	precon = nblock ./ (Gf' * ci(:));
 elseif streq(precon, 'classic')
 	flag_classic = true;
 else	% user-specified precon
-	if ncol(precon) ~= nblock & ncol(precon) ~= 1
+	if ncol(precon) ~= nblock && ncol(precon) ~= 1
 		error 'precon columns must be 1 or nblock'
 	end
 end

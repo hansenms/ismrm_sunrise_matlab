@@ -19,6 +19,8 @@
 %|			for primal dual, or 'gp' (gradient projection)
 %|			and pd and gp are still under development (todo: test)
 %|
+%| todo: try keerthi:02:cog
+%|
 %| Copyright 2006-1-1, Jeff Fessler, University of Michigan
 
 if nargin == 1 && streq(A, 'test'), wls_simplex_test, return, end
@@ -248,7 +250,8 @@ end
 
 % wls_simplex_test
 function wls_simplex_test
-ee = linspace(1, 6, 31);
+ne = 31;
+ee = linspace(1, 6, ne);
 tt = linspace(0, 5, 101)';
 A = exp(-tt * ee); % [nt ne]
 % y0 = exp(-tt) .* (1 - exp(-3*tt));
@@ -258,9 +261,37 @@ x0([7 13 29]) = [0.1 0.6 0.3];
 y0 = A * x0;
 reg = 1e-9;
 
+if 0 && exist('quadprog') == 2 % matlab quadprog.  use lsqlin instead!
+	Aeq = ones(1,ne);
+	beq = 1; % Aeq x = beq, enforces sum-to-1
+	lb = zeros(ne,1); % lower bound 0
+	ub = ones(ne,1); % upper bound 1
+	opts = optimoptions('quadprog', 'algorithm', 'active-set', ...
+		'display', 'off');
+
+	xinit = [];
+	[xq fval exitflag output lambda] = ...
+		quadprog(A' * A + reg * eye(ne), -A' * y0, ...
+			[], [], Aeq, beq, lb, ub, xinit, opts);
+
+	yq = A * xq;
+
+	if im
+		im plc 2 1
+		im subplot 1
+		plot(tt, y0, '-', tt, yq, '--')
+		im subplot 2
+		plot([x0 xq], '-o')
+		max_percent_diff(y0, yq)
+	end
+prompt
+end
+
+
 hows = {'gp', 'pd'};
 for ih=2:numel(hows)
 	how = hows{ih};
+	pr how
 	x1 = wls_simplex(A, y0, [], [], 'how', how, 'reg', reg, 'maxiter', 1e5);
 	y1 = A * x1;
 
@@ -278,8 +309,6 @@ if isfield(optimset, 'LargeScale')
 	x2 = wls_simplex(A, y0, [], [], 'how', 'lsqlin', 'reg', reg);
 	y2 = A * x2;
 	max_percent_diff(y0, y2)
-	equivs(x2, x1, 'thresh', 6e-6, 'fail', 0)
-	equivs(y2, y1, 'thresh', 3e-6, 'fail', 0)
 	if im
 		im plc 2 2
 		im subplot 1
@@ -291,4 +320,6 @@ if isfield(optimset, 'LargeScale')
 		im subplot 4
 		plot([x1-x0 x2-x0]), legend('x1-x0', 'x2-x0')
 	end
+	equivs(x2, x1, 'thresh', 6e-6, 'fail', 0)
+	equivs(y2, y1, 'thresh', 3e-6, 'fail', 0)
 end

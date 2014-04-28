@@ -42,7 +42,7 @@ end
 
 % compare forward
 if 1
-	yt = dtft(x, omega, n_shift);
+	yt = dtft(x, omega, 'n_shift', n_shift);
 	yd = A * [x(mask) x(mask)]; % test with two
 	yd = yd(:,1);
 	equivs(yt, yd, 'thresh', 1.3e-6)

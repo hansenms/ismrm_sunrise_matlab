@@ -76,11 +76,9 @@ end
 end % de_ftab_curv()
 
 
-%
 % de_ftab_curv_exp_ls_setup()
 % tabulate maximum of (f'(s))^2 + (-d^/ds^2 f(s)) (hfim - f(s)),
 % needed for surrogate curvature for LS cost function
-%
 function cs = de_ftab_curv_exp_ls_setup(fit, varargin)
 
 cs.show = 0;
@@ -162,7 +160,6 @@ curv_max = {cmax, vmax};
 end % de_ftab_curv_exp_ls_setup()
 
 
-%
 % de_ftab_curv_exp_ls_curv()
 % surrogate curvatures for LS cost function for each of the given s vectors.
 % in
@@ -174,7 +171,6 @@ end % de_ftab_curv_exp_ls_setup()
 %	'ctype'
 % out
 %	curv	[(nd) M]	curvatures for each term of LS cost function
-%
 function curv = de_ftab_curv_exp_ls_curv(fit, sil, hfim, fim, varargin)
 LL = fit.LL;
 MM = fit.MM;
@@ -229,7 +225,6 @@ curv = reshape(curv, [nd MM]);
 end % de_ftab_curv_exp_ls_curv()
 
 
-%
 % de_ftab_curv_exp_ls_cost()
 % evaluate WLS cost function: \sum_m w_m (hf_m - fm(s))^2 / 2
 % in
@@ -258,7 +253,6 @@ cost = reshape(cost, [ns 1]); % [(ns)]
 end % de_ftab_curv_exp_ls_cost()
 
 
-%
 % de_ftab_curv_exp_ls_grad()
 % gradient of WLS cost function
 % in
@@ -290,7 +284,6 @@ grad = reshape(grad, [ns fit.LL]); % [(ns) L]
 end % de_ftab_curv_exp_ls_grad()
 
 
-%
 % de_ftab_curv_exp_ls_hess_m()
 % hessians of each term of LS cost function
 % in
@@ -332,7 +325,6 @@ hess = reshape(hess, [L L M ns]); % [L L M (ns)]
 end % de_ftab_curv_exp_ls_hess_m()
 
 
-%
 % de_ftab_curv_exp_ls_hess()
 % hessians of LS cost function
 % in
@@ -348,7 +340,7 @@ function hess = de_ftab_curv_exp_ls_hess(fit, fh, ss, wm)
 L = fit.LL;
 M = fit.MM;
 hess = de_ftab_curv_exp_ls_hess_m(fit, fh, ss); % [L L M (ns)]
-if isvar('wm') & ~isempty(wm)
+if isvar('wm') && ~isempty(wm)
 	dim = size(hess);
 	dim = dim(4:end);
 	hess = reshape(hess, [L L M prod(dim)]); % [L L M *ns]
@@ -367,7 +359,6 @@ end
 end % de_ftab_curv_exp_ls_hess()
 
 
-%
 % de_ftab_curv_exp_ls_surr()
 % evaluate surrogate for WLS cost function: \sum_m w_m (hf_m - fm(s))^2 / 2
 % in
@@ -410,10 +401,8 @@ qs = reshape(qs, [ns 1]); % [(ns)]
 end % de_ftab_curv_exp_ls_surr()
 
 
-%
 % de_ftab_curv_show_sur1()
 % show surrogates for the case L=1
-%
 function de_ftab_curv_show_sur1(fit, varargin)
 
 s = linspace(-4,16,201)';
@@ -461,10 +450,8 @@ if im, figure(2), close, end
 end % de_ftab_curv_show_sur1()
 
 
-%
 % de_ftab_curv_show_sur2()
 % show surrogates for the case L=2
-%
 function de_ftab_curv_show_sur2(fit, varargin)
 
 sls = de_ftab_sls('min', [-1 -1], 'max', [20 10], 'n', [21 11]);
@@ -558,9 +545,7 @@ end % for ic
 end % de_ftab_curv_show_sur2()
 
 
-%
 % de_ftab_curv_show_sur()
-%
 function out = de_ftab_curv_show_sur(fit, varargin)
 
 switch fit.LL
@@ -576,10 +561,8 @@ if nargout, out = []; end
 end % de_ftab_curv_show_sur()
 
 
-%
 % de_ftab_curv_test1()
 % L=1
-%
 function de_ftab_curv_test1
 
 stype = 'ps1';
@@ -601,10 +584,8 @@ end % de_ftab_curv_test1()
 
 
 
-%
 % de_ftab_curv_test2()
 % L=2
-%
 function de_ftab_curv_test2
 
 stype = 'poly1,80,140';
@@ -623,9 +604,7 @@ fit.show_sur;
 end % de_ftab_curv_test2()
 
 
-%
 % de_ftab_curv_test()
-%
 function de_ftab_curv_test
 de_ftab_curv_test2
 de_ftab_curv_test1

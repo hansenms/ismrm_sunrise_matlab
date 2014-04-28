@@ -129,7 +129,7 @@ for iter = 1:arg.niter
 
 	% check if descent direction
 	if real(dot_double(conj(ddir), ngrad)) < 0
-		warn 'wrong direction; try using stop_grad_tol'
+		warn('wrong direction at iter=%d; try using stop_grad_tol?', iter)
 		ratio = norm(ngrad(:), arg.stop_grad_norm) / (yi'*W*yi);
 		pr ratio % see how small it is
 		if arg.key, keyboard, end
@@ -172,9 +172,14 @@ for iter = 1:arg.niter
 			pdenom = dot_double(abs(ddir).^2, R.denom(R, x + step * ddir));
 			denom = dAWAd + pdenom;
 			if denom == 0 || isinf(denom)
-				'0 or inf denom?'
-				if arg.key, keyboard, end
-				error bad
+				if norm(pregrad) == 0
+					printm 'found exact solution!?'
+					denom = inf; % lazy trick so step=0
+				else
+					printm '0 or inf denom?'
+					if arg.key, keyboard, end
+					error bad
+				end
 			end
 			pgrad = R.cgrad(R, x + step * ddir);
 			pdot = dot_double(conj(ddir), pgrad);

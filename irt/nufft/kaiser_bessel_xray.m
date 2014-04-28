@@ -22,8 +22,8 @@ if nargin < 1, help(mfilename), error(mfilename), end
 if nargin == 1 && streq(r, 'test'), kaiser_bessel_xray_test, return, end
 
 if ~isvar('J'), J = 4; end
-if ~isvar('alpha') | isempty('alpha'), alpha = 10.83; end
-if ~isvar('kb_m') | isempty('kb_m'), kb_m = 2; end
+if ~isvar('alpha') || isempty('alpha'), alpha = 10.83; end
+if ~isvar('kb_m') || isempty('kb_m'), kb_m = 2; end
 if ~isvar('d'), d = 2; end
 tol = 1e-4;
 

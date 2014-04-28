@@ -25,10 +25,10 @@
 %	Copyright 2001-9-17	Jeff Fessler	The University of Michigan
 
 if nargin < 7, help(mfilename), error args, end
-if ~isvar('n_shift') | isempty(n_shift), n_shift = [0 0]; end
-if ~isvar('useloop') | isempty(useloop), useloop = false; end
-if ~isvar('alpha') | isempty(alpha), alpha = 1; end
-if ~isvar('beta') | isempty(beta), beta = 0.5; end
+if ~isvar('n_shift') || isempty(n_shift), n_shift = [0 0]; end
+if ~isvar('useloop') || isempty(useloop), useloop = false; end
+if ~isvar('alpha') || isempty(alpha), alpha = 1; end
+if ~isvar('beta') || isempty(beta), beta = 0.5; end
 
 alpha1 = alpha;
 alpha2 = alpha;

@@ -1,13 +1,15 @@
  function yi = interp1_jump(xj, yj, xi, varargin)
 %function yi = interp1_jump(xj, yj, xi, {arguments for interp1})
-% Generalization of matlab's "interp1" to allow xj with repeated values,
-% for interpolation of a function that has "jumps" (discontinuities),
-% such as is caused by k-edges for mass attenuation coefficients.
-% If the first option is 'monodown' then the function is expected to
-% be monotone decreasing except for certain jumps that may not correspond
-% to xj's with equal values.
-% The (remaining) options are passed to 'interp1'.
-% Copyright 2004-5-2, Jeff Fessler, The University of Michigan
+%|
+%| Generalization of matlab's "interp1" to allow xj with repeated values,
+%| for interpolation of a function that has "jumps" (discontinuities),
+%| such as is caused by k-edges for mass attenuation coefficients.
+%| If the first option is 'monodown' then the function is expected to
+%| be monotone decreasing except for certain jumps that may not correspond
+%| to xj's with equal values.
+%| The (remaining) options are passed to 'interp1'.
+%|
+%| Copyright 2004-5-2, Jeff Fessler, The University of Michigan
 
 if nargin == 1 && streq(xj, 'test'), interp1_jump_test, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
@@ -72,7 +74,7 @@ x = [0 0.5 1 1 2 3 3 4 5];
 %x = [0 0.5 1 1.1 2 3 3.1 4 5];
 y = [1 0 0 1 1 2 1 2 2];
 t = linspace(-0.5,0.5+max(x),1001);
-f = interp1_jump(x, y, t, 'cubic', 'extrap');
+f = interp1_jump(x, y, t, 'pchip', 'extrap');
 if im
 	clf, subplot(211)
 	plot(x, y, 'o', t, f, '-')
@@ -80,7 +82,7 @@ end
 
 x = [0:5];
 y = [4 2 1 2 1 0];
-f = interp1_jump(x, y, t, 'monodown', 'cubic', 'extrap');
+f = interp1_jump(x, y, t, 'monodown', 'pchip', 'extrap');
 if im
 	subplot(212)
 	plot(x, y, 'o', t, f, '-')

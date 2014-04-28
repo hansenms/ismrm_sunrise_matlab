@@ -24,7 +24,6 @@
 %| Copyright 2008-09-28, Jeff Fessler, University of Michigan
 
 if nargin < 1, help(mfilename), error(mfilename), end
-%if nargin == 1 && streq(fit, 'test'), fail('run de_ftab test'), return, end
 if nargin == 1 && streq(fit, 'test'), de_ftab_inv1_test, return, end
 
 arg.show = false;
@@ -65,9 +64,7 @@ if arg.show && im
 end
 
 
-%
 % de_ftab_inv1_exp_init()
-%
 function st = de_ftab_inv1_exp_init(st, fit, arg);
 
 s1 = st.s1;
@@ -127,9 +124,7 @@ for mm=1:MM
 end
 
 
-%
 % de_ftab_inv1_exp_eval()
-%
 function s1hat = de_ftab_inv1_exp_eval(st, fh1)
 
 MM = size(st.f1,2);
@@ -145,10 +140,8 @@ s1hat = reshape(s1hat, dim);
 warn 'untested'
 
 
-%
 % de_ftab_inv1_interp()
 % inverse based on interpolation
-%
 function s1hat = de_ftab_inv1_interp(st, fh1)
 
 s1 = st.s1;
@@ -159,14 +152,12 @@ dim = size(fh1);
 fh1 = reshapee(fh1, [], MM);
 s1hat = zeros(size(fh1), 'single');
 for mm=1:MM
-	s1hat(:,mm) = interp1(f1(:,mm), s1, fh1(:,mm), 'cubic', 'extrap');
+	s1hat(:,mm) = interp1(f1(:,mm), s1, fh1(:,mm), 'pchip', 'extrap');
 end
 s1hat = reshape(s1hat, dim);
 
 
-%
 % de_ftab_inv1_plot()
-%
 function out = de_ftab_inv1_plot(st, fit)
 
 if nargin ~= 2, fail 'need "fit" argument', end
@@ -204,9 +195,7 @@ prompt
 if nargout, out = []; end
 
 
-%
 % de_ftab_inv1_test()
-%
 function de_ftab_inv1_test
 stype = 'ps1';
 mtype = {'water', 'bone'};

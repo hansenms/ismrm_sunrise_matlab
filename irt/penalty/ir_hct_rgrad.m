@@ -15,7 +15,7 @@
 %|
 %| Jeff Fessler, 2012-06-15
 
-if nargin == 1 & streq(x, 'test'), ir_hct_rgrad_test, return, end
+if nargin == 1 && streq(x, 'test'), ir_hct_rgrad_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 
 arg.R = [];

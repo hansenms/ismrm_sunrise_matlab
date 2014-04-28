@@ -7,6 +7,10 @@
 %|	'thresh'	threshold (default: 1e-6)
 %|	'format'	format for displaying the two variables (default: '')
 %|	'fail'	0|1	if 1 (default) then fail if not equivalent, else warn
+%|
+%| out
+%|	out		0|1
+%|
 %| Copyright 2007, Jeff Fessler, University of Michigan
 
 if nargin == 1 && streq(var1, 'test'), equivs_test, return, end
@@ -63,6 +67,9 @@ name2 = inputname(2);
 minmax(var1, ['equivs ' name1 ':'])
 minmax(var2, ['equivs ' name2 ':'])
 diff = var1 - var2;
+if ~isreal(diff)
+	diff = abs(diff);
+end
 minmax(diff)
 printm([str ' normalized difference of %g between "%s" "%s"'], ...
 	err, name1, name2);

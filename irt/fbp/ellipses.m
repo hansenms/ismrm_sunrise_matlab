@@ -33,15 +33,15 @@ end
 
 warning 'ellipses() has been replaced by ellipse_im()'
 
-if ~isvar('ny') | isempty(ny)
+if ~isvar('ny') || isempty(ny)
 	ny = nx;
 end
 
-if ~isvar('dx') | isempty(dx)
+if ~isvar('dx') || isempty(dx)
 	dx = 1;
 end
 
-if ~isvar('dy') | isempty(dy)
+if ~isvar('dy') || isempty(dy)
 	dy = dx;
 end
 
@@ -52,7 +52,7 @@ arg.erot = 0;
 arg.oversample = 1;
 arg = vararg_pair(arg, varargin);
 
-if ~isvar('params') | isempty(params)
+if ~isvar('params') || isempty(params)
 	params = shepp_logan_parameters(arg.fov, arg.fov);
 end
 

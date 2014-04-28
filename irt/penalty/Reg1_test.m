@@ -20,10 +20,15 @@ if 1 % test tiny image
 	full(R0.C);
 
 	tmp = {true(3,2), 'offsets', '2d:hv'};
+	if 0
+		rng(7)
+		tmp = {tmp{:}, 'user_wt', ones(3,2,2)};
+	end
 	R0t = Reg1(tmp{:}, 'type_penal', 'mat', 'type_diff', 'ind');
 	R0x = Reg1(tmp{:}, 'type_penal', 'mex');
 	jf_equal( full(R0t.C), full(R0x.C) )
 	jf_equal( full(R0t.C1), full(R0x.C1) )
+%	jf_equal( R0t.cgrad(R0t, x), R0x.cgrad(R0x, x) ) % not ?
 %	full(R0t.C1)
 %	full(R0x.C1)
 end
@@ -31,20 +36,21 @@ end
 
 if 1 || ~isvar('Rt'), printm 'Rt'
 	if 1 % 3d
-		ig = image_geom('nx', 512, 'ny', 480, 'nz', 32, 'fov', 500, ...
-			'down', 4);
+		ig = image_geom('nx', 512, 'ny', 480, 'nz', 2^5, 'fov', 500, ...
+			'down', 2^2);
 	else % 2d
-		ig = image_geom('nx', 512, 'ny', 448, 'fov', 500, 'down', 32);
+		ig = image_geom('nx', 512, 'ny', 448, 'fov', 500, 'down', 2^3);
 	end
 	tmp = ig.circ(ig.fov/2*1.1) > 0;
 	tmp([1 end],:,:) = 0; tmp(:, [1 end],:) = 0; % zero border for 3d
 	ig.mask = tmp; clear tmp
 	kappa = 2 + 1 * cos(2*pi*ig.x/ig.fov) * sin(2*pi*ig.y/ig.fov)';
 %	kappa = ig.mask;
-	f.offsets = '';
+	f.offsets = ''; f.n_offset = 4;
 	if ig.is3
 		kappa = repmat(ig.mask_or, [1 1 ig.nz]) .* ig.mask;
 		f.offsets = '3d:26';
+		f.n_offset = 13;
 	else
 		kappa = single(kappa) .* ig.mask;
 	end
@@ -86,9 +92,35 @@ if 1 || ~isvar('Rt'), printm 'Rt'
 		pr order
 		f.arg1 = {kappa, 'offsets', f.offsets, 'beta', 2^f.l2b, ...
 			'edge_type', 'tight', 'order', order};
+		if 0 && order == 1 % test user_wt
+			rng(7)
+%			tmp = ones([ig.dim f.n_offset]);
+%			tmp(1:end/4,:,:) = 4;
+			tmp = rand([ig.dim f.n_offset]);
+			f.arg1 = {f.arg1{:}, 'user_wt', tmp};
+		end
 		f.arg = {f.arg1{:}, 'pot_arg', f.pot_arg};
 		Rt = Reg1(f.arg{:}, 'type_penal', 'mat');
-		Rx = Reg1(f.arg{:}, 'type_penal', 'mex', 'control', 2);
+		Rx = Reg1(f.arg{:}, 'type_penal', 'mex'); % default control
+%		R1 = Reg1(f.arg{:}, 'type_penal', 'mex', 'control', 1);
+
+		if 0 % test timing of loop control 1 and 2
+			% in 3d for order=2 with no user_wt,
+			% control=2 is about 5% faster
+			g1 = ig.embed(R1.cgrad(R1, xm)); % warm up
+			g2 = ig.embed(Rx.cgrad(Rx, xm)); % warm up
+
+			cpu etic
+			g1 = ig.embed(R1.cgrad(R1, xm));
+			cpu etoc 'Rx cgrad control=1 time'
+
+			cpu etic
+			g2 = ig.embed(Rx.cgrad(Rx, xm));
+			cpu etoc 'Rx cgrad control=2 time'
+			equivs(g1, g2)
+		continue
+		end
+
 		if has_mex_jf
 			switch f.pot
 			case {'qgg2', 'gf1'}
@@ -107,6 +139,7 @@ if 1 || ~isvar('Rt'), printm 'Rt'
  			% convert offsets to zxy!
 			f.offsets_zxy = reg_offset_xyz_to_zxy(f.offsets, size(kappa));
 			Rz = Reg1(zxy(kappa), f.arg{2:end}, ...
+				'user_wt', [], ...
 				'offsets', f.offsets_zxy, ...
 				'offsets_is_zxy', true, ...
 				'type_penal', 'zxy');
@@ -140,8 +173,11 @@ if 1 || ~isvar('Rt'), printm 'Rt'
 		if 1 % check dercurv
 			[t.dt t.ct] = feval(Rt.dercurv, Rt, Rt.C1 * x);
 			[t.dx t.cx] = feval(Rx.dercurv, Rx, Rx.C1 * x);
+%			[t.d1 t.c1] = feval(R1.dercurv, R1, R1.C1 * x);
 			jf_equal(t.dt, t.dx)
 			jf_equal(t.ct, t.cx)
+%			jf_equal(t.dt, t.d1)
+%			jf_equal(t.ct, t.c1)
 
 			[t.dx t.cx] = feval(Rx.dercurv, Rx, Rx.C1 * xm);
 			jf_equal(ig.shape(t.dx), t.dt)
@@ -166,6 +202,7 @@ if 1 || ~isvar('Rt'), printm 'Rt'
 			tmp = Rt.penal(Rt, x);
 			jf_equal(tmp, Rt.penal(Rt, xm))
 			equivs(tmp, Rx.penal(Rx, x))
+%			equivs(tmp, R1.penal(R1, x))
 			jf_equal(Rx.penal(Rx, x), Rx.penal(Rx, xm))
 			if has_mex_jf
 %				jf_equal(Rt.penal(Rt, xm), Ro.penal(Ro, xm))
@@ -206,8 +243,10 @@ if 1 || ~isvar('Rt'), printm 'Rt'
 					cpu etoc 'Rz cgrad/denom time'
 					g5 = xyz(g5);
 					w5 = xyz(w5);
-					equivs(g1, g5)
-					equivs(w1, w5)
+					if isempty(Rx.user_wt) % trick
+						equivs(g1, g5)
+						equivs(w1, w5)
+					end
 %					im(w1-w5), return
 
 					% zxy version with mask
@@ -253,9 +292,14 @@ if 1 || ~isvar('Rt'), printm 'Rt'
 				equivs(denxm, denxf)
 %				im clf, im([denxf; denxm; denxf-denxm]), cbar
 
+%				denx1 = R1.denom_sqs1(R1, x);
+%				equivs(dentf, denx1)
+
 				dentf = Rt.denom(Rt, x);
 				denxf = Rx.denom(Rx, x);
+%				denx1 = R1.denom(R1, x);
 				equivs(dentf, denxf)
+%				equivs(dentf, denx1)
 
 				deno = ig.embed(Ro.denom(Ro, xm));
 				% trick: denom matches except along outer edges
@@ -263,7 +307,7 @@ if 1 || ~isvar('Rt'), printm 'Rt'
 				iy = (1+order):(ig.ny-order);
 				equivs(dentf(ix,iy), deno(ix,iy))
 
-				if order == 1 && ig.is3
+				if order == 1 && ig.is3 && isempty(Rx.user_wt)
 					equivs(dentf, w5) % check zxy
 				end
 			end

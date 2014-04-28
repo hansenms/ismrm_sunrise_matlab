@@ -280,7 +280,7 @@ if ischar(window)
 	if streq(window, 'ramp')
 		window = ones(n,1);
 	elseif streq(window, 'hann')
-		window = hann(n, 'periodic');
+		window = ir_hann_periodic(n);
 	else
 		error 'unknown window'
 	end

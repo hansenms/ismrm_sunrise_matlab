@@ -4,7 +4,7 @@
 %|
 %| Copyright 2005-4-6, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(diag, 'test'), diag_sp_test, return, end
+if nargin == 1 && streq(diag, 'test'), diag_sp_test, return, end
 if nargin < 1, help(mfilename), error(mfilename), end
 
 if length(varargin) ~= 0

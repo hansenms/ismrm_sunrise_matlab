@@ -21,17 +21,17 @@
 
 if nargin < 2, help(mfilename), error(mfilename), end
 
-if ~isvar('W') | isempty(W)
+if ~isvar('W') || isempty(W)
 	W = 1;
 end
-if ~isvar('niter') | isempty(niter)
+if ~isvar('niter') || isempty(niter)
 	niter = 1;
 end
-if ~isvar('D') | isempty(D)
+if ~isvar('D') || isempty(D)
 	D = 1;
 end
-if ~isvar('xmin') | isempty(xmin), xmin = 0; end
-if ~isvar('xmax') | isempty(xmax), xmax = inf; end
+if ~isvar('xmin') || isempty(xmin), xmin = 0; end
+if ~isvar('xmax') || isempty(xmax), xmax = inf; end
 
 
 %

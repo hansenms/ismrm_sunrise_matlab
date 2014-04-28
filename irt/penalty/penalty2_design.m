@@ -23,14 +23,14 @@ if nargin < 1, help(mfilename), error(mfilename), end
 
 % run a self-test to compare my analytical solution
 % to the numerical solution computed using NNLS.
-if nargin == 1 & streq(type, 'test')
+if nargin == 1 && streq(type, 'test')
 	penalty2_design_test
 return
 end
 
 % analytical design of 1st-order difference, 2nd-order neighborhood
 if streq(type, 'quad,d1', 7)
-	if length(varargin) < 1 | length(varargin) > 3
+	if length(varargin) < 1 || length(varargin) > 3
 		help(mfilename), error(mfilename)
 	end
 

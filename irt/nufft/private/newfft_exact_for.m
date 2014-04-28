@@ -3,7 +3,7 @@
 %| exact forward NUFFT
 
 nthread = 1; % todo
-useloop = false; % todo
+how = 'outer'; % todo
 
 if ~isvar('om') || isempty(om)
 	om = st.om;
@@ -16,5 +16,5 @@ if exist('dtft_mex') == 3
 		error 'n_shift not done'
 	end
 else
-	X = dtft(x, om, st.n_shift, useloop);
+	X = dtft(x, om, 'n_shift', st.n_shift, 'how', how);
 end

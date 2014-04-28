@@ -16,7 +16,7 @@ if ~isvar('xtrue'), printm 'xtrue'
 	ymask = ellipse_im(ig, [0 0 27 35 0 1], 'oversample', 3) > 0;
 	yi_lim = [0 max(abs(yi(:)))];
 
- else
+ else % generate simulated field map and image
 %	xtrue = -20 * ones(64,64);
 	xtrue = zeros(64,64);
 %	xtrue(33+[-15:15], 20:35) = 90;
@@ -154,7 +154,7 @@ if ~isvar('Go'), printm 'Go'
 	clear fo
 end
 
-if ~isvar('R') | 0
+if ~isvar('R') || 0
 	R = Robject(mask, 'beta', 2^7, 'order', 2);
 	qpwls_psf(G0, R, 1, mask);
 	clear fo

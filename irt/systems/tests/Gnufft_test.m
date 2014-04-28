@@ -2,7 +2,7 @@
 % Test the Gnufft object (vs exact Gdsft)
 
 % create Gnufft class object
-if 1 | ~isvar('A'), printm 'setup Gnufft_test'
+if 1 || ~isvar('A'), printm 'setup Gnufft_test'
 	im plc 3 3
 	if 1 % 2d
 		N = [32 30];
@@ -46,7 +46,7 @@ end
 %
 % test data
 %
-if 1 | ~isvar('x'), printm 'setup data'
+if 1 || ~isvar('x'), printm 'setup data'
 	if length(N) == 2
 		x = zeros(N);
 		x(5:25,10:25) = 1;

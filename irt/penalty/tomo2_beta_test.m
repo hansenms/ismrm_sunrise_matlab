@@ -8,7 +8,7 @@
 % Copyright 2005-8-26, Jeff Fessler, The University of Michigan
 
 redo = 0;
-if redo | ~isvar('G2'), disp 'setup G'
+if redo || ~isvar('G2'), disp 'setup G'
 	down = 4;
 	ig1 = image_geom('nx', 512, 'ny', 272, 'fov', 256, 'down', down);
 	sg1 = sino_geom('par', 'nb', 888, 'na', 984, 'dr', 541/949, ...
@@ -85,7 +85,7 @@ if 0 % check scales of A'A
 return
 end
 
-if redo | ~isvar('mtf1')
+if redo || ~isvar('mtf1')
 	beta0 = 2^3;
 	R0 = Robject(ig1.mask, 'beta', beta0);
 %	R0 = Reg1(ig1.mask, 'beta', beta0);
@@ -111,7 +111,7 @@ if redo | ~isvar('mtf1')
 	end
 end
 
-if 1 & im % plot profiles
+if 1 && im % plot profiles
 	clf, subplot(211)
 	ix = ig1.dx * (o1(1) + 0.5);
 	iy = o1(2) + ig1.ny/2+1;

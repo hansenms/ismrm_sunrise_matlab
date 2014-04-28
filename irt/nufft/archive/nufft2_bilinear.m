@@ -43,8 +43,8 @@ if nargin < 1
 end
 
 
-if ~isvar('n_shift') | isempty(n_shift), n_shift = [0 0]; end
-if ~isvar('useloop') | isempty(useloop), useloop = 0; end
+if ~isvar('n_shift') || isempty(n_shift), n_shift = [0 0]; end
+if ~isvar('useloop') || isempty(useloop), useloop = 0; end
 
 M = size(omega,1);
 [N1 N2] = size(x);

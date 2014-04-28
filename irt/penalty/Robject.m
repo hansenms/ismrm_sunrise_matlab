@@ -168,8 +168,8 @@ R.denom = inline('feval(R.handle_denom, R, x)', 'R', 'x');
 %
 % precompute denominator for separable quadratic case if needed
 %
-if ~streq(R.type_denom, 'none') & R.isquad
-	if streq(R.type_denom, 'matlab') | streq(R.type_denom, 'aspire')
+if ~streq(R.type_denom, 'none') && R.isquad
+	if streq(R.type_denom, 'matlab') || streq(R.type_denom, 'aspire')
 		t = R.wt .* R.pot.wpot(R.pot, 0);
 		if R.C_is_I
 			R.denom_max0 = t;

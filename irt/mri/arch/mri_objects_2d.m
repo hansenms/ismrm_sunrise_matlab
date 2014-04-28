@@ -19,7 +19,7 @@
 % Copyright 2004-4-20, Jeff Fessler, The University of Michigan
 
 if nargin < 1, help(mfilename), error args, end
-if nargin == 1 & streq(varargin{1}, 'test')
+if nargin == 1 && streq(varargin{1}, 'test')
 	[xf yf] = mri_objects_2d_test;
 return
 end

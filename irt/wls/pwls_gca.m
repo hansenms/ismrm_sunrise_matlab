@@ -97,7 +97,7 @@ end
 	end
 
 	% compare GCA and SCA denominators (for WLS part)
-	if chat & (np < 1000)
+	if chat && (np < 1000)
 		t = full(sum(A .* (icov * A))');	% SCA den
 		t = t(wlsden ~= 0) ./ wlsden(wlsden ~= 0);
 		if min(t(:)) < 1-10*eps
@@ -154,7 +154,7 @@ for ii = 2:niter
 	end
 
 	xs(:,ii) = xhat;
-	if chat & (ii < 10 | rem(ii,10) == 0)
+	if chat && (ii < 10 || rem(ii,10) == 0)
 		im(6, embed(xhat,mask), 'x hat')
 		if ny == 1
 			im(4, wt, 'wts')

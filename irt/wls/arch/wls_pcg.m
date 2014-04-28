@@ -20,17 +20,17 @@
 %
 % Copyright 1998-07-03, Jeff Fessler, The University of Michigan
 
-if nargin < 6 | nargin > 8, help(mfilename), error(mfilename), end
+if nargin < 6 || nargin > 8, help(mfilename), error(mfilename), end
 
-if isvar('mask') & ~isempty(mask), chat = 1; else, chat = 0; end
-if ~isvar('xmin') | isempty(xmin)
+if isvar('mask') && ~isempty(mask), chat = 1; else, chat = 0; end
+if ~isvar('xmin') || isempty(xmin)
 	xmin = -Inf;
 else
 	warning('using xmin ruins convergence!')
 end
 
 np = ncol(G);
-if numel(x0) ~= np & isvar('mask')
+if numel(x0) ~= np && isvar('mask')
 	x0 = x0(mask(:));
 end
 
@@ -113,7 +113,7 @@ while ii <= niter
 	new	= old + step * ddir;
 	xs(:,ii) = new;
 	
-	if chat & (ii < 10 | rem(ii,10)==0)
+	if chat && (ii < 10 || rem(ii,10)==0)
 		im(121, embed(new,mask), 'xnew')
 		title(sprintf('%d step=%g gamma=%g', ii, step, gamma))
 		if isobject(M)

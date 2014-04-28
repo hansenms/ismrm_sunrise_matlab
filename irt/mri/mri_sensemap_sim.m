@@ -13,7 +13,6 @@
 
 if nargin == 1 && streq(varargin{1}, 'test'), mri_sensemap_sim_test, return, end
 
-arg.chat = true;
 arg.nx = 64;
 arg.ny = [];
 arg.dx = 3; % pixel size in mm
@@ -23,6 +22,7 @@ arg.rcoil = 100; % coil radius
 arg.orbit = 360;
 arg.coil_distance = 1.2; % multiplies fov/2
 arg.flag_old = false; % old way based on wang:00:dop
+arg.chat = nargout == 0;
 
 arg = vararg_pair(arg, varargin);
 

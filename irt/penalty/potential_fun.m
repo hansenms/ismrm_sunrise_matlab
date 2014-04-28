@@ -194,6 +194,7 @@ case 'cauchy'
 	potk = @(pot, t) pot.delta.^2 / 2 .* log(1 + abs(t ./ pot.delta).^2);
 	wpot = @(pot, t) 1 ./ (1 + abs(t ./ pot.delta).^2);
 	dpot = @(pot, t) t ./ (1 + abs(t ./ pot.delta).^2);
+	shrink = @(pot, z, reg) cauchy_shrink(z, reg, pot.delta);
 
 % Geman&McClure penalty: d^2 / 2 * (t/d)^2 / (1 + (t/d)^2)
 % Not convex!
@@ -477,6 +478,23 @@ out(big) = z(big);
 end % broken_shrink
 
 
+% cauchy_shrink()
+function out = cauchy_shrink(z, reg, delta)
+z = z(:);
+coef = ones(numel(z),1);
+coef = [1/delta^2*coef -z/delta^2 (1+reg)*coef -z];
+out = zeros(size(z));
+for ii=1:numel(z)
+	tmp = roots(coef(ii,:));
+	pick = tmp == real(tmp); % empirically, 3rd root is often real
+	if sum(pick) ~= 1 % if multiple real roots, empirically pick largest
+		pick = imax(abs(tmp));
+	end
+	out(ii) = tmp(pick);
+end
+end % cauchy_shrink
+
+
 % huber_shrink()
 function out = huber_shrink(z, reg, delta)
 out = z ./ (1 + reg);
@@ -594,7 +612,7 @@ plist = potential_fun('list');
 %plist = {'quad', 'li98cfs', 'hyper3', 'huber2'}; % show li98cfs roughly hyper3
 %plist = {'quad', 'genhub', 'huber', 'stevenson94dpr'};
 %plist = {'genhub'}
-%plist = {'hyper3', 'qgg2'}; delta = 20; tmax = 10;
+%plist = {'hyper3', 'qgg2', 'huber'}; delta = 10; tmax = 50;
 %plist = {'lange3', 'qgg2'}; tmax = 200;
 %plist = {'qgg2', 'gf1-fit'};
 %plist = potential_fun('list1'); delta = 0.5;
@@ -603,6 +621,7 @@ plist = potential_fun('list');
 %plist = {'qgg2', 'table1'}; fname = 'fig_reg_pot_table1_qgg2';
 %plist = {'qgg2', 'table0'}; fname = 'fig_reg_pot_table0_qgg2';
 %plist = {'qgg2', 'table1', 'gf1'}; fname = 'fig_reg_pot_table0_gf1_qgg2';
+%plist = {'cauchy', 'l1'};
 t = tmax * linspace(-1, 1, 2001)';
 zs = 3 * max(delta + reg, delta * (1+reg)) * linspace(-1, 1, 301)';
 ps = [];
@@ -612,7 +631,7 @@ for ii=1:length(plist)
 	if streq(type, 'quad')
 		leg{ii} = type;
 	else
-		leg{ii} = [type ' \delta = ' num2str(delta)];
+		leg{ii} = [type ', \delta = ' num2str(delta)];
 	end
 
 	switch type
@@ -622,7 +641,7 @@ for ii=1:length(plist)
 		leg{ii} = [leg{ii} sprintf(' %.3g %.4f', param(1), param(2))];
 	case 'qgg2'
 		param = 1.2;
-		leg{ii} = [leg{ii} ' q = ' num2str(param)];
+		leg{ii} = [leg{ii} ', q = ' num2str(param)];
 	case 'genhub'
 		param = [2.0 1.2];
 		leg{ii} = [leg{ii} sprintf('p=%g q=%g', param(1), param(2))];
@@ -635,7 +654,7 @@ for ii=1:length(plist)
 %		param = {dt, tmp.dpot([1:1e4] * dt)};
 		param = [dt, tmp.dpot([1:1e4] * dt)];
 %		tmp = sprintf(' K = %d dt = %g', numel(param{2}), param{1});
-		tmp = sprintf(' K = %d dt = %g', numel(param)-1, param(1));
+		tmp = sprintf(', K = %d, dt = %g', numel(param)-1, param(1));
 		leg{ii} = [leg{ii} tmp];
 	otherwise
 		param = [];
@@ -646,6 +665,7 @@ for ii=1:length(plist)
 	pw(:,ii) = pot.wpot(t);
 	pd(:,ii) = pot.dpot(t);
 
+	% replace 0 with 1 to make (slow) figure showing fzero-based shrinkage
 	if 0 || ~streq(func2str(pot.meth.shrink), 'potential_fun_shrink')
 		tmp = pot.shrink(t, reg);
 		if any(tmp ~= 0)
@@ -693,12 +713,16 @@ if 1 && im
 	if ~isempty(lshrink)
 		prompt
 		clf
-		plot(zs, ps, '-', zs, zs, ':')
-		legend(lshrink{:}, 2)
-		xlabel 'z'
-		ylabel 'xhat(z)'
+		plot(zs, ps, '-', zs, zs, '-')
+		legend(lshrink{:}, 'location', 'southeast')
+		xlabelf 'z'
+%		ylabelf 'xhat(z)'
+		ylabelf 't(z)'
 		axis equal, axis square
-%		savefig eps_c fig_reg_pot_table0_qgg2_shrink
+		axis([-1 1 -1 1]*400)
+		xtick([-1 0 1] * 400)
+		ytick([-1 0 1] * 400)
+%		savefig cw fig_reg_pot_table0_qgg2_shrink
 
 		if 0 % figure for book
 			plot(zs, ps(:,[3 2]) - repmat(ps(:,1), [1 2]), 'o')

@@ -60,7 +60,7 @@
 %|
 %| Copyright 2006-9-8, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(ti, 'test'), mri_fun_approx_test, return, end
+if nargin == 1 && streq(ti, 'test'), mri_fun_approx_test, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
 
 persistent warned
@@ -147,7 +147,7 @@ elseif 1
 % time segmentation approaches
 % NOT DONE!
 %
-elseif 0 & (streq(atype, 'time,unif') | streq(atype, 'hist,time,unif'))
+elseif 0 7& (streq(atype, 'time,unif') || streq(atype, 'hist,time,unif'))
 
 	pn = jf_protected_names;
 
@@ -162,11 +162,11 @@ elseif 0 & (streq(atype, 'time,unif') | streq(atype, 'hist,time,unif'))
 			tl = col(pn.prctile(ti, p));
 		end
 
-		if rmsmax < 1 | ctest | streq(atype, 'hist,time,unif')
+		if rmsmax < 1 || ctest || streq(atype, 'hist,time,unif')
 			Ch = exp(-tl * zk(:).'); % [L,K]
 		end
 
-		if LL > 9 & isempty(tol) & ~warned
+		if LL > 9 && isempty(tol) && ~warned
 			warning 'For large L, try tol=''fro'''
 		end
 

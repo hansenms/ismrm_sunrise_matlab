@@ -8,14 +8,14 @@
 % datatype can be 'xdr_float' 'xdr_int' ...
 % Jeff Fessler, The University of Michigan
 
-if nargin == 1 & streq(file, 'test'), mat_write_test, return, end
+if nargin == 1 && streq(file, 'test'), mat_write_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 
 % use .fld file if filename ends in .fld, or if filename is t0, t1, ...
 isfld = 0;
 if length(file) > 4
 	isfld = streq(file((end-3):end), '.fld');
-elseif length(file) == 2 & file(1) == 't'
+elseif length(file) == 2 && file(1) == 't'
 	isfld = true;
 end
 
@@ -54,15 +54,15 @@ while length(varargin)
 	end
 end
 
-if isfld & ~isempty(varname)
+if isfld && ~isempty(varname)
 	warning('variable name for .fld file ignored')
 end
-if ~isfld & ~isempty(datatype)
+if ~isfld && ~isempty(datatype)
 	warning('datatype for .mat file ignored')
 end
 
 
-if 2==exist(file) & check1st
+if 2==exist(file) && check1st
 	if has_aspire
 		if isfld
 			os_run(['op range ' file])
@@ -97,7 +97,7 @@ else
 	t = version;
 	if t(1) == '4'
 		save(file, varname)
-	elseif t(1) == '5' | t(1) == '6'
+	elseif t(1) == '5' || t(1) == '6'
 		save(file, varname, '-v4')
 	else
 		error version

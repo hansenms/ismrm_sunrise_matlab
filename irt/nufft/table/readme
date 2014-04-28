@@ -2,6 +2,8 @@ This directory has C-code for 1D, 2D, and 3D interpolation
 (aka "gridding") using finite-support kernels that are tabulated
 on a fine grid.
 
+To compile for octave use "make -f Makefile-oct"
+
 The code supports interpolation using a complex kernel because
 my original NUFFT implementation required this generality.
 The complex interpolator code supports only 0th-order interpolation,

@@ -168,7 +168,8 @@ end % Rweights_strum_pre()
 % Rweights_strum_mul_user_wt()
 function wt = Rweights_strum_mul_user_wt(arg, mm)
 wt = arg.fun_no_user_wt(arg, mm);
-wt = wt .* col(stackpick(arg.user_wt, mm));
+tmp = stackpick(arg.user_wt, mm);
+wt = wt .* col(tmp);
 end % Rweights_strum_mul_user_wt()
 
 
@@ -318,7 +319,7 @@ case 'tight'
 	end
 
 case 'aspire2' % match rp_beta_fix_edges() in rp,beta.c
-	if order ~= 1 | ndims(kappa) ~= 2, error 'bug', end
+	if order ~= 1 || ndims(kappa) ~= 2, error 'bug', end
 	kappa = Rweights_kappa_expand(kappa);
 	kappa2 = Rweights_kappa2_mat(kappa, offset, displace, 'tight', order); % trick
 

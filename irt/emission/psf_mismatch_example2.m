@@ -61,13 +61,13 @@ end
 xinit = ones(sum(ig.mask(:)),1);
 
 % FBP
-if 0 & ~isvar('xfbp'), printm 'fbp'
+if 0 && ~isvar('xfbp'), printm 'fbp'
 	xfbp = em_fbp(sg, ig, yi, 1, ri);
 	im(xfbp), cbar
 prompt
 end
 
-if ~isvar('x2') & 0
+if ~isvar('x2') && 0
 	x0 = eml_em(xinit, G0, yi(:), 1, ri, 'isave', 'all', 'niter', f.niter);
 	x1 = eml_em(xinit, G1, yi(:), 1, ri, 'isave', 'all', 'niter', f.niter);
 	x2 = eml_em(xinit, G2, yi(:), 1, ri, 'isave', 'all', 'niter', f.niter);
@@ -113,7 +113,7 @@ if ~isvar('fw2'), printm 'find widths'
 	fx = fwhm2(xx);
 end
 
-if 1 & im
+if 1 && im
 	im clf
 	ii = 1:f.niter;
 	plot(ii(1:4:end), fw0(1:4:end), 'yo', ...

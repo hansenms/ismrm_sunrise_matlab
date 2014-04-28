@@ -70,7 +70,7 @@ else
 		end
 		dis(1) = offset - subval;
 	
-%		if ~(all(abs(dis) < half | (dis == 1 & half == 1)))
+%		if ~(all(abs(dis) < half || (dis == 1 && half == 1)))
 		if ~all(abs(dis) <= half)
 			pr dis
 			pr half

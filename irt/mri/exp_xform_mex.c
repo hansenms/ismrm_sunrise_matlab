@@ -2,7 +2,8 @@
 // Copyright 2004-9-23, Jeff Fessler, University of Michigan
 
 #include "mex.h"
-#include "math.h"
+#include <math.h>
+#include <stdio.h>
 
 #define Usage \
 "Usage: y = function(x, u, v);\n\

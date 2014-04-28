@@ -5,10 +5,10 @@
 if isempty(cascade)
 	y = x;
 
-elseif isa(cascade, 'function_handle') | isa(cascade, 'inline')
+elseif isa(cascade, 'function_handle') || isa(cascade, 'inline')
 	if nargin(cascade) == 4
 		y = feval(cascade, x, is_transpose, istart, nblock);
-	elseif nargin(cascade) == 2 | nblock == 1
+	elseif nargin(cascade) == 2 || nblock == 1
 		y = feval(cascade, x, is_transpose);
 	else
 		error 'cascade_* should have 2 or 4 arguments?'
@@ -29,6 +29,6 @@ else % matrix or object
 end
 
 function do_cascade_warn(cascade, nblock)
-if max(size(cascade)) > 1 & nblock ~= 1
+if max(size(cascade)) > 1 && nblock ~= 1
 	warning 'non scalar array/object cascade not tested with block!'
 end

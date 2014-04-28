@@ -44,7 +44,7 @@ if ~isvar('xqpls'), printm 'quadratic regularization case - straw man'
 	im(4, xqpls, 'QPLS'), cbar
 end
 
-if ~isvar('xnpls') | 1, printm 'l1 regularization for sparsity'
+if ~isvar('xnpls') || 1, printm 'l1 regularization for sparsity'
 	f.l2b_n = 2;
 	Rn = Robject(mask, 'type_denom', 'matlab', ...
 		'offsets', 0, ... % trick for identity

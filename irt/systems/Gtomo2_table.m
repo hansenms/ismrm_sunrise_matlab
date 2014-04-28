@@ -40,7 +40,7 @@ arg.sg = sg;
 arg.ig = ig;
 arg.table = table;
 arg.chat = 0;
-arg.class = 'Fatrix'; % todo
+arg.class = 'fatrix2';
 arg.nthread = jf('ncore');
 arg = vararg_pair(arg, varargin);
 
@@ -57,8 +57,18 @@ case 'Fatrix'
 	ob = Fatrix(dim, arg, 'caller', 'Gtomo2_table', ...
 		'forw', @Gtomo2_table_forw, 'back', @Gtomo2_table_back, ...
 		'mtimes_block', @Gtomo2_table_mtimes_block);
+
 case 'fatrix2'
-	fail 'todo: fatrix2'
+	forw = @(arg, x) Gtomo2_table_block_forw_array(arg, x, 1, 1);
+	back = @(arg, y) Gtomo2_table_block_back_array(arg, y, 1, 1);
+	forw_block = @(arg, x, iblock, nblock) ...
+		Gtomo2_table_block_forw_array(arg, x, iblock, nblock);
+	back_block = @(arg, y, iblock, nblock) ...
+		Gtomo2_table_block_back_array(arg, y, iblock, nblock);
+	ob = fatrix2('mask', ig.mask, 'arg', arg, 'does_many', 1, ...
+		'forw', forw, 'back', back, ...
+		'forw_block', forw_block, 'back_block', back_block);
+
 otherwise
 	fail('bad class "%s"', arg.class)
 end
@@ -116,7 +126,7 @@ case 'linear' % pixel-driven linear interpolation
 	tau = (ll + 1/2) / opt.Ltab;
 	arg.table = arg.ig.dx * tri(ir_min(tau) + kk - tau);
 
-	if im & opt.chat
+	if im && opt.chat
 		plot(ll(1,:), arg.table', '.'), grid
 	end
 
@@ -150,7 +160,7 @@ case {'square/strip', 'dd2', 'la45'}
 
 		if 1
 			ia = (ang8 == pi/4);
-			mang(ia) = 1;	% todo: why better?
+			mang(ia) = 1; % todo: why better?
 			%mang(ia) = 1 ./ mang(ia);
 			%mang = 1;
 			%mang = 1 ./ mang;
@@ -168,7 +178,7 @@ case {'square/strip', 'dd2', 'la45'}
 		fail 'bug'
 	end
 
-	if im & opt.chat
+	if im && opt.chat
 		plot(tau(1,:,1), arg.table(:,:,1)', '.'), grid
 	end
 
@@ -195,7 +205,8 @@ if sg.dx ~= abs(ig.dx) || abs(ig.dx) ~= abs(ig.dy)
 end
 
 % pixel-driven linear interpolation (intended for backprojection only)
-if streq(arg.table_type, 'mojette,back1')
+switch arg.table_type
+case 'mojette,back1'
 	Ktab = 2;
 	[rtab ang dr] = mojette_rad_ang(ig.nx, ig.ny, ig.dx, ig.dy, ...
 		ig.offset_x, ig.offset_y, ...
@@ -205,7 +216,7 @@ if streq(arg.table_type, 'mojette,back1')
 %	clf, plot(reshape(rtab./dr, [], arg.na), reshape(arg.table, [], arg.na), '.'), prompt
 
 % forward projector that relates to pixel-driven linear interpolation
-elseif streq(arg.table_type, 'mojette,linear')
+case 'mojette,linear'
 	Ktab = 2;
 
 	[rtab ang dr] = mojette_rad_ang(ig.nx, ig.ny, ig.dx, ig.dy, ...
@@ -217,7 +228,7 @@ elseif streq(arg.table_type, 'mojette,linear')
 
 
 % square pixel / strip integral model, strip_width = dr = dx max(|cos|,|sin|)
-elseif streq(arg.table_type, 'mojette,square/strip')
+case 'mojette,square/strip'
 	opt.strip_width = [];
 	opt = vararg_pair(opt, arg.table);
 	if isempty(opt.strip_width) || opt.strip_width > 0
@@ -240,8 +251,8 @@ elseif streq(arg.table_type, 'mojette,square/strip')
 
 %	clf, plot(reshape(rtab, [], arg.na), reshape(arg.table, [], arg.na), '.')
 
-else
-	error 'unknown mojette table type'
+otherwise
+	fail 'unknown mojette table type'
 end
 
 
@@ -324,6 +335,25 @@ end
 function y = Gtomo2_table_block_forw(arg, x, istart, nblock)
 
 [x ei] = embed_in(x, arg.ig.mask, arg.ig.np);
+y = Gtomo2_table_block_forw_array(arg, x, istart, nblock);
+y = ei.shape(y);
+
+
+% Gtomo2_table_block_back()
+function x = Gtomo2_table_block_back(arg, y, istart, nblock)
+
+ia = istart:nblock:arg.sg.na;
+[y eo] = embed_out(y, [arg.sg.nb length(ia)]);
+x = Gtomo2_table_block_back_array(arg, y, istart, nblock);
+x = eo.shape(x, arg.ig.mask, arg.ig.np);
+
+
+%
+% fatrix2 versions _array
+%
+
+% Gtomo2_table_block_forw_array()
+function y = Gtomo2_table_block_forw_array(arg, x, istart, nblock)
 
 ia = istart:nblock:arg.sg.na;
 if nblock == 1 || size(arg.table,3) == 1
@@ -334,13 +364,10 @@ end
 
 y = jf_mex(arg.proj_str, arg.ptab_arg{:}, table, ...
 	arg.mask8, arg.angles(ia), single(x));
-y = double6(y);
-
-y = ei.shape(y);
 
 
-% Gtomo2_table_block_back()
-function x = Gtomo2_table_block_back(arg, y, istart, nblock)
+% Gtomo2_table_block_back_array()
+function x = Gtomo2_table_block_back_array(arg, y, istart, nblock)
 
 ia = istart:nblock:arg.sg.na;
 if nblock == 1 || size(arg.table,3) == 1
@@ -349,10 +376,5 @@ else
 	table = arg.table(:,:,ia);
 end
 
-[y eo] = embed_out(y, [arg.sg.nb length(ia)]);
-
 x = jf_mex(arg.back_str, arg.ptab_arg{:}, table, ...
 	arg.mask8, arg.angles(ia), single(y));
-x = double6(x);
-
-x = eo.shape(x, arg.ig.mask, arg.ig.np);

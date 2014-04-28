@@ -24,10 +24,10 @@
 
 if nargin < 3, help(mfilename), error(mfilename), end
 
-if ~isvar('bi') | isempty(bi)
+if ~isvar('bi') || isempty(bi)
 	bi = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
 
@@ -36,24 +36,24 @@ nblock = block_ob(Gb, 'n');
 
 trl_check(yi, bi, ri);
 
-if ~isvar('P') | isempty(P)
+if ~isvar('P') || isempty(P)
 	error 'P required'
 end
-if ~isvar('niter') | isempty(niter)
+if ~isvar('niter') || isempty(niter)
 	niter = 2;
 end
-if ~isvar('pixmax') | isempty(pixmax)
+if ~isvar('pixmax') || isempty(pixmax)
 	pixmax = inf;
 end
 pixmin = 0;
-if ~isvar('curv') | isempty(curv)
+if ~isvar('curv') || isempty(curv)
 	curv = 'oc';
 end
 if strcmp(curv, 'oc'),		is_oc = 1;
 elseif strcmp(curv, 'pc'),	is_oc = 0;
 else,	error 'curv unknown',	end
 
-if ~isvar('gi') | isempty(gi)
+if ~isvar('gi') || isempty(gi)
 	gi = reshape(sum(Gb'), size(yi));	% g_i = sum_j g_ij
 end
 
@@ -61,7 +61,7 @@ starts = subset_start(nblock);
 [nb na] = size(yi);
 
 %	precompute denominator if needed
-if (~isvar('denom') | isempty(denom)) & ~is_oc
+if (~isvar('denom') || isempty(denom)) && ~is_oc
 	ni = trl_curvature(yi, bi, ri, [], 'pc');	% precomputed curvatures
 
 	%

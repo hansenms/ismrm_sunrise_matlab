@@ -1,9 +1,7 @@
   function [phantom, params] = ellipsoid_im(ig, params, varargin)
 %|function [phantom, params] = ellipsoid_im(ig, params, varargin)
 %|
-%| generate ellipsoids phantom image from parameters:
-%|	[x_center y_center z_center x_radius y_radius z_radius
-%|		xy_angle_degrees z_angle_degrees amplitude]
+%| Generate ellipsoids phantom image from parameters:
 %| in
 %|	ig		image_geom()
 %|	params [ne 9]	ellipsoid parameters.  if empty, use 3d shepp-logan
@@ -133,21 +131,21 @@ zmax = max(zz); zmin = min(zz);
 [xx yy zz] = ndgrid(xx, yy, zz);
 
 ticker reset
-ne = nrow(params);
-for ie = 1:ne;
-	ticker(mfilename, ie, ne)
+np = nrow(params);
+for ip = 1:np;
+	ticker(mfilename, ip, np)
 
-	ell = params(ie, :);
-	cx = ell(1);	rx = ell(4);
-	cy = ell(2);	ry = ell(5);
-	cz = ell(3);	rz = ell(6);
+	par = params(ip, :);
+	cx = par(1);	rx = par(4);
+	cy = par(2);	ry = par(5);
+	cz = par(3);	rz = par(6);
 
-	theta = deg2rad(ell(7));
-	phi = deg2rad(ell(8));
-	[xr yr zr] = rot3(xx-cx, yy-cy, zz-cz, theta, phi);
+	azim = deg2rad(par(7));
+	polar = deg2rad(par(8));
+	[xr yr zr] = rot3(xx-cx, yy-cy, zz-cz, azim, polar);
 
 	tmp = (xr / rx).^2 + (yr / ry).^2 + (zr / rz).^2 <= 1;
-	phantom = phantom + ell(9) * tmp;
+	phantom = phantom + par(9) * tmp;
 end
 
 if showmem, jf whos, end
@@ -193,26 +191,26 @@ if over > 1
 end
 
 ticker reset
-ne = nrow(params);
-for ie = 1:ne;
-	ticker(mfilename, ie, ne)
+np = nrow(params);
+for ip = 1:np;
+	ticker(mfilename, ip, np)
 
-	ell = params(ie, :);
-	cx = ell(1);	rx = ell(4);
-	cy = ell(2);	ry = ell(5);
-	cz = ell(3);	rz = ell(6);
+	par = params(ip, :);
+	cx = par(1);	rx = par(4);
+	cy = par(2);	ry = par(5);
+	cz = par(3);	rz = par(6);
 
-	theta = deg2rad(ell(7));
-	phi = deg2rad(ell(8));
+	azim = deg2rad(par(7));
+	polar = deg2rad(par(8));
 
 	xs = xx - cx; % shift per center
 	ys = yy - cy;
 	zs = zz - cz;
 
-	[xr yr zr] = rot3(xs, ys, zs, theta, phi);
+	[xr yr zr] = rot3(xs, ys, zs, azim, polar);
 	if over == 1
 		vi = (xr / rx).^2 + (yr / ry).^2 + (zr / rz).^2 <= 1;
-		phantom = phantom + ell(9) * single(vi);
+		phantom = phantom + par(9) * single(vi);
 	continue
 	end
 
@@ -236,7 +234,7 @@ for ie = 1:ne;
 
 %	vo_tmp = vo; 
 	vo = false; % todo: for now, "outside" test is failing
-	if ie == 1, warn 'todo: must debug this', end
+	if ip == 1, warn 'todo: must debug this', end
 
 	if any(vi(:) & vo(:)), fail 'bug', end
 
@@ -278,7 +276,7 @@ end
 	y = outer_sum(y, yf);
 	z = outer_sum(z, zf);
 
-	[xr yr zr] = rot3(x, y, z, theta, phi);
+	[xr yr zr] = rot3(x, y, z, azim, polar);
 	in = (xr / rx).^2 + (yr / ry).^2 + (zr / rz).^2 <= 1;
 	tmp = mean(in, 2);
 
@@ -295,7 +293,7 @@ end
 		%im(tmp)
 	end
 
-	phantom = phantom + ell(9) * gray;
+	phantom = phantom + par(9) * gray;
 end
 
 if showmem, jf whos, end
@@ -345,11 +343,11 @@ ymax = max(yy); ymin = min(yy);
 zmax = max(zz); zmin = min(zz);
 
 ok = true;
-for ie = 1:nrow(params)
-	ell = params(ie, :);
-	cx = ell(1);	rx = ell(4);
-	cy = ell(2);	ry = ell(5);
-	cz = ell(3);	rz = ell(6);
+for ip = 1:nrow(params)
+	par = params(ip, :);
+	cx = par(1);	rx = par(4);
+	cy = par(2);	ry = par(5);
+	cz = par(3);	rz = par(6);
 
 	if cx + rx > xmax || cx - rx < xmin
 		warn('fov: x range %g %g, cx=%g rx=%g', xmin, xmax, cx, rx)
@@ -371,10 +369,10 @@ end % ellipsoid_im_check_fov
 %
 % rot3()
 %
-function [xr, yr, zr] = rot3(x, y, z, theta, phi)
-if phi, error 'z rotation not done', end
-xr =  cos(theta) * x + sin(theta) * y;
-yr = -sin(theta) * x + cos(theta) * y;
+function [xr, yr, zr] = rot3(x, y, z, azim, polar)
+if polar, error 'z (polar) rotation not done', end
+xr =  cos(azim) * x + sin(azim) * y;
+yr = -sin(azim) * x + cos(azim) * y;
 zr = z;
 end % rot3()
 
@@ -425,16 +423,16 @@ ezhu = [...
 %
 % e(:,1) = [1 -.98 -.02 -.02 .01 .01 .01 .01 .01 .01];
 %
-% Column 1:  A      the additive intensity value of the ellipsoid
-% Column 2:  a      the length of the x semi-axis of the ellipsoid 
-% Column 3:  b      the length of the y semi-axis of the ellipsoid
-% Column 4:  c      the length of the z semi-axis of the ellipsoid
-% Column 5:  x0     the x-coordinate of the center of the ellipsoid
-% Column 6:  y0     the y-coordinate of the center of the ellipsoid
-% Column 7:  z0     the z-coordinate of the center of the ellipsoid
-% Column 8:  phi    phi Euler angle (in degrees) (rotation about z-axis)
-% Column 9:  theta  theta Euler angle (in degrees) (rotation about x-axis)
-% Column 10: psi    psi Euler angle (in degrees) (rotation about z-axis)
+% 1:	A	additive intensity value of the ellipsoid
+% 2:	a	length of the x semi-axis of the ellipsoid 
+% 3:	b	length of the y semi-axis of the ellipsoid
+% 4:	c	length of the z semi-axis of the ellipsoid
+% 5:	x0	x-coordinate of the center of the ellipsoid
+% 6:	y0	y-coordinate of the center of the ellipsoid
+% 7:	z0	z-coordinate of the center of the ellipsoid
+% 8:	phi	Euler angle (in degrees) (rotation about z-axis)
+% 9:	theta	Euler angle (in degrees) (rotation about x-axis)
+% 10:	psi	Euler angle (in degrees) (rotation about z-axis)
 %
 % For purposes of generating the phantom, the domains for the x-, y-, and 
 % z-axes span [-1,1].  Columns 2 through 7 must be specified in terms of
@@ -477,7 +475,6 @@ end % shepp_logan_3d_parameters()
 %
 function ellipsoid_im_profile
 ig = image_geom('nx', 2^6, 'ny', 2^6-2, 'nz', 2^5, 'fov', 240, 'dz', 1);
-ell = [30 20 2, 50 40 10, 20 0 100];
 profile on
 phantom = ellipsoid_im(ig, [], 'oversample', 2, 'type', '');
 phantom = ellipsoid_im(ig, [], 'oversample', 2, 'type', 'fast');
@@ -528,16 +525,16 @@ ig = image_geom('nx', 2^5, 'ny', 2^5-2, 'nz', 15, 'fov', 240, ...
 im pl 2 2
 if 1
 	over = 2^0;
-%	ell = [30 20 10, 50 40 30, 20 0 100];
-	ell = [];
-	args = {ig, ell, 'oversample', over};
-	[phantom ell] = ellipsoid_im(args{:}, 'hu_scale', -5000);
+%	par = [30 20 10, 50 40 30, 20 0 100];
+	par = [];
+	args = {ig, par, 'oversample', over};
+	[phantom par] = ellipsoid_im(args{:}, 'hu_scale', -5000);
 
 	over = 2^2;
-	ell = ell(3,:);
-	ell(7) = 0;
-	args = {ig, ell, 'oversample', over};
-	[phantom ell] = ellipsoid_im(args{:});
+	par = par(3,:);
+	par(7) = 0;
+	args = {ig, par, 'oversample', over};
+	[phantom par] = ellipsoid_im(args{:});
 %	im(1, phantom, 'Shepp Logan', [0.9 1.1]), cbar
 end
 
@@ -559,21 +556,21 @@ end
 % compare to aspire
 if ~has_aspire, return, end
 
-ell = [30 20 10, 50 40 30, 20 0 100];
+par = [30 20 10, 50 40 30, 20 0 100];
 
 dir = test_dir;
 file = [dir '/t.fld'];
 com = 'echo y | op ellipsoid %s %d %d %d  %g %g %g  %g %g %g %g %g %d %d';
 pix = [ig.dx -ig.dy -ig.dz ig.dx ig.dy -ig.dz 1 1 1];
-com = sprintf(com, file, ig.nx, ig.ny, ig.nz, ell ./ pix, log2(over)+1);
+com = sprintf(com, file, ig.nx, ig.ny, ig.nz, par ./ pix, log2(over)+1);
 os_run(com)
 asp = fld_read(file);
 im(4, ig.x, ig.y, asp, 'aspire'), cbar
 
-mat = ellipsoid_im(ig, ell, 'oversample', over, 'type', 'fast'); % todo!
+mat = ellipsoid_im(ig, par, 'oversample', over, 'type', 'fast'); % todo!
 
 if 0 % volume
-	pr 4/3 * pi * prod(ell(4:6)) * ell(9)
+	pr 4/3 * pi * prod(par(4:6)) * par(9)
 	pr sum(mat(:)) * abs(ig.dx * ig.dy * ig.dz);
 end
 
@@ -588,8 +585,8 @@ if 1 % check centroid
 	[xx yy zz] = ndgrid(ig.x, ig.y, ig.z);
 	t = [sum(xx(:) .* mat(:)) sum(yy(:) .* mat(:)) ...
 		sum(zz(:) .* mat(:))] / sum(mat(:));
-	if any(abs(t - ell(1:3)) > 0.02)
-		pr ell(1:3), pr t
+	if any(abs(t - par(1:3)) > 0.02)
+		pr par(1:3), pr t
 		warn 'bad centroid'
 	end
 end

@@ -15,6 +15,7 @@ list = {
 	'ugibb_form test'
 	'Reg1 test'
 	'Cdiff1_test' % slow so last
+%	'Cdiff1_tune'
 };
 
 run_mfile_local(list)

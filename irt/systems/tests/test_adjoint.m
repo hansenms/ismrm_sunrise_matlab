@@ -34,14 +34,27 @@ if arg.big, return, end % stop here if 'big'
 [nd np] = size(A);
 
 try
+	% must be very careful here because ob(:,:) calls full(ob) by default
+	% which in turns calls fatrix2_subsref_colon() which is "too" clever
+	% because it uses the smaller dimension, so transpose has no effect.
+	% 2013-07-16 added 'col' option to 'full' to force using the column
+	% dimension for the loop (for both ob and ob') thereby truly testing.
+
 	if arg.chat, printm 'A(:,:)', end
-	Af = A(:,:);
+	if isa(A, 'Fatrix')
+		Af = A(:,:); % not for fatrix2! calls full()
+	else
+		Af = full(A, 'col'); % trick
+	end
 	if arg.chat, printm 'done', end
 
-	Aa = A';
-
 	if arg.chat, printm 'A''(:,:)', end
-	Aa = Aa(:,:);
+	Aa = A';
+	if isa(Aa, 'Fatrix')
+		Aa = Aa(:,:); % not for fatrix2! calls full()
+	else
+		Aa = full(Aa, 'col'); % trick
+	end
 	if arg.chat, printm 'done', end
 
 catch
@@ -110,7 +123,7 @@ for ii=1:nrep
 	if mpd/100 > tol
 		pr v1
 		pr v2
-		pr [mpd/100 tol]
+		pr '[mpd/100 tol]'
 		if do_warn
 			warn 'adjoint mismatch'
 		else

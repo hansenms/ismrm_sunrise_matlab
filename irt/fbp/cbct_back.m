@@ -22,6 +22,7 @@
 %|	back	[nx ny nz]	back projection result
 %|
 %| Copyright 2004-8-28 Jeff Fessler, University of Michigan
+%| 2013-04-07 fixed wd,wu and improved extrapolation by Rebecca Malinas
 
 if nargin == 1 && streq(proj, 'test'), cbct_back_test, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
@@ -141,6 +142,10 @@ if any(source_zs ~= 0)
 	warn('helix not yet tested')
 end
 
+if ~extrapolate_t
+	warn 'mat version always extrapolates in t by replication'
+end
+
 [nx ny] = size(mask);
 betas = deg2rad(orbit_start + orbit * [0:na-1] / na); % [na] source angles
 
@@ -174,7 +179,7 @@ wt = (nt+1)/2 + offset_t;
 
 % loop over slices
 img = zeros([size(mask) nz]);
-sdim = [ns+3 nt+3]; % trick: extra zeros saves indexing in loop
+sdim = [ns+1 nt]; % trick: extra zeros for zero extrapolation in "s"
 proj1 = zeros(sdim);
 ticker reset
 for iz=1:nz
@@ -211,36 +216,29 @@ for iz=1:nz
 		bs = sprime / ds + ws;
 		bt = tprime / dt + wt;
 
-		if extrapolate_t % "repeat" first and last detector row?
-			bt = max(bt, 0); % todo: should it be "1" ?
-			bt = min(bt, nt-1); % todo: should it be "nt" ?
-		end
+		bs(bs < 1 | bs > ns) = ns+1; % trick for zero extrapolation in s
+		bt = max(bt, 1);
+		bt = min(bt, nt);
 
 		% bi-linear interpolation:
 		is = floor(bs); % left bin
 		it = floor(bt);
+
+		is(is == ns+1) = ns; % trick for zero extrapolation in s
+		it(it == nt) = nt - 1; % trick for last row extrapolation in t
 
 		wr = bs - is;	% left weight
 		wl = 1 - wr;	% right weight
 		wu = bt - it;	% upper weight
 		wd = 1 - wu;	% lower weight
 
-		if 0 % todo: provide option to extrapolate instead!
-			it = min(it, nt);
-			it = max(it, 1);
-		end
+		proj1(1:ns,:) = proj(:,:,ia); % trick: 1 extra zero at ns+1
+		p1 =	wl .* proj1(sub2ind(sdim, is  , it  )) + ...
+			wr .* proj1(sub2ind(sdim, is+1, it  ));
+		p2 =	wl .* proj1(sub2ind(sdim, is  , it+1)) + ...
+			wr .* proj1(sub2ind(sdim, is+1, it+1));
 
-		ibad = (is < 0) | (is > ns) | (it < 0) | (it > nt);
-		is(ibad) = ns+1; % trick! point at harmless zeros
-		it(ibad) = nt+1;
-
-		proj1(1+[1:ns],1+[1:nt]) = proj(:,:,ia); % trick: left side
-		p1 =	wl .* proj1(sub2ind(sdim, is+1,it+1)) + ...
-			wr .* proj1(sub2ind(sdim, is+2,it+1));
-		p2 =	wl .* proj1(sub2ind(sdim, is+1,it+2)) + ...
-			wr .* proj1(sub2ind(sdim, is+2,it+2));
-
-		p0 = wu .* p1 + wd .* p2; % vertical interpolation
+		p0 = wd .* p1 + wu .* p2; % vertical interpolation
 
 		if isinf(dfs) ... % flat
 			|| isinf(dsd) || isinf(dso) % par

@@ -24,10 +24,10 @@ if nargin < 3, help(mfilename), error(mfilename), end
 
 nblock = block_ob(Gb, 'n');
 
-if ~isvar('bi') | isempty(bi)
+if ~isvar('bi') || isempty(bi)
 	bi = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
 if ~isvar('niter'),	niter = 2; end

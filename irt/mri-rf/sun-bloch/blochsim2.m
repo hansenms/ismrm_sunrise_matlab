@@ -24,13 +24,13 @@ T1 = (dt ./ T1(:));
 T2 = (1 - dt ./ T2(:));
 
 % size checks
-if ~isreal(bx) | ~isreal(by) | ~isreal(bz) 
+if ~isreal(bx) || ~isreal(by) || ~isreal(bz) 
     bx = real(bx);
     by = real(by);
     bz = real(bz);
     disp('Warning: B field must be real valued - using only the real part');
 end
-if (size(bx) ~= size(by)) | (size(bx) ~= size(bz))
+if (size(bx) ~= size(by)) || (size(bx) ~= size(bz))
     disp('Error: B vectors not the same length')
     return;
 end

@@ -31,19 +31,19 @@ if nargin < 3, help(mfilename), error(mfilename), end
 
 [nb, na] = size(yi);
 
-if (nargin < 4 | isempty(bi))
+if (nargin < 4 || isempty(bi))
 	bi = ones(size(yi));
 end
-if (nargin < 5 | isempty(ri))
+if (nargin < 5 || isempty(ri))
 	ri = zeros(size(yi));
 end
-if (nargin < 6 | isempty(niter))
+if (nargin < 6 || isempty(niter))
 	niter = 2;
 end
-if (nargin < 7 | isempty(pixmax))
+if (nargin < 7 || isempty(pixmax))
 	pixmax = inf;
 end
-if (nargin < 8 | isempty(curv))
+if (nargin < 8 || isempty(curv))
 	curv = 'oc';
 end
 

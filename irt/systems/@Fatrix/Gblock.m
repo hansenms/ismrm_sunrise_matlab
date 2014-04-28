@@ -1,7 +1,7 @@
  function ob = Gblock(ob, nblock, varargin)
 %function ob = Gblock(ob, nblock, varargin)
 
-if isempty(ob.handle_mtimes_block) & ob.nblock > 1
+if isempty(ob.handle_mtimes_block) && ob.nblock > 1
 	error(['The Fatrix of type ' ob.caller ' has no mtimes_block()'])
 end
 

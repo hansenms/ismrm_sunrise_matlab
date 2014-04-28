@@ -79,7 +79,7 @@
 %|	To ensure the user is aware of this, must set flag 'offsets_is_zxy'
 %|
 %| Note: R.denom() is slightly larger near image borders (but still valid) 
-%| when using the mex verion compared to the mat version in the formula above.
+%| when using the mex version compared to the mat version in the formula above.
 %|
 %| Copyright 2006-12-6, Jeff Fessler, University of Michigan
 
@@ -140,12 +140,18 @@ end
 
 if isempty(arg.control)
 	switch arg.order
-	case 2
-		arg.control = 2;
+	case 0
+		arg.control = 0; % irrelevant
 	case 1
-		arg.control = 1;
+		arg.control = 1; % irrelevant
+	case 2
+		if isempty(arg.user_wt)
+			arg.control = 2; % slightly faster
+		else
+			arg.control = 1; % control=2 not done for user_wt
+		end
 	otherwise
-		warn('order=%d not done', arg.order)
+		fail('order=%d control default not done', arg.order)
 	end
 end
 
@@ -202,10 +208,12 @@ for mm=1:arg.M
 end
 
 % here the different types of penalty implementations depart
-if isempty(arg.type_penal) && ~isempty(arg.user_wt)
-	warn '"mex" does not support "user_wt" so using "mat"'
-	arg.type_penal = 'mat';
-end
+
+%if isempty(arg.type_penal) && ~isempty(arg.user_wt)
+%	warn '"mex" does not support "user_wt" so using "mat"'
+%	arg.type_penal = 'mat';
+%end
+
 if isempty(arg.type_penal) || streq(arg.type_penal, 'def')
 	if exist('penalty_mex') == 3
 		arg.type_penal = 'mex'; % default: try mex if available
@@ -221,15 +229,11 @@ end
 switch arg.type_penal
 case 'mat'
 	if arg.nthread ~= 1, warn 'nthread != 1 ignored', end
-	arg.cgrad1_fun = @Reg1_mat_cgrad1;
 	R = Reg1_setup_mat(arg, kappa);
 
 case 'mex'
 	% the 'mex' code has various restrictions (for efficiency)
 	% so here we make sure that those limitations are obeyed.
-	if ~isempty(arg.user_wt)
-		fail '"mex" type_penal does not support "user_wt" option'
-	end
 	if ~streq(arg.type_wt, 'pre') && ~streq(arg.type_wt, 'fly')
 		warn 'for "mex" type_penal, "type_wt" should be "pre" or "fly"'
 		warn('are you sure about what you are doing? (%s)', arg.type_wt)
@@ -246,10 +250,12 @@ case 'mex'
 		fail 'for "mex" penalty type, pot_arg must be only cell(1)'
 	end
 
-	arg.cgrad1_fun = @Reg1_mex_cgrad1;
 	R = Reg1_setup_mex(arg, kappa);
 
 case 'zxy'
+	if ~isempty(arg.user_wt)
+		fail '"zxy" type_penal does not support "user_wt" option'
+	end
 	R = Reg1_setup_zxy(arg, kappa);
 
 otherwise
@@ -277,6 +283,7 @@ end
 % strum methods
 % trick: for backwards compatibility, all these *require* that R
 % is passed (as dummy argument) even though "strum" does that.
+arg.cgrad1_fun = @Reg1_mat_cgrad1; % used in Reg1_com_cgrad
 arg.dercurv = @Reg1_com_dercurv; % trick: requires feval()
 meth = {...
 	'C1', @Reg1_com_C1, '(R)'; ...
@@ -300,7 +307,7 @@ R = strum(arg, meth);
 
 
 % Reg1_mat_cgrad1()
-% this is called by Reg1_cgrad()
+% this is called by Reg1_com_cgrad()
 function cgrad = Reg1_mat_cgrad1(sr, x)
 cgrad = 0;
 for mm=1:sr.M
@@ -348,17 +355,29 @@ denom = Reg1_mat_denom_sqs1_cell(sr.C1s, sr.mask, sr.pot, sr.wt, x);
 function R = Reg1_setup_mex(arg, kappa)
 
 % penalty setup
-arg.beta = arg.beta(:) ...
-	./ penalty_distance(arg.offsets(:), arg.dim) .^ arg.distance_power;
 arg.pot_type = arg.pot_arg{1}{1};
 arg.pot_params = cat(2, arg.pot_arg{1}{2:end});
+dis = penalty_distance(arg.offsets(:), arg.dim) .^ arg.distance_power;
+arg.beta = arg.beta(:) ./ dis;
+
+beta_arg = single(arg.beta);
+
+if ~isempty(arg.user_wt) % 2013-01-26 added support for user_wt
+	tmp = size(arg.user_wt);
+	if tmp(end) ~= arg.M
+		fail('user_wt must be [(N) M]')
+	end
+	tmp = reshapee(arg.user_wt, [], arg.M); % [nn M]
+	tmp = repmat(arg.beta, [1 nrow(tmp)]) .* tmp'; % [M nn] is_beta_array!
+	beta_arg = single(tmp);
+end
 
 % arguments that will be passed to penalty_mex() later
 arg.cgrad1_str = 'cgrad,offset';
 arg.denom_sqs1_str = 'denom,offset';
 arg.penal_str = 'penal,offset';
 arg.cdp_arg = { single(kappa), int32(arg.offsets), ...
-		single(arg.beta), arg.pot_type, single(arg.pot_params) ...
+		beta_arg, arg.pot_type, single(arg.pot_params) ...
 		int32(arg.order), int32(arg.control), int32(arg.nthread) };
 
 %arg.diff_str_forw = sprintf('diff%d,forw%d', arg.order, 1);
@@ -367,6 +386,7 @@ arg.cdp_arg = { single(kappa), int32(arg.offsets), ...
 % strum methods
 % trick: for backwards compatibility, all these *require* that R
 % is passed (as dummy argument) even though "strum" does that.
+arg.cgrad1_fun = @Reg1_mex_cgrad1; % used in Reg1_com_cgrad
 arg.dercurv = @Reg1_com_dercurv; % trick: requires feval()
 meth = {...
 	'C1', @Reg1_com_C1, '(R)'; ...
@@ -390,7 +410,7 @@ R = strum(arg, meth);
 
 
 % Reg1_mex_cgrad1()
-% this is called by Reg1_cgrad()
+% this is called by Reg1_com_cgrad()
 function cgrad = Reg1_mex_cgrad1(sr, x)
 tmp = sr.cdp_arg; % trick: strum limitation
 cgrad = penalty_mex(sr.cgrad1_str, single(x), tmp{:});

@@ -60,7 +60,7 @@ end
 % noisy data and estimated line integrals
 if ~isvar('li_hat'), disp 'li_hat'
 	% noisy data, if blank scan value has been specified.
-	if isvar('bi') & isvar('ri')
+	if isvar('bi') && isvar('ri')
 		yb = bi .* exp(-proj) + ri;
 		yi = poisson(yb);
 		li_hat = -log((yi-ri) ./ bi);

@@ -23,6 +23,7 @@
 %|				'def' | '' - default : try in this order:
 %|					'mex' 'circshift'
 %|				'circshift' - using matlab's circshift()
+%|				'diff' - using matlab diff() todo - not done!
 %|				'ind' - using matlab indexing
 %|				'for1' - using matlab "for" loop (slow)
 %|				'mex' - using penalty_mex file (preferable)
@@ -49,11 +50,11 @@
 %| For large images (where it matters) the compute times are roughly
 %|	convn > for1 > ind > imfilter > sparse > circshift > mex
 %| So it seems that only the 'mex' and 'circshift' options are useful.
-%| However, it may be cpu dependent so you can use "Cdiff1_test" to compare.
+%| However, it may be cpu dependent so use "Cdiff1_tune" to compare.
 %|
 %| Copyright 2006-11-29, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(isize, 'test'), Cdiff1_test, return, end
+if nargin == 1 && streq(isize, 'test'), Cdiff1_test, return, end
 if nargin < 1, help(mfilename), error(mfilename), end
 
 if streq(isize, 'types') % list from fastest to slowest order (on 2008 mac pro)
@@ -91,7 +92,7 @@ arg.dim = [arg.nn arg.nn];
 if isempty(arg.type_diff) || streq(arg.type_diff, 'def') % default type
 	if exist('penalty_mex') == 3
 		arg.type_diff = 'mex';
-%	elseif exist('imfilter') == 2
+%	elseif ir_has_imfilter
 %		arg.type_diff = 'imfilter';
 	else
 		arg.type_diff = 'circshift';
@@ -104,7 +105,7 @@ if streq(arg.type_diff, 'mex') && exist('penalty_mex') ~= 3
 	arg.type_diff = 'circshift';
 end
 
-if streq(arg.type_diff, 'imfilter') && exist('imfilter') ~= 2
+if streq(arg.type_diff, 'imfilter') && ~ir_has_imfilter
 	warn 'no imfilter (no image processing toolbox); using ''circshift'''
 	arg.type_diff = 'circshift';
 end
@@ -160,6 +161,7 @@ Cdiff1_fatrix2 = @(arg, does_many, forw, back) ...
 		'power', @Cdiff1_power, 'abs', @Cdiff1_abs);
 
 switch arg.type_diff
+
 case 'circshift'
 	arg = Cdiff1_coef_setup(arg);
 	switch arg.class
@@ -187,6 +189,21 @@ case {'convn', 'imfilter'}
 			@Cdiff1_filt_forw_Fatrix, @Cdiff1_filt_back_Fatrix);
 	otherwise, fail bug
 	end
+
+case 'diff'
+	if arg.order ~= 1 || ~streq(arg.class, 'fatrix2')
+		fail 'only order=1 and fatrix2 for "diff"'
+		% codo: could support 2nd order using diff...
+	end
+	displace = arg.displace; % should be all zeros except for a single "1"
+	arg.diff_dim = find(displace == 1);
+	displace(arg.diff_dim) = 0;
+	if numel(arg.diff_dim) ~= 1 || any(displace)
+		pr arg.displace
+		fail('"diff" supports only simple offsets along coordinates')
+	end
+
+	ob = Cdiff1_fatrix2(arg, true, @Cdiff1_diff_forw, @Cdiff1_diff_back);
 
 case 'for1' % trick: just using "ind" for back because for1 is slow anyway
 	switch arg.class
@@ -351,6 +368,8 @@ x = Cdiff1_mex_back(arg, y);
 x = eo.shape(x, true([arg.isize 1]), arg.nn); % [*N (L)] or [(N) (L)]
 
 
+%% circshift
+
 % Cdiff1_cs_forw()
 % y = C * x
 % both [(N) *L] (does_many)
@@ -375,7 +394,6 @@ otherwise
 end
 
 
-%
 % Cdiff1_cs_forw_Fatrix()
 % y = C * x
 % both [*N (L)] or [(N) (L)]
@@ -387,7 +405,6 @@ y = Cdiff1_cs_forw(arg, x);
 y = ei.shape(y); % [*N (L)] or [(N) (L)]
 
 
-%
 % Cdiff1_cs_back()
 % x = C' * y
 % both [(N) *L]
@@ -397,7 +414,6 @@ arg.displace = -arg.displace; % trick
 x = Cdiff1_cs_forw(arg, y);
 
 
-%
 % Cdiff1_cs_back_Fatrix()
 % x = C' * y
 % both [*N (L)] or [(N) (L)]
@@ -405,6 +421,50 @@ x = Cdiff1_cs_forw(arg, y);
 function x = Cdiff1_cs_back_Fatrix(arg, y)
 arg.displace = -arg.displace; % trick
 x = Cdiff1_cs_forw_Fatrix(arg, y);
+
+
+%% diff
+
+
+% Cdiff1_diff_forw()
+% y = C * x
+% both [(N) *L] (does_many)
+%
+function y = Cdiff1_diff_forw(arg, x)
+
+if arg.order ~= 1 || arg.Cpower ~= 1 || arg.is_abs ~= 0
+	fail 'only order=1 power=1 is_abs=0 done for "diff"'
+end
+y = diff(x, 1, arg.diff_dim);
+% non-periodic end conditions:
+siz = size(x);
+siz(arg.diff_dim) = 1;
+y = cat(arg.diff_dim, zeros(siz, class(y)), y);
+
+
+% Cdiff1_diff_back()
+% x = C' * y
+% both [(N) *L]
+%
+function x = Cdiff1_diff_back(arg, y)
+if arg.diff_dim ~= 1
+	fail 'only 1st dim done'
+end
+switch numel(arg.isize)
+case 1
+	y([1 end+1],:) = 0;
+case 2
+	y([1 end+1],:,:) = 0;
+case 3
+	y([1 end+1],:,:,:) = 0;
+otherwise
+	fail 'only up to 3d done'
+end
+
+x = -diff(y, 1, arg.diff_dim);
+
+
+%% for1
 
 
 % Cdiff1_for1_loop1()
@@ -630,7 +690,7 @@ function arg = Cdiff1_coef_setup(arg)
 
 dd = arg.displace;
 cdim = 1 + 2 * abs(dd); % trick: odd always to help adjoint and edges
-coef = zeros(cdim);
+coef = zeros([cdim 1]);
 
 switch arg.order
 case 0

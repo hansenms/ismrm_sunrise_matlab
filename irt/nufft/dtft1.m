@@ -27,7 +27,7 @@ if nargin < 2
 end
 
 N = size(x,1);
-if ~isvar('n_shift') | isempty(n_shift), n_shift = 0; end
+if ~isvar('n_shift') || isempty(n_shift), n_shift = 0; end
 nn = [0:(N-1)] - n_shift;
 
 X = exp(-i*omega*nn) * x;		% compute 1D DTFT

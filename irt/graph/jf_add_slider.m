@@ -40,7 +40,7 @@ if isempty(arg.callback)
 end
 
 % construct gui components
-if ir_is_octave
+if ir_is_octave % && exist('uicontrol') ~= 2
 	warn 'no uicontrol in octave'
 	% todo: draw box or something?
 else

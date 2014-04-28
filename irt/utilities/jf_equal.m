@@ -157,12 +157,17 @@ end
 % jf_equal_struct()
 % see if two structs are equal, descending into fields recursively
 function yn = jf_equal_struct(s1, s2, name1, name2, arg_what, arg_func2str)
-yn = true;
+f1 = fieldnames(s1);
+f2 = fieldnames(s2);
+yn = ~xor(isempty(f1), isempty(f2));
+if isempty(f1) || isempty(f2)
+	return
+end
 
 try
 	s2 = orderfields(s2, s1);
 catch
-	if arg_warn
+	if streq(arg_what, 'warn')
 		warn('%s %s have different fields', name1, name2)
 	end
 	yn = false;

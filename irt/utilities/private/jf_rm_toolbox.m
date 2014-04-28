@@ -22,6 +22,7 @@ rm fixedpoint
 rm fuzzy
 rm geoweb
 rm ident
+rm idelink
 rm images
 rm instrument
 %rm local
@@ -46,9 +47,20 @@ rm stateflow
 rm stats
 rm symbolic
 rm vipblks
+rm vision
 rm wavelet
 
+%path
+
 function rm(box)
-dir = '/Volumes/a2/pub/matlab/matlab-2010a.app/toolbox/';
-tmp = genpath([dir box]);
+tmp = which('svd');
+ii = strfind(tmp, 'matlab/matfun/@single/svd');
+if numel(ii) ~= 1
+	fail('bad "%s"', tmp)
+end
+tmp(ii:end) = '';
+pre = strrep(tmp, 'built-in (', '');
+%pre = '/Volumes/a2/pub/matlab/matlab-2010a.app/toolbox/';
+tmp = genpath([pre box])
 rmpath(tmp);
+%keyboard

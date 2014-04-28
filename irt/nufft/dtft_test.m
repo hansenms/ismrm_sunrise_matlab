@@ -58,7 +58,7 @@ if 1, printm '2d dtft for'
 	printm('2d forward real mpd = %g%%', max_percent_diff(Xm,Xc))
 
 	x = x - 2i * flipud(x); % complex
-	Xm = dtft(x, omega, [], 1);
+	Xm = dtft(x, omega, 'how', 'loop');
 	Xc = for1(omega, x);
 	printm('2d forward cplx mpd = %g%%', max_percent_diff(Xm,Xc))
 
@@ -103,12 +103,12 @@ if 1, printm '3d dtft for'
 	omega = [o1(:) o2(:) o3(:)];
 	omega = [omega; [2 7 1]];
 
-	Xm = dtft(x, omega, [], 1);
+	Xm = dtft(x, omega, 'how', 'loop');
 	Xc = for1(omega, x);
 	printm('3d forward real mpd = %g%%', max_percent_diff(Xm,Xc))
 
 	x = x - 2i * flipdim(x,3); % complex
-	Xm = dtft(x, omega, [], 1);
+	Xm = dtft(x, omega, 'how', 'loop');
 	Xc = for1(omega, x);
 	printm('3d forward cplx mpd = %g%%', max_percent_diff(Xm,Xc))
 
@@ -167,7 +167,7 @@ if 1, printm 'threads forw'
 	if any(s1 ~= s2), error bug, end
 	printm('thread for time %g %g, speedup = %g', t1, t2, t1 / t2)
 	if 1 % vs exact
-		se = dtft(x0, omega, [], 1);
+		se = dtft(x0, omega, 'how', 'loop');
 		printm('2d forward exct mpd = %g%%', max_percent_diff(se,s1))
 	end
 end

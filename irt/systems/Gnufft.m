@@ -25,7 +25,7 @@
 %|
 %| Copyright 2003-6-1, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(varargin{1}, 'test')
+if nargin == 1 && streq(varargin{1}, 'test')
 	run_mfile_local('Gnufft_test0')
 	run_mfile_local('Gnufft_test')
 return

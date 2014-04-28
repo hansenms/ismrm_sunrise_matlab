@@ -11,7 +11,7 @@ end
 % this must be set by the ob.handle_block_setup
 %ob.nblock = nblock;
 
-if isempty(ob.nblock) | ob.nblock < 1
+if isempty(ob.nblock) || ob.nblock < 1
 	error 'Need nblock >= 1'
 end
 

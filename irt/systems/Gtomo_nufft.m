@@ -312,7 +312,7 @@ arg.fan.omegam = (-1) * 2*pi * arg.fan.del_rho * fan.sin_rad;
 
 % center shift shouldn't be 0 since it wasn't absorbed into tomo_filter
 int1c = arg.interp; % copy for 1d
-if ~isempty(arg.interp) & streq(arg.interp{1}, 'table')
+if ~isempty(arg.interp) && streq(arg.interp{1}, 'table')
 	interp1 = {arg.interp{end}};
 	if isnumeric(interp1{:})
 		int1c = {'minmax:kb'};
@@ -387,7 +387,7 @@ if mask_max > r_max
 	warning 'Truncated projections probably will not work, as implemented'
 end
 
-if 0 & max(arg.nx,arg.ny) * arg.dx > arg.nb * arg.ds % old way
+if 0 && max(arg.nx,arg.ny) * arg.dx > arg.nb * arg.ds % old way
 %	warning 'truncated projections probably will not work now'
 	error 'truncated projections probably will not work now'
 	% fix: could be made to work by choosing large enough Krho i think
@@ -448,7 +448,7 @@ if streq(ob.basis.type, 'KB')
 elseif streq(ob.basis.type, 'Gauss')
 	error('Gaussian basis not yet implemented - kernel not calculated')
 
-elseif isempty(ob.basis.type) | streq(ob.basis.type, 'pixel') | ...
+elseif isempty(ob.basis.type) || streq(ob.basis.type, 'pixel') || ...
 	streq(ob.basis.type, 'no')
 
 else
@@ -596,7 +596,7 @@ end
 % trick: to fix imaginary part.  subtle!
 % frankly it is a bit mysterious why this works
 % since "real()" is nonlinear so shouldn't have an adjoint!
-if arg.is.shift0 & ~arg.is.fan
+if arg.is.shift0 && ~arg.is.fan
 	y(1,:) = 2 * real(y(1,:));
 end
 y = y .* conj(arg.tomo_filter);
@@ -669,7 +669,7 @@ y = y .* ob.tomo_filter;
 % trick: fix imaginary part.  subtle!
 % see technical report for explanation of "imaginary part fix"
 % x real--> y should be hermitian symmetric G(s)=conj(G(-s))
-if ob.is.shift0 & ~ob.is.fan
+if ob.is.shift0 && ~ob.is.fan
 	y(1,:,:) = 2 * real(y(1,:,:));
 else
 %	warning 'do i really not need this real trick?'

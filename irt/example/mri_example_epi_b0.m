@@ -17,7 +17,7 @@ if ~isvar('xtrue'), printm 'xtrue'
 	xtrue = xtrue .* ig.mask;
 
 	f.clim = [0 9];
-	if 1 & im
+	if 1 && im
 		im clf, im(xtrue + 5*ig.mask_outline, f.clim), cbar
 		title('Image and support outline')
 	prompt, clear t
@@ -32,7 +32,7 @@ if ~isvar('zmap'), printm 'zmap'
 %	im(fmap + xtrue*10)
 	zmap = 0 + (2i*pi) * fmap;
 
-	if 1 & im % picture of field map
+	if 1 && im % picture of field map
 		im clf, im(fmap + max(fmap(:)) * ig.mask_outline)
 		title 'Fieldmap and mask outline'
 		h = colorbar; subplot(h); ylabel 'Hz'; clear h
@@ -50,7 +50,7 @@ if ~isvar('kspace'), printm 'kspace (slow due to voronoi)'
 	samp = true(ig.ny,1); % fully sampled
 	printm('%% samples used: %g', sum(samp) / length(samp) * 100)
 	[kspace omega wi_traj] = mri_trajectory(f.traj, {'samp', samp}, N, ig.fov);
-	if 1 & im
+	if 1 && im
 		clf, h = plot(omega(:,1), omega(:,2), '.-');
 		set(h, 'markersize', 5)
 		axis(pi*[-1 1 -1 1] * 1.05), axis_pipi, axis square
@@ -128,7 +128,7 @@ prompt
 end
 
 % slow "exact" conj. phase recon for comparison - with field correctoin
-if 0 & ~isvar('xcp0'), printm 'xcp0'
+if 0 && ~isvar('xcp0'), printm 'xcp0'
 	xcp0 = Ge_zmap' * (wi_basis .* yi);
 	xcp0 = ig.embed(xcp0);
 	im clf, im([xtrue; xcp0], 'Conjugate Phase Reconstruction'), cbar
@@ -136,7 +136,7 @@ prompt
 end
 
 % fast conj. phase recon for comparison - with field correctoin
-if 0 | ~isvar('xcp1'), printm 'xcp1'
+if 0 || ~isvar('xcp1'), printm 'xcp1'
 	xcp1 = Gm' * (wi_basis .* yi);
 	xcp1 = ig.embed(xcp1);
 	im clf, im([xtrue; xcp1], 'Conjugate Phase Reconstruction'), cbar
@@ -153,7 +153,7 @@ end
 %
 % penalty
 %
-if 0 | ~isvar('R'), printm 'R'
+if 0 || ~isvar('R'), printm 'R'
 	% scale beta by fov^4 since A'A and 2D.
 	f.beta = 2^3;
 %	R = Robject(ig.mask, 'potential', 'quad', 'beta', f.beta);
@@ -194,13 +194,13 @@ if ~isvar('xcg1'), printm 'xcg1 iterative'
 	xcg1 = embed(xcg1(:,end), ig.mask);
 	im clf, im([xtrue; xcg1], 'xcg1'), cbar
 
-%	if 0 & ~isvar('bb'), printm 'bb'
+%	if 0 && ~isvar('bb'), printm 'bb'
 %		bb = Gm' * yi(:);
 %		im clf, im(ig.embed(bb), 'bb'), cbar
 %		prompt
 %	end
 %
-%	if 0 & ~isvar('xcg2'), printm 'xcg2'
+%	if 0 && ~isvar('xcg2'), printm 'xcg2'
 %		xcg2 = qpwls_pcg2(xinit(ig.mask), Tm, bb, R.C, 'niter', f.niter);
 %		xcg2 = ig.embed(xcg2(:,end));
 %		im clf, im(xcg2, 'xcg2'), cbar

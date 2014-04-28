@@ -31,13 +31,13 @@ if ~isvar('yi'), printm 'setup for eml_em_test'
    prompt
 end
 
-if ~isvar('beta') | isempty(beta)
+if ~isvar('beta') || isempty(beta)
 	beta = 0;
 end
-if ~isvar('norm') | isempty(norm)
+if ~isvar('norm') || isempty(norm)
 	norm = 1;
 end
-if ~isvar('gammaj') | isempty(gammaj)
+if ~isvar('gammaj') || isempty(gammaj)
 	gammav = zeros(size(ig.ones(ig.mask)));
     gammaj = 0;
 else

@@ -120,7 +120,7 @@ cfloat beta) // source angle [radians]
 		for (int iz = 0; iz < nz; ++iz)
 		{
 			cfloat zz = dz * (iz - wz);
-			cfloat tt = mag * zz;
+			cfloat tt = mag * zz; // todo: is this correct for flat?
 			cfloat tt_bin = tt / dt + wt;
 			cint it = (int) Floorf(tt_bin);
 

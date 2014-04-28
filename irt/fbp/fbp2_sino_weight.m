@@ -13,7 +13,7 @@
 %|
 %| Copyright 2006-4-19 by Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(sg, 'test'), fbp2_sino_weight_test, return, end
+if nargin == 1 && streq(sg, 'test'), fbp2_sino_weight_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 
 arg.chat = 0;

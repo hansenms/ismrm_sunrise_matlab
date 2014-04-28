@@ -39,7 +39,7 @@ xd = dtft2_adj(Xm, [om 0*om], N1, 1, [N1/2 0]);
 %
 % now do it the fast NUFFT way
 %
-if ~isvar('st') | 1	% create NUFFT structure
+if 1 || ~isvar('st')	% create NUFFT structure
 	J = 5;		% interpolation neighborhood
 	K1 = N1*2;	% two-times oversampling
 	st = nufft_init(om, N1, J, K1, N1/2, 'minmax:kb');

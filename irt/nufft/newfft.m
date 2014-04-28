@@ -125,7 +125,7 @@ if ischar(st.om)
 end
 
 % checks
-if st.dd ~= length(st.Jd) | st.dd ~= length(st.Kd)
+if st.dd ~= length(st.Jd) || st.dd ~= length(st.Kd)
 	error 'inconsistent dim'
 end
 if st.dd ~= length(st.n_shift)
@@ -219,7 +219,7 @@ ktype = st.ktype;
 
 switch class(ktype)
 case 'cell' % cell array of kernel functions: {kernel1, kernel2, ..., kernelD}
-	if isa(ktype{1}, 'inline') | isa(ktype{1}, 'function_handle')
+	if isa(ktype{1}, 'inline') || isa(ktype{1}, 'function_handle')
 		if length(ktype) ~= dd, error 'wrong # of kernels', end
 		st.kernel = ktype;
 		ktype = 'inline';
@@ -303,7 +303,7 @@ case 'kb:user' % KB with user-defined parameters
 	if isempty(st.kb_alf) || isempty(st.kb_m)
 		fail 'kb_alf and kb_m required'
 	end
-	if (length(st.kb_alf) ~= dd) | (length(st.kb_m) ~= dd)
+	if (length(st.kb_alf) ~= dd) || (length(st.kb_m) ~= dd)
 		fail('#alpha=%d #m=%d vs dd=%d', ...
 			length(st.kb_alf), length(st.kb_m), dd)
 	end
@@ -330,7 +330,7 @@ case 'minmax:user' % minmax interpolator with user-provided scaling factors
 	if isempty(st.alpha) || isempty(st.beta)
 		error 'user must provide alpha/beta'
 	end
-	if length(st.alpha) ~= dd | length(st.beta) ~= dd
+	if length(st.alpha) ~= dd || length(st.beta) ~= dd
 		error 'alpha/beta size mismatch'
 	end
 
@@ -349,7 +349,7 @@ end
 %
 st.sn = 1;
 for id=1:dd
-	if 1 & streq(st.ktype, 'linear')
+	if 1 && streq(st.ktype, 'linear')
 		tmp = newfft_scale_tri(Nd(id), Jd(id), Kd(id), st.Nmid);
 	elseif streq(st.ktype, 'diric')
 		tmp = ones(Nd(id),1);

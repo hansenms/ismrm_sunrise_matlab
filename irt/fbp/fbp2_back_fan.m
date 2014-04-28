@@ -153,7 +153,7 @@ im1 = fbp2_back_fan(sg, ig, sino);
 im plc 2 2
 im(1, sino)
 im(3, im1)
-if 0 & has_mex_jf
+if 0 && has_mex_jf
 	printm 'todo: compare to mex, but that requires weighting etc.'
 	arg = fbp2_back_fan_mex_arg(sg, ig);
 	im2 = jf_mex('fbp,fan', arg{:}, 'noramp,1', single(sino));

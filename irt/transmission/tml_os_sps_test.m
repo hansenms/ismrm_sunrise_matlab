@@ -6,7 +6,7 @@
 % generate data
 %
 if ~isvar('xfbp'), printm 'setup tml_os_sps_test'
-	if has_aspire & has_mex_jf
+	if has_aspire && has_mex_jf
 		f.dir	= test_dir;
 		f.dsc	= [f.dir 't,g.dsc'];
 		f.wtf	= [f.dir 't,g.wtf'];
@@ -42,7 +42,7 @@ if ~isvar('xmat'), printm 'matlab T-ML-OS-SPS'
 prompt
 end
 
-if ~has_aspire | ~has_mex_jf, return, end
+if ~has_aspire || ~has_mex_jf, return, end
 
 %
 % aspire iterations

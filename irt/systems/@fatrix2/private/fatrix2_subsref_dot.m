@@ -11,14 +11,11 @@
 %end
 
 name = args(1).subs;
+%printm('here, name=%s', name)
 
 switch name
 case 'imask_array'
-	if isempty(st.imask)
-		out = true([st.idim 1]);
-	else
-		out = st.imask;
-	end
+	out = fatrix2_imask_array(st);
 	return
 
 case 'omask_array'

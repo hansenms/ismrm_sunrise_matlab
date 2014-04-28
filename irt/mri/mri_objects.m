@@ -32,7 +32,7 @@
 %| Copyright 2007-6-28, Jeff Fessler, University of Michigan
 
 if nargin < 1, help(mfilename), error args, end
-if nargin == 1 & streq(varargin{1}, 'test'), mri_objects_test; return, end
+if nargin == 1 && streq(varargin{1}, 'test'), mri_objects_test; return, end
 
 fov = [];
 
@@ -447,7 +447,7 @@ gp = [ ...	% gauss2 bumps
 	50 0		8 8 1;
 ];
 
-if isvar('arg') & streq(arg, 'cm')
+if isvar('arg') && streq(arg, 'cm')
 	rp(:,1:6) = rp(:,1:6) / 10;
 	gp(:,1:6) = gp(:,1:6) / 10;
 end

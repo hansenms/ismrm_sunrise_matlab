@@ -12,14 +12,14 @@
 % It is the user's responsibility to impose additional bounds
 % if desired for certain algorithms.
 %
-% Copyright 2002-1-28, Jeff Fessler, The University of Michigan
+% Copyright 2002-1-28, Jeff Fessler, University of Michigan
 
 if nargin == 1 && streq(yi, 'test'), trl_curvature_test, return, end
 if nargin < 4, help(mfilename), error(mfilename), end
 
 [h dh] = trl_h_dh;
 
-if ~isvar('ctype') | isempty(ctype)
+if ~isvar('ctype') || isempty(ctype)
 	ctype = 'oc'
 end
 
@@ -62,24 +62,18 @@ if streq(ctype, 'oc')
 	end
 
 
-%
 % Precomputed approximating parabola curvatures
 % for Poisson transmission model.
 % The minimum returned curvature will be zero.
 % This is compatible with trpl/trp_init_der02_sino() in aspire.
-%
 elseif streq(ctype, 'pc')
 
-	%
-	%	ni = (yi-ri)^2 / yi, if yi > ri >= 0 and bi > 0
-	%
-	ii = (yi > ri) & (ri >= 0) & (bi > 0);	% good rays
+	% ni = (yi-ri)^2 / yi, if yi > ri >= 0 and bi > 0
+	ii = (yi > ri) & (ri >= 0) & (bi > 0); % good rays
 	ni = zeros(size(yi));
 	ni(ii) = (yi(ii) - ri(ii)).^2 ./ yi(ii);
 
-%
 % newton curvatures (current 2nd derivative)
-%
 elseif streq(ctype, 'nc')
 	bel = bi .* exp(-li);
 	yb = bel + ri;
@@ -88,18 +82,15 @@ elseif streq(ctype, 'nc')
 end
 
 
-%
 % trl_h_dh()
 % transmission Poisson likelihood function
-%
 function [h, dh] = trl_h_dh
 h = inline('y.*log(b.*exp(-l)+r)-(b.*exp(-l)+r)', 'y','b','r','l');
 dh = inline('(1 - y ./ (b.*exp(-l)+r)) .* b.*exp(-l)', 'y','b','r','l');
 
-%
+
 % trl_curvature_test()
 % demonstrate an example surrogate parabola!
-%
 function trl_curvature_test
 [h dh] = trl_h_dh;
 if 0

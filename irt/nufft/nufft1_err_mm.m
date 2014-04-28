@@ -35,11 +35,11 @@ if nargin < 4
 return
 end
 
-if ~isvar('type') | isempty(type),	type = 'sinc'; end
-if ~isvar('alpha') | isempty(alpha)
+if ~isvar('type') || isempty(type),	type = 'sinc'; end
+if ~isvar('alpha') || isempty(alpha)
 	alpha = [1];	% default Fourier series coefficients of scaling factors
 end
-if ~isvar('beta') | isempty(beta)
+if ~isvar('beta') || isempty(beta)
 	beta = 0.5;	% default is Liu version for now
 end
 
@@ -89,7 +89,7 @@ end
 if length(alpha) == N1	% trick: special way to give explicit sn's
 	sn = alpha;
 	if ~use_qr, error 'give sn only allowed for QR version', end
-elseif nargout > 1 | use_qr
+elseif nargout > 1 || use_qr
 	sn = nufft_scale(N1, K1, alpha, beta);
 end
 

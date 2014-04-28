@@ -14,7 +14,7 @@ end
 
 [starts, nsubset] = subset_start(nsubset);
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = ones(nb,na);
 end
 

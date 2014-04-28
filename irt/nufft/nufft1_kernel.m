@@ -12,8 +12,8 @@ if nargin < 4
 	return
 end
 
-if ~isvar('alpha') | isempty(alpha), alpha = 1; end
-if ~isvar('beta') | isempty(beta), beta = 0.5; end
+if ~isvar('alpha') || isempty(alpha), alpha = 1; end
+if ~isvar('beta') || isempty(beta), beta = 0.5; end
 [alpha beta] = nufft_alpha(N, J, K, alpha, beta);
 
 n_shift1 = 0;

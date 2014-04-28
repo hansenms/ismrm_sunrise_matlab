@@ -70,7 +70,7 @@ end
 	fw1 = fwhm1(x1(:,2:end), 'imid', n.x/2+1);
 	fw2 = fwhm1(x2(:,2:end), 'imid', n.x/2+1);
 
-if 1 & im
+if 1 && im
 	ii = 1:f.niter;
 	clf, plot(ii(1:4:end), fw0(1:4:end), 'yo', ...
 		ii(1:4:end), fw1(1:4:end), 'cx', ...

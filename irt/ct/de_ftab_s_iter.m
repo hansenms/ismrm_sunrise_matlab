@@ -40,7 +40,7 @@ if isempty(arg.init)
 	sh = (pinv(fit.mac_eff) * fh')'; % linear inverse (perfect if mono)
 
 	if ~isempty(arg.strue)
-		pr rms(sh - arg.strue) % report initial error, for testing!
+		pr 'rms(sh - arg.strue)' % report initial error, for testing!
 	end
 else
 	sh = max(arg.init, 0);
@@ -92,13 +92,13 @@ for ii=1:arg.niter % iterate
 	sh = sh + step .* sum(fgrad, 3);
 
 	if ~isempty(arg.strue) && (~rem(ii, arg.nprint) || ii==arg.niter)
-		pr rms(sh - arg.strue) % report error, for testing!
+		pr 'rms(sh - arg.strue)' % report error, for testing!
 	end
 end
 
 sh = reshapee(sh, Nd, LL); % [(Nd) L]
 
-%
+
 % de_ftab_curv_ub()
 % curv* are [M 1] upper bounds
 %
@@ -135,7 +135,6 @@ equivs(curv1, oldcurv1)
 equivs(curv2, oldcurv2)
 
 
-%
 % de_ftab_s_iter_test1
 % L=1 M=1 case for sanity checking
 %
@@ -167,7 +166,6 @@ prompt
 end
 
 
-%
 % de_ftab_s_iter_test2
 %
 function de_ftab_s_iter_test2
@@ -214,7 +212,7 @@ end
 % iterate; initializing with linear inv.
 sh = de_ftab_s_iter(fit, fm, 'init', s0, 'niter', 90, ...
 		'strue', sll, 'nprint', 10);
-pr rms(reshapee(sh, [], 2) - strue)
+pr 'rms(reshapee(sh, [], 2) - strue)'
 
 %sh = reshape(sh, size(sll));
 if im
@@ -226,7 +224,6 @@ prompt
 end
 
 
-%
 % de_ftab_s_iter_test
 %
 function de_ftab_s_iter_test

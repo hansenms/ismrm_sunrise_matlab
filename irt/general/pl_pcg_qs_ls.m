@@ -94,6 +94,7 @@ for iter=1:arg.niter
 		ddir = -pregrad;
 		gamma = 0;
 	else
+		% todo: offer other step-size rules ala hager:06:aso
 		gamma = newinprod / oldinprod; % Fletcher-Reeves
 %		gamma = (newinprod - oldgrad' * pregrad) / oldinprod; % todo?
 		ddir = -pregrad + gamma * ddir;

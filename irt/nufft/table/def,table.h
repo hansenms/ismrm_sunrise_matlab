@@ -1,6 +1,8 @@
-/*
-* def,table.h
-*/
+// def,table.h
+// header for table-based NUFFT interpolators
+
+#include <stdio.h>
+#include "mex.h"
 
 #ifndef Fail
 #define Fail(msg) { \
@@ -22,7 +24,8 @@
 #define Call(fun, arg)	{ if (!(fun arg)) Fail(#fun) }
 #endif
 
-#define mexFail(str) {mexEvalString("sprintf('fail: " #str "')"); return; }
+#define mexFail(str)	mexErrMsgTxt(str);
+// {mexEvalString("sprintf('fail: " #str "')"); return; }
 
 #define mxIsInt32n(mx, n) \
 	( (n == mxGetM(mx) * mxGetN(mx)) && mxIsInt32(mx) )

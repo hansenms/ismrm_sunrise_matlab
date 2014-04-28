@@ -18,10 +18,10 @@
 
 if nargin < 3, help(mfilename), error(mfilename), end
 
-if ~isvar('niter')	| isempty(niter),	niter = 1;	end
-if ~isvar('chat')	| isempty(chat),	chat = false;	end
+if ~isvar('niter') || isempty(niter), niter = 1; end
+if ~isvar('chat') || isempty(chat), chat = false; end
 
-if ~isvar('R') | isempty(R)
+if ~isvar('R') || isempty(R)
 	pgrad = 0; % unregularized default
 	Rdenom = 0;
 end

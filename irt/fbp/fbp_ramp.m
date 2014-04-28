@@ -15,7 +15,7 @@
 %|
 %| Copyright 2005-6-8, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(type, 'test'), fbp_ramp_test, return, end
+if nargin == 1 && streq(type, 'test'), fbp_ramp_test, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
 
 if 2 * floor(n/2) ~= n, error 'n must be even', end

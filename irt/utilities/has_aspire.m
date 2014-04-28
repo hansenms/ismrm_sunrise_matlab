@@ -12,8 +12,8 @@ if ~isunix, return, end
 try
 	% unix returns nonzero on failure
 	if unix('which op >& /dev/null') ...
-		| unix('which wt >& /dev/null') ...
-		| unix('which i >& /dev/null')
+		|| unix('which wt >& /dev/null') ...
+		|| unix('which i >& /dev/null')
 		return
 	end
 

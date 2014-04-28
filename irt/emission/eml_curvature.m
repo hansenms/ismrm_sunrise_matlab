@@ -13,7 +13,9 @@
 %|	ctype
 %|		oc	erdogan's optimal curvatures
 %|		pc	precomputed curvatures, ala empl3
+%|			(not guaranteed to provide a majorizer)
 %|				fix: align with C version of empl2
+%|		todo: add max curv ? (precomputed and a majorizer)
 %|
 %| out
 %|	ni	curvature of negative log-likeihood (which is nonnegative)
@@ -43,7 +45,7 @@ if streq(ctype, 'pc')
 
 elseif streq(ctype, 'oc')
 
-	if ~isvar('yb') | isempty(yb)
+	if ~isvar('yb') || isempty(yb)
 		yb = ci .* li + ri;
 	end
 

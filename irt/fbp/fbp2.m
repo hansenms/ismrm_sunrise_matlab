@@ -1,6 +1,6 @@
-  function out = fbp2(varargin)
-%|function geom = fbp2(sg, ig, [setup_options])
-%|function image = fbp2(sino, geom, [recon_options])
+ function out = fbp2(varargin)
+%function geom = fbp2(sg, ig, [setup_options])
+%function image = fbp2(sino, geom, [recon_options])
 %|
 %| FBP 2D tomographic image reconstruction for parallel-beam or fan-beam cases,
 %| with either flat or arc detector for fan-beam case.
@@ -31,12 +31,13 @@
 %| out (for setup)
 %|	geom	(struct)	initialized structure
 %|
+%|
 %| in (for recon)
-%|	sino	[nb,na,*]	sinogram(s) (line integrals)
+%|	sino	[nb na *]	sinogram(s) (line integrals)
 %|	geom			structure from first call
 %|
 %| out (for recon)
-%|	image	[nx,ny,*]	reconstructed image(s)
+%|	image	[nx ny *]	reconstructed image(s)
 %|
 %| Copyright 2005-12-21, Jeff Fessler, University of Michigan
 
@@ -81,7 +82,7 @@ switch arg.type
 	case 'df,pull',	geom = fbp2_setup_df_pull(sg, ig, arg);
 	case 'mojette',	geom = fbp2_setup_moj(sg, ig, arg);
 	case 'table',	geom = fbp2_setup_tab(sg, ig, arg);
-	otherwise	error('unknown type: "%s"', arg.type)
+	otherwise	fail('unknown type: "%s"', arg.type)
 end
 
 geom.arg_save = arg;

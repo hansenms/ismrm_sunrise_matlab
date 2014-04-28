@@ -9,7 +9,7 @@ if nargin < 1, help(mfilename), error(mfilename), end
 arg1 = varargin{1};
 if ndims(arg1) == 2
 	% special usage: stack(x, 'n3', n3)
-	if length(varargin) == 3 & streq(varargin{2}, 'n3')
+	if length(varargin) == 3 && streq(varargin{2}, 'n3')
 		n3 = varargin{3};
 		ss = zeros([size(arg1) n3]);
 		for i3=1:n3

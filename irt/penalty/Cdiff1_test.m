@@ -13,9 +13,11 @@ if 1
 			arg = {arg{:}, 'offset', 0};
 		else
 			arg = {arg{:}, 'offset', [1 2]};
+%			arg = {arg{:}, 'offset', [0 1]}; % for 'diff' option
 		end
 
 		Cc = Cdiff1(arg{:}, 'type_diff', 'convn');
+%		Cd = Cdiff1(arg{:}, 'type_diff', 'diff'); % todo: finish!
 		C1 = Cdiff1(arg{:}, 'type_diff', 'for1');
 		Cf = Cdiff1(arg{:}, 'type_diff', 'imfilter');
 		Ci = Cdiff1(arg{:}, 'type_diff', 'ind');
@@ -25,6 +27,7 @@ if 1
 		Cz = Cdiff1(arg{:}, 'type_diff', 'spmat');
 
 		Cc_f = Cc(:,:);
+%		Cd_f = Cd(:,:);
 		C1_f = C1(:,:);
 		Cf_f = Cf(:,:);
 		Ci_f = Ci(:,:);
@@ -43,6 +46,7 @@ if 1
 		end
 
 		test_fun(Cc)
+%		test_fun(Cd)
 		test_fun(C1)
 		test_fun(Cf)
 		test_fun(Ci)
@@ -95,6 +99,7 @@ if 1
 
 		% run tests on small cases
 		Cdiff1_test1(Cc)
+%		Cdiff1_test1(Cd)
 		Cdiff1_test1(C1)
 		Cdiff1_test1(Cf)
 		Cdiff1_test1(Ci)
@@ -103,50 +108,5 @@ if 1
 		Cdiff1_test1(Cs)
 
 	 end
-	end
-end
-
-% timing test for large size:
-if im
-%	list in fastest to slowest order (on ire):
-	list = {'mex', 'circshift', 'imfilter', 'sparse', 'for1', 'ind', 'convn'};
-	ig = image_geom('nx', 2^8, 'ny', 2^8, 'nz', 2^7, 'dx', 1);
-	for order = 1:2
-		printf ' ' % blank line
-		printm('order=%d timing tests: [%d %d %d]', ...
-			order, ig.nx, ig.ny, ig.nz)
-		if order == 0
-			arg = {ig.dim, 'order', order, 'offset', 0};
-		else
-			arg = {ig.dim, 'order', order, 'offset', [3 2 1]};
-		end
-
-		x = ig.xg;
-		for ii = 1:numel(list)
-			C = Cdiff1(arg{:}, 'type_diff', list{ii});
-			if 0 % on ire, warm-up is pointless
-				cpu etic
-				tmp = C * x; % warm up
-				time_warm = cpu('etoc');
-			else
-				time_warm = 0;
-			end
-
-			cpu etic
-			tmp = C * x;
-			time_forw = cpu('etoc');
-
-			cpu etic
-			C' * tmp;
-			time_back = cpu('etoc');
-
-			if isfield(C.arg, 'type_diff')
-				lab = C.arg.type_diff;
-			else
-				lab = C.caller;
-			end
-			printf('Cdiff1 %10s\t%5.3f\t%5.3f\t%5.3f', lab, ...
-				time_forw, time_back, time_warm)
-		end
 	end
 end

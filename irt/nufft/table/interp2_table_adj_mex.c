@@ -4,7 +4,6 @@
 //
 // Copyright 2004-4-2 Jeff Fessler and Yingying Zhang, University of Michigan
 
-#include "mex.h"
 #include "def,table.h"
 #include "def,table2.h"
 
@@ -147,6 +146,4 @@ const int nrhs, const mxArray *prhs[])
                 nrhs > 7 ? prhs[7] : NULL,
                 nrhs > 8 ? prhs[8] : NULL))
 		mexFail("interp2_table_adj_mex() failed")
-
-	return;
 }

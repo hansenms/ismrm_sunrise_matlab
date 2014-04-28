@@ -14,6 +14,11 @@ if any(ii < 1) || any(ii > s(end))
 	fail('bad index! last dimension is %d', s(end))
 end
 
+% an alternative way to do this would be
+% index = repmat({':'}, 1, ndims(x));
+% index{end} = ii;
+% y = x(index{:});
+
 %if length(s) == 2 && s(2) == 1 % [M,1] case; ambiguous but treat as [M]
 %	if ii > 1, fail('[%d,1] input with ii=%d', size(x,1), ii), end
 %	y = x;

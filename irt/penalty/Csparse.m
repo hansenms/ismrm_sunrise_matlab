@@ -21,7 +21,7 @@
 % b2info: as in 'b2info' penalty in ASPIRE
 % center: as in 'center' penalty in ASPIRE
 
-if nargin == 1 & streq(arg0, 'test'), Csparse_test, return, end
+if nargin == 1 && streq(arg0, 'test'), Csparse_test, return, end
 if nargin < 1, help(mfilename), error(mfilename), end
 
 warning 'Csparse is obsolete.  C2sparse is recommended instead!'
@@ -34,7 +34,7 @@ if strcmp(arg0, 'maskleak3')
 	betas = arg1;
 	chat = 0;		if 1==exist('arg3'), chat = arg3; end
 
-elseif strcmp(arg0, 'maskleak') | strcmp(arg0, 'maskbar')
+elseif strcmp(arg0, 'maskleak') || strcmp(arg0, 'maskbar')
 	Cscale = 1;
 	mask = arg1 ~= 0;
 	chat = 0;		if 1==exist('arg2'), chat = arg2; end
@@ -50,7 +50,7 @@ elseif strcmp(arg0, 'b2info')
 	mask = kappa~=0;	if 1==exist('arg2'), mask = arg2; end
 	chat = 0;		if 1==exist('arg3'), chat = arg3; end
 	if ~islogical(mask), error 'mask must be logical', end
-	if any(mask(:,1)) | any(mask(:,end)) | any(mask(1,:)) | any(mask(end,:))
+	if any(mask(:,1)) || any(mask(:,end)) || any(mask(1,:)) || any(mask(end,:))
 		error 'mask must not include outer row/col'
 	end
 
@@ -144,7 +144,7 @@ if 1
 end
 
 
-if strcmp(arg0, 'maskleak') | strcmp(arg0, 'maskleak3')
+if strcmp(arg0, 'maskleak') || strcmp(arg0, 'maskleak3')
 	C = Cscale * C(:, mask(:));
 	if chat
 		Csparse('plot', C, mask);

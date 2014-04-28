@@ -16,11 +16,11 @@
 %|
 %| Copyright 2012-06-05, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(ob, 'test'), Gdsft_gram_test, return, end
-if nargin == 1 & streq(ob, 'test1'), Gdsft_gram_test1, return, end
-if nargin == 1 & streq(ob, 'test2'), Gdsft_gram_test2, return, end
-if nargin == 1 & streq(ob, 'test3'), Gdsft_gram_test3, return, end
-if nargin < 2 | nargin > 3, help(mfilename), error(mfilename), end
+if nargin == 1 && streq(ob, 'test'), Gdsft_gram_test, return, end
+if nargin == 1 && streq(ob, 'test1'), Gdsft_gram_test1, return, end
+if nargin == 1 && streq(ob, 'test2'), Gdsft_gram_test2, return, end
+if nargin == 1 && streq(ob, 'test3'), Gdsft_gram_test3, return, end
+if nargin < 2 || nargin > 3, help(mfilename), error(mfilename), end
 
 if ~isvar('reuse'), reuse = []; end
 

@@ -14,15 +14,15 @@ NOT DONE!
 
 if nargin < 3, help(mfilename), error(mfilename), end
 
-if ~isvar('wi') | isempty(wi)
+if ~isvar('wi') || isempty(wi)
 	wi = ones(size(yi));
 end
-if ~isvar('niter') | isempty(niter)
+if ~isvar('niter') || isempty(niter)
 	niter = 1;
 end
 
 % backproject curvatures for denominator
-if ~isvar('dj') | isempty(dj)
+if ~isvar('dj') || isempty(dj)
 	dj = wi(:)' * G.^2;
 end
 

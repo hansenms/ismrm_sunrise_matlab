@@ -19,9 +19,9 @@
 %| Copyright 2010-12-04, Jeff Fessler, University of Michigan
 
 if size(ob1, 2) ~= size(ob2, 1)
-	pr size(ob1,2)
-	pr size(ob2,1)
-	error 'size mismatch'
+	pr 'size(ob1,2)'
+	pr 'size(ob2,1)'
+	fail('size mismatch')
 end
 if isfield(ob1, 'idim') && isfield(ob2, 'odim') ...
 	&& ~isequal(ob1.idim, ob2.odim)

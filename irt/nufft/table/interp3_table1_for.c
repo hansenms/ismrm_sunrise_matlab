@@ -1,19 +1,18 @@
-/*
-* interp3_table1_for.c
-* 3D periodic interpolation using table lookup.
-*
-* forward direction: (for m = 1,...,M)
-* f(t_m) = \double_sum_{k1,2,3=0}^{K1,2,3-1} c[k1,k2,k3]
-*	h_1( (t_m1 - k1) mod K1 ) h_2( (t_m2 - k2) mod K2 ) h_3( (t_m3 - k3) mod K3 )
-*
-* adjoint direction: (for k1,2,3=0,...,K1,2,3-1) (note complex conjugate!)
-* c[k1,k2,k3] = \sum_{m=1}^M f(t_m) h_1^*( (t_m1 - k1) mod K1 )
-*		h_2^*( (t_m2 - k2) mod K2 ) h_3^*( (t_m3 - k3) mod K3 )
-*
-* Interpolators h1,2,3 are nonzero (and tabulated) for -J/2 <= t <= J/2.
-*
-* Copyright 2004-4-2 Jeff Fessler and Yingying Zhang, University of Michigan
-*/
+// interp3_table1_for.c
+// 3D periodic interpolation using table lookup.
+//
+// forward direction: (for m = 1,...,M)
+// f(t_m) = \double_sum_{k1,2,3=0}^{K1,2,3-1} c[k1,k2,k3]
+//	h_1( (t_m1 - k1) mod K1 ) h_2( (t_m2 - k2) mod K2 ) h_3( (t_m3 - k3) mod K3 )
+//
+// adjoint direction: (for k1,2,3=0,...,K1,2,3-1) (note complex conjugate!)
+// c[k1,k2,k3] = \sum_{m=1}^M f(t_m) h_1^*( (t_m1 - k1) mod K1 )
+//		h_2^*( (t_m2 - k2) mod K2 ) h_3^*( (t_m3 - k3) mod K3 )
+//
+// Interpolators h1,2,3 are nonzero (and tabulated) for -J/2 <= t <= J/2.
+//
+// Copyright 2004-4-2 Jeff Fessler and Yingying Zhang, University of Michigan
+
 #include <math.h>
 #include "def,table3.h"
 
@@ -49,17 +48,17 @@ double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	i_h1 += ncenter1;
 	}
 	{
-	const int ncenter2 = floor(J2 * L2/2);
+	const int ncenter2 = floor(J2 * L2/2.);
 	r_h2 += ncenter2;
 	i_h2 += ncenter2;
 	}
 	{
-	const int ncenter3 = floor(J3 * L3/2);
+	const int ncenter3 = floor(J3 * L3/2.);
 	r_h3 += ncenter3;
 	i_h3 += ncenter3;
 	}
@@ -161,15 +160,15 @@ double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	}
 	{
-	const int ncenter2 = floor(J2 * L2/2);
+	const int ncenter2 = floor(J2 * L2/2.);
 	r_h2 += ncenter2;
 	}
 	{
-	const int ncenter3 = floor(J3 * L3/2);
+	const int ncenter3 = floor(J3 * L3/2.);
 	r_h3 += ncenter3;
 	}
 
@@ -285,15 +284,15 @@ double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	}
 	{
-	const int ncenter2 = floor(J2 * L2/2);
+	const int ncenter2 = floor(J2 * L2/2.);
 	r_h2 += ncenter2;
 	}
 	{
-	const int ncenter3 = floor(J3 * L3/2);
+	const int ncenter3 = floor(J3 * L3/2.);
 	r_h3 += ncenter3;
 	}
 

@@ -12,6 +12,7 @@
 %| option
 %|	order		default: 3
 %|	ending		end / boundary conditions: mirror / periodic / zero
+%|				default: 'periodic'
 %|	mex		0 to disable mex (default: 1)
 %|	ob		1 to create Fatrix object (default: 0)
 %| out
@@ -77,7 +78,11 @@ if arg.mex
 			int32(arg.order), int32(arg.ie));
 		return
 	catch
-		printm 'mex failed; revert to matlab'
+		persistent warned
+                if isempty(warned)
+                        warned = 1;
+			warn 'mex failed; revert to matlab'
+		end
 	end
 end
 

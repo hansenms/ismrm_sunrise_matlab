@@ -31,7 +31,7 @@ else
 		ob.(sub(1).subs) = subsasgn(ob.(sub(1).subs), sub(2:end), arg);
 
 	elseif isfield(ob, name) % reassigning private object data is dangerous
-		fail('too dangerous to subsasgn %s', name)
+		fail('too dangerous to subsasgn "%s"', name)
 
 %	elseif isfield(ob.meth, name) % user may reassign method handles
 %		ob.meth = subsasgn(ob.meth, sub, arg);

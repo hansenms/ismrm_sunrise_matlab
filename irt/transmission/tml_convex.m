@@ -24,20 +24,20 @@
 
 if nargin < 3, help(mfilename), error(mfilename), end
 
-if ~isvar('bi') | isempty(bi)
+if ~isvar('bi') || isempty(bi)
 	bi = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
-if ~isvar('niter') | isempty(niter)
+if ~isvar('niter') || isempty(niter)
 	niter = 2;
 end
-if ~isvar('pixmax') | isempty(pixmax)
+if ~isvar('pixmax') || isempty(pixmax)
 	pixmax = inf;
 end
 pixmin = 0;
-if ~isvar('type') | isempty(type)
+if ~isvar('type') || isempty(type)
 	type = 'ps';
 end
 
@@ -81,7 +81,7 @@ for it=2:niter
 	bel = bi .* exp(-li);
 	yb = bel + ri;			% predicted measurement means 
 
-	if streq(type, 'log1') | streq(type, 'log2')
+	if streq(type, 'log1') || streq(type, 'log2')
 		top = G' * bel(:);
 		Ni = bel ./ yb .* yi;
 		bottom = G' * Ni(:);

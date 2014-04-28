@@ -167,4 +167,4 @@ end
 
 %yaxis_pi '0 p'
 %plot(diff(wt,1))
-%savefig fig_tomo_fan_short_wt
+% ir_savefig fig_tomo_fan_short_wt

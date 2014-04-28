@@ -5,7 +5,7 @@
 %
 % generate data
 %
-if ~isvar('yi') | 1
+if ~isvar('yi') || 1
 %	xtrue = [1 2]';
 %	a = -0.5;
 %	H = [1 a; a 1];
@@ -26,7 +26,7 @@ end
 %
 % GP
 %
-if ~isvar('xgp') | 1
+if ~isvar('xgp') || 1
 	f.niter = 18;
 	xinit = [0.5 0]';
 	xinit = [0.5 2]';
@@ -76,4 +76,4 @@ if im
 	xlabel x1, ylabel x2
 end
 
-% savefig 'fig_wls_grpr'
+% ir_savefig 'fig_wls_grpr'

@@ -30,7 +30,7 @@ if nargin < 3, help(mfilename), error(mfilename), end
 
 
 if ~isvar('chat'), chat = 0; end
-if ~isvar('dist_power') | isempty(dist_power), dist_power = 1; end
+if ~isvar('dist_power') || isempty(dist_power), dist_power = 1; end
 
 if streq(type, 'leak')
 	leak = true;
@@ -81,7 +81,7 @@ for io=1:length(offset1)
 	krect = (k1 >= 1) & (k1 <= n1) & (k2 >= 1) & (k2 <= n2);
 
 	if any(krect(:))
-		if 0 & chat
+		if 0 && chat
 			printf('doing offset %d of %d', io, length(offset1))
 		end
 		kk = ones(size(k1));	% dummy '1' value for non-rect cases

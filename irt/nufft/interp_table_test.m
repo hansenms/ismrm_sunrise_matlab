@@ -1,7 +1,7 @@
 % interp_table_test.m
 
-hr = inline('(1-abs(t/(J/2))) .* (abs(t) <= J/2)', 't', 'J');
-hi = inline('(1-abs(t/(J/2))).^2 .* (abs(t) <= J/2)', 't', 'J');
+hr = @(t, J) (1-abs(t/(J/2))) .* (abs(t) <= J/2);
+hi = @(t, J) (1-abs(t/(J/2))).^2 .* (abs(t) <= J/2);
 
 % 1D
 if 1, printm '1d'

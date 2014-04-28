@@ -37,7 +37,7 @@ if nargin == 1 && streq(x, 'test')
 end
 if nargin < 3, help(mfilename), error(mfilename), end
 
-if ~isvar('C') | isempty(C), C = 0; end
+if ~isvar('C') || isempty(C), C = 0; end
 
 arg.precon = 1;
 arg.niter = 1;
@@ -51,7 +51,7 @@ arg = vararg_pair(arg, varargin);
 
 arg.isave = iter_saver(arg.isave, arg.niter);
 
-if ~isreal(bb) & ~isequal(arg.precon, 1)
+if ~isreal(bb) && ~isequal(arg.precon, 1)
 	persistent warned
 	if isempty(warned), warned = 0; end
 	if ~warned

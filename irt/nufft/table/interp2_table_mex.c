@@ -3,7 +3,6 @@
 // see interp2_table1_for.c
 // Copyright 2004-03-30 Yingying Zhang and Jeff Fessler, University of Michigan
 
-#include "mex.h"
 #include "def,table.h"
 #include "def,table2.h"
 
@@ -51,7 +50,7 @@ const mxArray *mx_flips) // optional: may be NULL
 	if (mx_flips && !mxIsInt32n(mx_flips, 2))
                 Fail("flips must be [1 2] int32 (0 | 1)")
 
-	// check size & type of tables
+	// check size, type of tables
 	if ((int) mxGetM(mx_h1) != Jd[0]*Ld[0]+1 || (mxGetN(mx_h1) != 1))
 	{
 		fprintf(stderr, "J=%d L=%d tablelength=%d\n",
@@ -144,6 +143,4 @@ int nrhs, const mxArray *prhs[])
 		nrhs > 6 ? prhs[6] : NULL,
 		nrhs > 7 ? prhs[7] : NULL))
 		mexFail("interp2_table_mex failed")
-
-	return;
 }

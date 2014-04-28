@@ -2,6 +2,7 @@
 // Threaded versions of FDK back-projection
 // For detector index (t,s).
 // Copyright 2008-10-09, Jeff Fessler, University of Michigan
+
 #include "defs-env.h"
 #include "def,fdk.h"
 #include "jf,thread1.h"
@@ -20,7 +21,8 @@ cint nt)
 }
 
 
-typedef struct {
+typedef struct
+{
 	float *image; // [nz nx ny] <- trick!
 	const cbct_ig *ig; // image geometry
 	const cbct_cg *cg; // cone-beam CT system geometry
@@ -101,7 +103,8 @@ cint chat)
 	Call(jf_thread1_top, (fdk_ts_back_init,
                 NULL /* wrap up */, &st, nthread, Chat))
 
-	Call(jf_time, ("report fdk,ts,back"))
+	if (chat)
+		Call(jf_time, ("report fdk,ts,back"))
 
         Ok
 }

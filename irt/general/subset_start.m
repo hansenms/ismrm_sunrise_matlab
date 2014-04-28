@@ -11,7 +11,7 @@
 %
 % Copyright 2000-4-?, Jeff Fessler, The University of Michigan
 
-if ~nargin | isempty(nsubset)
+if ~nargin || isempty(nsubset)
 	nsubset = 1;
 	starts = 1;
 return

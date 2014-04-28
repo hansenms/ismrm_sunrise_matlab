@@ -80,7 +80,7 @@ end
 	t1 = eql_obj(xmat, G, yi(:), ci(:), ri(:), [], ig.mask);
 	t2 = eql_obj(xasp, G, yi(:), ci(:), ri(:), [], ig.mask);
 
-if 1 & im
+if 1 && im
 	im clf, im(221, xmat, 'xhat matlab'), cbar
 	im(222, xasp, 'xhat aspire'), cbar
 	im(223, (xasp-xmat)/max(xmat(:)), 'aspire-matlab'), cbar

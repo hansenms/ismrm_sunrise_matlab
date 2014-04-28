@@ -41,7 +41,7 @@ R = strum(arg, meth);
 % RfromC_penal()
 function penal = RfromC_penal(dummy, arg, x)
 tmp = arg.C1 * x;
-pot = arg.pot.pot(tmp);
+pot = arg.pot.potk(tmp);
 penal = sum(arg.wt(:) .* pot(:));
 
 
@@ -91,6 +91,7 @@ cx = R.C1 * x;
 im plc 2 2
 cgrad = R.cgrad(R, x);
 denom = R.denom(R, x);
+penal = R.penal(R, x);
 im(1, x), cbar
 im(2, cx), cbar
 im(3, cgrad), cbar

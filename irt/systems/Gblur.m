@@ -13,11 +13,12 @@
 %|	'psf'		point spread function (aka impulse response)
 %|	'type'		type of blur:
 %|				'conv,same'	usual case (default)
-%|				'conv,per'	(periodic end conditions) - todo
+%|				'conv,per'	(periodic end conditions)
 %|				'fft,same'	(periodic end conditions)
 %|				todo: allow replicated end conditions!
 %|				'imfilter,same'	(requires image toolbox)
 %|				'imfilter,circ'	(requires image toolbox)
+%|				'sparse'	todo: return sparse matrix
 %|	'imfilter_options'	options to 'imfilter' (if used)
 %|
 %| out
@@ -54,8 +55,11 @@ if streq(arg.type, 'imfilter,same') && exist('imfilter') ~= 2
 	arg.type = 'conv,same';
 end
 
+arg.psf = Gblur_mask_psf_odd(arg.psf);
+
 psf_flip = conj(flipdims(arg.psf, 'odd', 1));
 does_many = false;
+
 switch arg.type
 
 case 'conv,same'
@@ -95,6 +99,11 @@ case 'imfilter,same'
 			imfilter(y, arg.psf_flip, 'conv', 'same', ...
 				arg.imfilter_options{:}));
 
+case 'sparse'
+	ob = Gblur_sparse(arg.psf, arg.idim)
+	ob = ob(:,arg.mask(:));
+	return
+
 otherwise
 	error 'unknown blur type'
 end
@@ -119,6 +128,34 @@ case 'fatrix2'
 otherwise
 	fail('bug')
 end
+
+
+% Gblur_mask_psf_odd(psf)
+% having an odd-sized psf facilites adjoint
+function psf = Gblur_mask_psf_odd(psf)
+nd = ndims(psf);
+for id=1:nd
+	sz = size(psf, id);
+	if ~mod(sz, 2) % even
+		warn('size(psf, %d) = %d is even; appending 0', id, sz)
+		tmp = size(psf);
+		tmp(id) = 1;
+		z = zeros(tmp);
+		psf = cat(id, psf, z);
+	end
+end
+
+
+% Gblur_sparse()
+% a_ij = b[ n(i) - n(j), m(i) - m(j) ]
+% n(i) = (i-1) mod N
+% m(i) = floor((i-1) / N)
+function sp = Gblur_sparse(psf, idim)
+if numel(idim) ~= 2
+	fail 'not done'
+end
+fail 'todo: not done'
+%sp = sparse(i, j, s, length(ii), size(ob.arg.G, 2));
 
 
 % Gblur_abs(): |A| for abs(A)

@@ -127,7 +127,7 @@ if 1
 	f.mask	= [dir 't2,mask.fld'];
 end
 
-if ~exist(f.mask, 'file') | 1
+if ~exist(f.mask, 'file') || 1
 %	xinit = xtrue > 0;	%	f.init = '-'
 %	xinit = xhat;
 	xinit = xtrue;

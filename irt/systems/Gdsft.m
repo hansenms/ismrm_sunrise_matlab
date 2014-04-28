@@ -65,7 +65,7 @@ end
 % Gdsft_fatrix2()
 function ob = Gdsft_fatrix2(arg)
 if ~arg.use_mex
-	forw = @(arg, x) dtft(x, arg.om_t', arg.n_shift);
+	forw = @(arg, x) dtft(x, arg.om_t', 'n_shift', arg.n_shift);
 	back = @(arg, y) fatrix2_maskit(arg.mask, ...
 		dtft_adj(y, arg.om_t', arg.Nd, arg.n_shift));
 
@@ -135,7 +135,7 @@ end
 if arg.use_mex
 	y = jf_mex('dtft,forward', arg.om_t, double(x), int32(arg.nthread));
 else
-	y = dtft(x, arg.om_t', arg.n_shift);
+	y = dtft(x, arg.om_t', 'n_shift', arg.n_shift);
 end
 y = arg.phasor * y;
 

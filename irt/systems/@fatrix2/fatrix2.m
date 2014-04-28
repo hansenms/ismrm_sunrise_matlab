@@ -143,9 +143,11 @@ ob.iblock = [];
 
 % trick: default to some simple functions that will work if
 % "arg" is anything that knows how to multiply, e.g., a matrix.
-ob.handle_back = @(M,y) M' * y; % inline('M'' * x', 'M', 'x');
-ob.handle_forw = @(M,x) M * x; % inline('M * x', 'M', 'x');
-ob.handle_power = @(M,p) M .^ p; % inline('M .^ p', 'M', 'p');
+% Must be a pointer to function (handle, not anonymous) so we can test
+% if it is the default later, e.g., for full().
+ob.handle_back = @fatrix2_def_back;
+ob.handle_forw = @fatrix2_def_forw;
+ob.handle_power = @fatrix2_def_pow;
 
 ob.handle_abs = [];
 ob.handle_free = [];
@@ -204,6 +206,9 @@ function [method, docs] = fatrix2_methods(methods, ob)
 
 method = struct;
 docs = {};
+
+%method.imask_array = @fatrix2_imask_array;
+%method.omask_array = @fatrix2_omask_array;
 
 for ii=1:size(methods,1)
 	name = methods{ii,1};

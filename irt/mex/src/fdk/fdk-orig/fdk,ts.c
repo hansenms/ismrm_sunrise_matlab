@@ -100,7 +100,6 @@ cfloat *view_work) // [(nt+2) (ns+2)] <- trick: padded projection view for beta
 		if (mask2[ix + iy*nx] != mask_id) // each pthread does its part
 			continue;
 
-
 		cfloat xx = dx * (ix - wx);
 		cfloat xbeta = xx * cosb + yy * sinb;
 		cfloat ybetas = dso - (-xx * sinb + yy * cosb);
@@ -124,6 +123,7 @@ cfloat *view_work) // [(nt+2) (ns+2)] <- trick: padded projection view for beta
 		register cfloat *pp1 = view_work + (is+1) * (nt+2) + 1;
 		register cfloat *pp2 = view_work + (is+2) * (nt+2) + 1;
 
+		// todo: is this correct for flat detector case?
 		cfloat t_inc = mag * dz / dt; // t' increment for each iz++
 		int iz_min, iz_max;
 
@@ -154,6 +154,7 @@ cfloat *view_work) // [(nt+2) (ns+2)] <- trick: padded projection view for beta
 		}
 
 		register float *pi = image + iz_min;
+
 		for (int iz = iz_min; iz < iz_max; ) // slice loop
 		{
 			cint it = (int) Floorf(t_bin); // nearest nbr in "t"

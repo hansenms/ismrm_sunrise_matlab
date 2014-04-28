@@ -34,3 +34,4 @@ end
 % rebin_sino_test()
 function rebin_sino_test
 rebin_fan2par test
+rebin_par2fan test

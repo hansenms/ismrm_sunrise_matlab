@@ -48,9 +48,9 @@
 % Copyright December 2001. Idris Elbakri, The University of Michigan
 % Accelerated by Jeff Fessler 2002-2-19, rewritten 2004-5-21.
 
-if nargin == 1 & streq(sino, 'test'), run_mfile_local('fbp_fan_arc_example'), return, end
+if nargin == 1 && streq(sino, 'test'), run_mfile_local('fbp_fan_arc_example'), return, end
 if nargin < 2, help(mfilename), error(mfilename), end
-if ~isvar('window') | isempty(window)
+if ~isvar('window') || isempty(window)
 	arg.window = 'ramp';
 else
 	arg.window = window;
@@ -85,7 +85,7 @@ arg = vararg_pair(arg, varargin, 'subs', ...
 % extract arguments from system 14 Gtomo2_dsc object, if provided
 if ~isempty(G)
 	arg = fbp_fan_arc_parse_struct(arg, G);
-	if size(sino,1) ~= G.arg.nb | size(sino,2) ~= G.arg.na
+	if size(sino,1) ~= G.arg.nb || size(sino,2) ~= G.arg.na
 		error 'bad sino size'
 	end
 end

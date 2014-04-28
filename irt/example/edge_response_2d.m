@@ -102,4 +102,4 @@ axis(ax), legend(leg{:}, 'location', 'seo')
 title 'Edge response'
 xtick([-3 -2 -1]), ytick([0 1])
 
-%savefig eps_c edge_response_2d
+% ir_savefig eps_c edge_response_2d

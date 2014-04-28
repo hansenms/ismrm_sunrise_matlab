@@ -89,7 +89,7 @@ if ~isvar('R2'), printm 'R2' % use small delta to show kurtosis
 end
 
 
-if 0 | ~isvar('xpwls2'), printm 'pwls2'
+if 0 || ~isvar('xpwls2'), printm 'pwls2'
 	f.niter2 = 400;
 	xpwls2 = pwls_pcg1(init(mask), 1, 1, yi(:), R2, 'niter', f.niter2);
 end

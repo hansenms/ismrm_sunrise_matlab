@@ -15,13 +15,13 @@ if nargin < 3, help(mfilename), error(mfilename), end
 
 [nb, na] = size(yi);
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
-if ~isvar('niter') | isempty(niter)
+if ~isvar('niter') || isempty(niter)
 	niter = 1;
 end
 

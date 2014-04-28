@@ -303,7 +303,7 @@ else
 	end
 
 	% test new version
-	if 1 & ~isvar('xinc4'), printm 'xinc4'
+	if 1 && ~isvar('xinc4'), printm 'xinc4'
 		xinc4 = epl_inc2(xinit(ig.mask), Gb, yi, ci, ri, R, ...
 			'os', f.os1, 'niter', f.niter, 'hds', 3);
 		xinc4 = ig.embed(xinc4);

@@ -1,23 +1,23 @@
- function psino = rebin_fan2par(fsino, sf, sp, varargin)
-%function psino = rebin_fan2par(fsino, sf, sp, varargin)
-%
-% Rebin fan-beam sinogram into parallel-beam (or mojette) sinogram.
-% (Also useful for parallel-to-mojette rebinning.)
-%
-% in
-%	fsino	[ns,nbeta]	fan-beam sinogram (or possibly parallel)
-%	sf			sino_geom() for fan-beam input
-%	sp			sino_geom() for parallel-beam output
-%
-% options
-%	'ob'			set to 1 to create (Fatrix) object
-%	's_interp'	default: {'order', 3, 'ending', 'zero'}
-%	'beta_interp'	default: {'order', 3, 'ending', 'periodic'}
-%
-% out
-%	psino	[nr,nphi]	parallel-beam sinogram (or possibly mojette)
-%
-% Copyright 2005-12-10, Jeff Fessler, The University of Michigan
+  function psino = rebin_fan2par(fsino, sf, sp, varargin)
+%|function psino = rebin_fan2par(fsino, sf, sp, varargin)
+%|
+%| Rebin fan-beam sinogram into parallel-beam (or mojette) sinogram.
+%| (Also useful for parallel-to-mojette rebinning.)
+%|
+%| in
+%|	fsino	[ns nbeta (L)]	fan-beam sinogram (or possibly parallel)
+%|	sf			sino_geom() for fan-beam input
+%|	sp			sino_geom() for parallel-beam output
+%|
+%| options
+%|	'ob'			set to 1 to create (Fatrix) object
+%|	's_interp'	default: {'order', 3, 'ending', 'zero'}
+%|	'beta_interp'	default: {'order', 3, 'ending', 'periodic'}
+%|
+%| out
+%|	psino	[nr nphi (L)]	parallel-beam sinogram (or possibly mojette)
+%|
+%| Copyright 2005-12-10, Jeff Fessler, University of Michigan
 
 if nargin == 1 && streq(fsino, 'test'), rebin_fan2par_test, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
@@ -26,12 +26,17 @@ if nargin < 3, help(mfilename), error(mfilename), end
 arg.ob = false;
 arg.s_interp = {'order', 3, 'ending', 'zero'};
 arg.beta_interp = {'order', 3, 'ending', 'periodic'};
+arg.na_min_fail = 180; % warn if fewer than this many views
 arg = vararg_pair(arg, varargin);
 
 if isempty(sf.nb), sf.nb = size(fsino,1); end
 if isempty(sf.na), sf.na = size(fsino,2); end
 arg.dimi = sf.dim;
 arg.dimo = sp.dim;
+
+if (sf.na < arg.na_min_fail) % angular interpolation needs decent sampling!
+	fail('na=%d too few; need %d', sf.na, arg.na_min_fail)
+end
 
 if streq(sp.type, 'par')
 	is_mojette = 0;
@@ -70,13 +75,19 @@ end
 if arg.ob
 	psino = rebin_fan2par_ob(arg);
 else
-	psino = rebin_fan2par_arg(arg, fsino);
+	tmp = size(fsino);
+	nt = prod(tmp(3:end));
+	fsino = reshape(fsino, [tmp(1) tmp(2) nt]);
+	psino = zeros(sp.nb, sp.na, nt, class(fsino));
+	for it=1:nt
+		psino(:,:,it) = rebin_fan2par_arg(arg, fsino(:,:,it));
+	end
+	psino = reshape(psino, [sp.nb sp.na tmp(3:end)]);
+%	psino = rebin_fan2par_arg(arg, fsino);
 end
 
 
-%
 % rebin_fan2par_ob()
-%
 function ob = rebin_fan2par_ob(arg)
 
 dim = [prod(arg.dimo) prod(arg.dimi)];
@@ -84,9 +95,7 @@ ob = Fatrix(dim, arg, 'caller', 'rebin_fan2par', ...
         'forw', @rebin_fan2par_arg, 'back', @error);
 
 
-%
 % rebin_fan2par_arg()
-%
 function sino = rebin_fan2par_arg(arg, sino)
 
 if size(sino,1) == prod(arg.dimi)
@@ -108,20 +117,18 @@ if flag_column
 end
 
 
-%
 % rebin_fan2par_inlace()
 % interlace opposing views (for quarter-detector offset)
-%
 function sino = rebin_fan2par_inlace(arg, sino)
 
 if ndims(sino) > 2, error 'multisino not done', end
 ns = arg.dimi(1);
 nphi = arg.dimo(2);
-t1 = sino(:,1:nphi); % [ns,nphi]
-t2 = flipdim(sino(:,nphi + [1:nphi]), 1); % [ns,nphi]
+t1 = sino(:,1:nphi); % [ns nphi]
+t2 = flipdim(sino(:,nphi + [1:nphi]), 1); % [ns nphi]
 if arg.sf.offset == 1.25 % trick
-	t1 = [t1 ; t2([ end-1 end],:)]; % [ns+2,nphi]
-	t2 = [t1([1 2],:) ; t2]; % [ns+2,nphi]
+	t1 = [t1 ; t2([ end-1 end],:)]; % [ns+2 nphi]
+	t2 = [t1([1 2],:) ; t2]; % [ns+2 nphi]
 	ns = ns + 2;
 elseif arg.sf.offset ~= 0.25
 	error 'bug'
@@ -129,16 +136,14 @@ end
 sino = reshape([t1(:)'; t2(:)'], 2*ns, nphi, []);
 
 
-%
 % rebin_fan2par_setup()
-%
 function [r_ob phi_ob flag180] = rebin_fan2par_setup(...
 	ns, ds, offset_s, ...
 	nbeta, beta_start, beta_orbit, ...
 	dso, dsd, dfs, ...
 	nr, dr, offset_r, ...
 	nphi, phi_start, phi_orbit, ...
-	is_mojette, ... % 1 output sinogram is to be mojette
+	is_mojette, ... % 1 if output sinogram is to be mojette
 	s_interp, beta_interp)
 
 if dfs, error 'flat fan not done', end
@@ -192,7 +197,7 @@ wr = (nr-1)/2 + offset_r;
 if is_mojette
 	dr = dr * max(abs(cos(phi)), abs(sin(phi)))';
 end
-r = ([0:nr-1]' - wr) * dr; % trick: [nr,1] or [nr,nphi]
+r = ([0:nr-1]' - wr) * dr; % trick: [nr 1] or [nr nphi]
 if isinf(dsd)
 	s = r;
 else
@@ -212,19 +217,24 @@ s_int = s / ds + ws;
 r_ob = bspline_1d_interp(zeros(nr, nphi), s_int, s_interp{:}, 'ob', 1);
 
 
-%
+% rebin_fan2par_test
 % test both rebin_fan2par() and par2fan_rebin()
-%
 function rebin_fan2par_test
+
+rebin_fan2par_plot
+prompt
 
 down = 4;
 dx = down/2;
 
 gp = sino_geom('par', 'nb', 1096/down, 'na', 800/down, ...
+	'strip_width', 'd', ...
 	'dr', 0.5*down, 'offset_r', 0, 'orbit', 180);
 gm = sino_geom('moj', 'nb', gp.nb, 'na', gp.na, ...
+	'strip_width', 'd', ...
 	'dx', dx, 'offset_r', 0, 'orbit', 180);
 gf = sino_geom('fan', 'ns', 888/down, 'nbeta', 984/down, ...
+	'strip_width', 'd', ...
 	'dsd', 949, 'dod', 408, ...
 	'ds', down, 'offset_s', 1.25); % quarter detector
 
@@ -286,3 +296,54 @@ im(2, fan2moj, 'fan2moj'), cbar
 im(5, moj2fan, 'moj2fan'), cbar
 im(3, fan2moj-moj, 'error'), cbar
 im(6, moj2fan-fan, 'error'), cbar
+
+
+% rebin_fan2par_plot
+function rebin_fan2par_plot
+
+down = 8;
+sg = sino_geom('ge1', 'down', down);
+dsd = sg.dsd;
+
+xds = sg.xds;
+yds = sg.yds;
+d0 = [xds yds];
+c0 = [0 -sg.dod];
+clf
+s0 = [0 sg.dso];
+plot(0, 0, '.', s0(1), s0(2), 'o', d0(:,1), d0(:,2), '.-')
+axis square
+axis equal
+hold on
+plot([s0(1) c0(1)], [s0(2) c0(2)], ':')
+hold off
+
+blist = linspace(-1,1,7) * pi/8;
+nb = numel(blist);
+for ii=1:nb
+	bet = pi/8;
+	bet = blist(ii);
+	rot = [cos(bet) sin(bet); -sin(bet) cos(bet)];
+
+	cr = c0 * rot;
+	dr = d0 * rot;
+	sr = s0 * rot;
+
+	hold on
+	h = plot(sr(1), sr(2), 'o', dr(:,1), dr(:,2), '.-');
+%	get(h(1))
+	col = [0 0 ii/nb];
+	col = colormap(hsv(nb+3));
+	col = col(ii,:);
+	set(h(1), 'color', col)
+	set(h(2), 'color', col)
+%keyboard
+	h = plot([sr(1) cr(1)], [sr(2) cr(2)], ':');
+	set(h, 'color', col)
+	h = plot([1 1]*sr(1), sr(2)-[0 dsd], '--');
+	set(h, 'color', col)
+	hold off
+end
+xlabelf 'x'
+ylabelf 'y'
+% ir_savefig cw fig_rebin_fan2par

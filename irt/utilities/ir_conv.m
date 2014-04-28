@@ -87,7 +87,7 @@ case 2
 case 3
 	if ndims(psf) == 2
 		spad = [spad 0];
-		epad = [spad 0];
+		epad = [epad 0];
 	end
 
 	if spad(1) || epad(1)

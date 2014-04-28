@@ -1,9 +1,9 @@
  function b = spdiag(a, varargin)
 %function b = spdiag(a, options)
-% create a sparse matrix with diagonal given by a
-% option:
-%	'nowarn'	do not warn about diag_sp
-% caution: it may be faster to use my newer diag_sp() object instead.
+%| create a sparse matrix with diagonal given by a
+%| option:
+%|	'nowarn'	do not warn about diag_sp
+%| caution: it may be faster to use newer diag_sp() object instead.
 
 if nargin < 1, help(mfilename), error(mfilename), end
 

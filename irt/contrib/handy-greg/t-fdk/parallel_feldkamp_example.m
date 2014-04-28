@@ -81,7 +81,7 @@ end
 finalParProj = permute(fansproj, [1 3 2]);
 
 %interpolation/extrapolation step
-if 1 | ~isvar('tfdk') %performs T-FDK
+if 1 || ~isvar('tfdk') %performs T-FDK
 
 %IMPORTANT: redefine the CG geom to account for changes in the ds.
 %if ~isvar('rebinnedCG'), printm 'cg: cone-beam CT geometry'

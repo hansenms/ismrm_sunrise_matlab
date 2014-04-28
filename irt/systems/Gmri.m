@@ -38,6 +38,7 @@
 %| options for field-corrected reconstruction:
 %|	ti		[d 1]		sample times
 %|	zmap		[[Nd]]		relax_map + 2i*pi*field_map
+%|					included as a exp(-zmap * ti) term!
 %|	L		[1]		# of approximation terms
 %|				or use {Linit, rmsmax} (see mri_exp_approx.m)
 %|	aL		[1]		# of terms for autocorrelation histogram
@@ -61,7 +62,7 @@
 %|
 %| Copyright 2004-4-22, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(kspace, 'test'), Gmri_test, return, end
+if nargin == 1 && streq(kspace, 'test'), Gmri_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 if ~islogical(mask), error 'mask must be logical', end
 
@@ -97,7 +98,7 @@ arg = vararg_pair(arg, varargin, 'subs', ...
 if ~isa(arg.basis_args, 'cell'), error 'basis_args must be cell array', end
 if ~isa(arg.nufft_args, 'cell'), error 'nufft_args must be cell array', end
 
-if ~isempty(arg.zmap) && ~arg.exact & (isempty(arg.L) | isempty(arg.ti))
+if ~isempty(arg.zmap) && ~arg.exact && (isempty(arg.L) || isempty(arg.ti))
 	error 'for field-corrected recon, need zmap, ti, and L'
 end
 

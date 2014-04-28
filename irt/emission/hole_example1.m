@@ -51,7 +51,7 @@ end
 % uniform initial image
 xinit = ig.ones;
 
-if 0 & ~isvar('xfbp'), printm 'FBP'
+if 0 && ~isvar('xfbp'), printm 'FBP'
 	tmp = fbp2(sg, ig);
 	xfbp = fbp2(yi-ri, tmp, 'window', 'hann');
 	im(xfbp, 'fbp'), cbar
@@ -135,7 +135,7 @@ prompt
 end
 
 
-if 1 & im, printm 'show "hole in sphere"'
+if 1 && im, printm 'show "hole in sphere"'
 	iy = ny/2;
 	t = squeeze(xo0(:,iy,:));
 	t = squeeze(xp0(:,iy,:));
@@ -188,7 +188,7 @@ if im, printm 'show total activity per iteration'
 prompt
 end
 
-if 1 & im, printm 'examine "hole in sphere"'
+if 1 && im, printm 'examine "hole in sphere"'
 	t = xtrue1(:) > 99;
 	t1 = reshape(xo0, [nx*ny f.niter+1]);
 	t1 = t1(t, :);
@@ -227,4 +227,4 @@ if 1, printm 'show reconstructions' % for Ken
 %	imwrite(t', 'hole.tif')
 end
 
-% savefig fig_hole_example1_new
+% ir_savefig fig_hole_example1_new

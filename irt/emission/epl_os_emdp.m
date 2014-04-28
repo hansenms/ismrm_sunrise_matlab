@@ -48,10 +48,10 @@ Gb = block_ob(Gb, 'ensure'); % make it a block object (if not already)
 nblock = block_ob(Gb, 'n');
 starts = subset_start(nblock);
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = ones(size(yi(:)));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi(:)));
 end
 

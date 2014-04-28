@@ -26,7 +26,7 @@
 %|
 %| Copyright 2005-12-19, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(type, 'test'), fbp2_sino_filter_test, return, end
+if nargin == 1 && streq(type, 'test'), fbp2_sino_filter_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 
 arg.ds = 1;
@@ -96,7 +96,7 @@ if im
 	clf, subplot(121)
 	plot(nn, h1, 'o', nn, h2, '+')
 	xlabel 'n', ylabel 'h[n]'
-	axis tight%x(-10, 10)
+	axis tight
 	legend('arc', 'flat')
 
 	subplot(122)

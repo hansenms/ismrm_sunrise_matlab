@@ -21,6 +21,7 @@ if nargin == 1 && streq(sg, 'test'), fbp2_back_test, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
 
 arg.ia_skip = 1;
+arg.r_mask = true;
 arg = vararg_pair(arg, varargin);
 
 nz = size(sino,3);
@@ -31,7 +32,8 @@ for iz=1:nz
 		img(:,:,iz) = fbp2_back_fan(sg, ig, sino(:,:,iz), ...
 				'ia_skip', arg.ia_skip);
 	case 'par'
-		img(:,:,iz) = fbp2_back_par_do(sg, ig, sino(:,:,iz), arg.ia_skip);
+		img(:,:,iz) = fbp2_back_par_do(sg, ig, sino(:,:,iz), ...
+				arg.ia_skip, arg.r_mask);
 	otherwise
 		fail 'unknown type'
 	end
@@ -39,15 +41,20 @@ end
 
 
 % fbp2_back_par_do()
-function img = fbp2_back_par_do(sg, ig, sino, ia_skip)
+function img = fbp2_back_par_do(sg, ig, sino, ia_skip, do_r_mask)
 
 % trick: extra zero column saves linear interpolation indexing within loop!
+nb = size(sino,1); % # of radial bins
+if nb ~= sg.nb, fail 'nb size', end
 sino(end+1,:) = 0;
 
 [xc yc] = ndgrid(ig.x, ig.y);
 rr = sqrt(xc.^2 + yc.^2); % [nx ny]
 rmax = ((sg.nb-1)/2-abs(sg.offset)) * sg.d;
-mask = ig.mask & (rr < rmax);
+mask = ig.mask;
+if do_r_mask
+	mask = mask & (rr < rmax);
+end
 xc = xc(mask(:)); % [np] pixels within mask
 yc = yc(mask(:));
 
@@ -71,6 +78,10 @@ for ia=1:ia_skip:sg.na
 
 	% linear interpolation:
 	il = floor(rr); % left bin
+	if ~do_r_mask
+		il = max(il,1);
+		il = min(il,nb);
+	end
 %	if any(il < 1 | il >= nb), error 'bug', end
 	wr = rr - il; % left weight
 	wl = 1 - wr; % right weight

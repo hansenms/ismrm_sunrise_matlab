@@ -41,7 +41,7 @@ end
 nc = size(X,2);
 
 % adjoint of phase shift
-if isfield(st, 'phase_shift') & ~isempty(st.phase_shift)
+if isfield(st, 'phase_shift') && ~isempty(st.phase_shift)
 	X = X .* repmat(conj(st.phase_shift), [1 nc]);
 end
 
@@ -62,6 +62,9 @@ case 2
 case 3
 	Xk = interp3_table_adj_mex(complexify(X), st.h{1}, st.h{2}, st.h{3}, arg{:});
 
+case 4
+	Xk = interp4_table_adj_mex(complexify(X), st.h{1}, st.h{2}, st.h{3}, st.h{4}, arg{:});
+
 otherwise
-	error '> 3d not done'
+	error '> 4d not done'
 end

@@ -59,7 +59,7 @@ end
 % test data
 %
 clim = [0 2];
-if 0 | ~isvar('x'), printm 'setup object'
+if 0 || ~isvar('x'), printm 'setup object'
 	x = ig.zeros;
 	if 1
 		x(5:25,5:25) = 1;
@@ -105,7 +105,7 @@ if 0
 end
 
 % horribly lazy attempt at gridding
-if 0 & ~isvar('xg'), printm 'crude gridding reconstruction'
+if 0 && ~isvar('xg'), printm 'crude gridding reconstruction'
 
 	xg = ifft2(fftshift(yd_g));
 %	xg = fftshift(xg);
@@ -147,7 +147,7 @@ end
 
 
 % compare speed of NUFFT and Toeplitz approach
-if ~isvar('xpcg2') & ~isempty(Tm), printm 'Toeplitz approach'
+if ~isvar('xpcg2') && ~isempty(Tm), printm 'Toeplitz approach'
 	bb = Gm' * yi(:);
 	xpcg2 = qpwls_pcg2(xinit, Tm, bb, Rq.C, 'niter', niter);
 	tim.v2 = toc;

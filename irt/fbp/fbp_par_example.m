@@ -3,7 +3,7 @@
 % Copyright 2005-8-10, Jeff Fessler, The University of Michigan
 
 redo = 1;
-if redo | ~isvar('sino')
+if redo || ~isvar('sino')
 	down = 2;
 	ig = image_geom('nx', 512, 'ny', 504, 'fov', 500, 'down', down);
 	sg = sino_geom('par', 'nb', 888, 'na', 984, 'dr', 541/949, ...
@@ -23,7 +23,7 @@ prompt
 end
 
 % fbp reconstruction
-if redo | ~isvar('recon')
+if redo || ~isvar('recon')
 	if 1
 		args = aspire_pair(sg, ig, 'system', 9);
 		recon = fbp_dsc(sino, 1, args);

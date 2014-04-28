@@ -35,25 +35,25 @@ Gb = block_ob(Gb, 'ensure'); % make it a block object (if not already)
 nblock = block_ob(Gb, 'n');
 starts = subset_start(nblock);
 
-if ~isvar('bi') | isempty(bi)
+if ~isvar('bi') || isempty(bi)
 	bi = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
 
 if ~isvar('R'), R = []; end
-if ~isvar('niter')	| isempty(niter),	niter = 2;	end
-if ~isvar('pixmax')	| isempty(pixmax),	pixmax = inf;	end
+if ~isvar('niter')	|| isempty(niter),	niter = 2;	end
+if ~isvar('pixmax')	|| isempty(pixmax),	pixmax = inf;	end
 if length(pixmax) == 2
 	pixmin = pixmax(1);
 	pixmax = pixmax(2);
 else
 	pixmin = 0;
 end
-if ~isvar('curv')	| isempty(curv),	curv = 'oc';	end
-if ~isvar('chat')	| isempty(chat),	chat = false;	end
-if ~isvar('relax0')	| isempty(relax0),	relax0 = 1;	end
+if ~isvar('curv')	|| isempty(curv),	curv = 'oc';	end
+if ~isvar('chat')	|| isempty(chat),	chat = false;	end
+if ~isvar('relax0')	|| isempty(relax0),	relax0 = 1;	end
 if length(relax0) == 1
 	relax_rate = 0;
 elseif length(relax0) == 2
@@ -65,16 +65,16 @@ end
 
 trl_check(yi, bi, ri);
 
-if ~isvar('gi') | isempty(gi)
-	gi = reshape(sum(Gb'), size(yi));	% g_i = sum_j g_ij
+if ~isvar('gi') || isempty(gi)
+	gi = reshape(sum(Gb'), size(yi)); % g_i = sum_j g_ij
 end
 
 starts = subset_start(nblock);
 [nb na] = size(yi);
 
 % precompute denominator if needed
-if (~isvar('denom') | isempty(denom)) & streq(curv, 'pc')
-	ni = trl_curvature(yi, bi, ri, [], 'pc');	% precomputed curvatures
+if (~isvar('denom') || isempty(denom)) && streq(curv, 'pc')
+	ni = trl_curvature(yi, bi, ri, [], 'pc'); % precomputed curvatures
 
 	%
 	% one denominator shared by all subsets

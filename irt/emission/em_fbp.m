@@ -20,10 +20,10 @@
 
 if nargin < 3, help(mfilename), error(mfilename), end
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = sg.ones;
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = sg.zeros;
 end
 

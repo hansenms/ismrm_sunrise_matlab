@@ -171,7 +171,7 @@ case {'gauss', 'gaussian'}
 	st.sn = 1 ./ sn_gauss(tt);
 
 case {'kb:beatty', 'kb:mm'}
-	if streq(st.sn, st.type, 3) & ~streq(st.sn, st.type)
+	if streq(st.sn, st.type, 3) && ~streq(st.sn, st.type)
 		warning 'kb type mismatch - are you sure you want this?'
 	end
 	[kb_alf kb_m] = nufft1_build_kb_alf(st, st.sn);

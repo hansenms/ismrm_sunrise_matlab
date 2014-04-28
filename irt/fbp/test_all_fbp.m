@@ -15,7 +15,6 @@ list = {
  'ellipse_sino test'
  'ellipsoid_proj test'
  'ellipsoid_im test'
-%'fan_rebin'
  'fbp_fan_arc_example'
  'fbp_fan_arc_point'
  'fbp_fan_flat_example'

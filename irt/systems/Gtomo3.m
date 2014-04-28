@@ -41,7 +41,7 @@
 %|
 %| Copyright 01-04-22, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(sys_type, 'test'), Gtomo3_test, return, end
+if nargin == 1 && streq(sys_type, 'test'), Gtomo3_test, return, end
 if nargin < 1, help(mfilename), error(mfilename), end
 
 % handle new usage (for CT)
@@ -95,10 +95,10 @@ if arg.nthread > arg.nthread_max
 	arg.nthread = arg.nthread_max;
 end
 
-if arg.view2d & ~streq(arg.sys_type, '2', 1)
+if arg.view2d && ~streq(arg.sys_type, '2', 1)
 	error 'view2d option only relevant to 2dsc and 2z system types'
 end
-if arg.permute213 & ~streq(arg.sys_type, '3l', 2)
+if arg.permute213 && ~streq(arg.sys_type, '3l', 2)
 	warn 'permute213 designed only for "3l" system model!?'
 end
 

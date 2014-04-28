@@ -36,7 +36,7 @@ dims = size(X);
 if dims(1) ~= st.M, error size, end
 
 % adjoint of interpolator using precomputed sparse matrix
-if length(dims) > 2 | dims(2) > 1
+if length(dims) > 2 || dims(2) > 1
 	Lprod = prod(dims(2:end));
 	X = reshape(X, [st.M Lprod]); % [M *L]
 else
@@ -57,14 +57,17 @@ end
 x = reshape(x, [Kd Lprod]);			% [(Kd) *L]
 
 % eliminate zero padding from ends  fix: need generic method
-if length(Nd) == 1
-	x = x(1:Nd(1),:);			% [N1 *L]
-elseif length(Nd) == 2
-	x = x(1:Nd(1),1:Nd(2),:);		% [N1 N2 *L]
-elseif length(Nd) == 3
-	x = x(1:Nd(1),1:Nd(2),1:Nd(3),:);	% [N1 N2 N3 *L]
-else
-	error 'only up to 3D implemented currently'
+switch length(Nd)
+case 1
+	x = x(1:Nd(1),:); % [N1 *L]
+case 2
+	x = x(1:Nd(1),1:Nd(2),:); % [N1 N2 *L]
+case 3
+	x = x(1:Nd(1),1:Nd(2),1:Nd(3),:); % [N1 N2 N3 *L]
+case 4
+	x = x(1:Nd(1),1:Nd(2),1:Nd(3),1:Nd(4),:); % [N1 N2 N3 N4 *L]
+otherwise
+	error 'only up to 4D implemented'
 end
 
 % scaling factors

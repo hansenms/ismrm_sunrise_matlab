@@ -61,7 +61,9 @@
 %|	st.s			s sample locations
 %|	st.t			t sample locations
 %|	st.gamma		[nb] gamma sample values [radians]
-%|	st.gamma_max		half of fan angle [radians]
+%|	st.gamma_s		gamma values given s values
+%|	st.gamma_max		half of fan angle [radians] (if offset_s=0)
+%|	st.gamma_max_abs	half of fan angle [radians] (recommended)
 %|	st.ws			(ns-1)/2 + st.offset_s
 %|	st.wt			(nt-1)/2 + st.offset_t
 %|	st.ad			[na] source angles in degrees
@@ -70,12 +72,15 @@
 %|	st.downsample(down)	reduce sampling by integer factor
 %|	st.ones			ones(ns,nt,na, 'single')
 %|	st.zeros		zeros(ns,nt,na, 'single')
+%|	st.rad			[ns] radial distance of each ray from origin
 %|	st.rmax			max radius within FOV
 %|	st.footprint_size(ig)	max footprint width in 's'
 %|	st.zfov			axial FOV
 %|	st.source_zs		[na] z-locations of source for each view
 %|	st.shape(sino(:))	reshape to [ns,nt,na,?]
 %|	st.unitv(is,it,ia)	unit 'vector' with one nonzero element
+%|	st.xds st.yds		x,y center coordinates of middle detector row
+%|	st.xd_s(s) st.yd_s(s)	x,y center coordinates of middle detector row given s
 %|	st.plot([ig])		show geometry
 %|
 %|	trick: you can make orbit=0 and orbit_start = column vector (length na)
@@ -139,16 +144,21 @@ meth = { ...
 	'ad', @ct_geom_ad, '()'; ...
 	'ar', @ct_geom_ar, '()'; ...
 	'gamma', @ct_geom_gamma, '()'; ...
+	'gamma_s', @ct_geom_gamma_s, '(s)'; ...
 	'gamma_max', @ct_geom_gamma_max, '()'; ...
+	'gamma_max_abs', @ct_geom_gamma_max_abs, '()'; ...
 	'zfov', @ct_geom_zfov, '()'; ...
 	'source_dz_per_view', @ct_geom_source_dz_per_view, '()'; ...
 	'source_zs', @ct_geom_source_zs, '() -> [na]'; ...
 	'orbit_short', @ct_geom_orbit_short, '()'; ...
+	'xd_s', @ct_geom_xd_s, '(s)'; ...
+	'yd_s', @ct_geom_yd_s, '(s)'; ...
 	'xds', @ct_geom_xds, '()'; ...
 	'yds', @ct_geom_yds, '()'; ...
 	'downsample', @ct_geom_downsample, '()'; ...
 	'dim', @ct_geom_dim, '()'; ...
 	'ones', @ct_geom_ones, '()'; ...
+	'rad', @ct_geom_rad, '()'; ...
 	'rmax', @ct_geom_rmax, '()'; ...
 	'footprint_size', @ct_geom_footprint_size, '(ig)'; ...
 	'unitv', @ct_geom_unitv, '() | (is,it,ia)'; ...
@@ -213,6 +223,29 @@ end
 out(is,it,ia) = 1;
 
 
+% ct_geom_rad()
+% radial distance from origin for each ray
+function rad = ct_geom_rad(st)
+switch st.type
+case 'par'
+	rad = st.s
+case 'fan'
+	if isinf(st.dso) % parallel
+		xds = st.s;
+	elseif st.dfs == 0 % arc
+		gamma = ct_geom_gamma(st);
+		rad = st.dso * sin(gamma);
+	elseif isinf(st.dfs) % flat
+		gamma = ct_geom_gamma(st);
+		rad = st.dso * sin(gamma);
+	else
+		error 'unknown case'
+	end
+otherwise
+	error 'unknown type'
+end
+
+
 % ct_geom_rmax()
 % max radius within fov
 function rmax = ct_geom_rmax(st)
@@ -221,9 +254,15 @@ if streq(st.type, 'fan')
 	if isinf(st.dso) % parallel
 		rmax = smax;
 	elseif st.dfs == 0 % arc
-		rmax = st.dso * sin(smax / st.dsd);
+		gamma_max_abs = ct_geom_gamma_max_abs(st);
+		rmax = st.dso * sin(gamma_max_abs);
+%		rmax2 = st.dso * sin(smax / st.dsd); % todo: cut
+%		jf_equal(rmax, rmax2)
 	elseif isinf(st.dfs) % flat
-		rmax = st.dso * sin(atan(smax / st.dsd));
+		gamma_max_abs = ct_geom_gamma_max_abs(st);
+		rmax = st.dso * sin(gamma_max_abs);
+%		rmax2 = st.dso * sin(atan(smax / st.dsd)); % todo: cut
+%		jf_equal(rmax, rmax2)
 	else
 		error 'unknown case'
 	end
@@ -393,6 +432,9 @@ end
 if numel(st.orbit_start) > 1 && (st.pitch ~= 0) && isempty(st.user_source_zs)
 	fail('helical with vector orbit_start: must specify user_source_zs')
 end
+if round(st.ns) ~= st.ns, fail('ns must be integer'), end
+if round(st.nt) ~= st.nt, fail('nt must be integer'), end
+if round(st.na) ~= st.na, fail('na must be integer'), end
 
 
 % ct_geom_source_zs()
@@ -409,17 +451,23 @@ else
 end
 
 
-% ct_geom_gamma()
-% gamma sample values
-function gamma = ct_geom_gamma(st, varargin)
+% ct_geom_gamma_s()
+% gamma values from s values
+function gamma = ct_geom_gamma_s(st, ss)
 switch st.dfs
 case 0
-	gamma = st.s / st.dsd; % 3rd gen: equiangular arc
+	gamma = ss / st.dsd; % 3rd gen: equiangular arc
 case inf
-	gamma = atan(st.s / st.dsd); % flat
+	gamma = atan(ss / st.dsd); % flat
 otherwise
 	error 'dfs not done'
 end
+
+
+% ct_geom_gamma()
+% gamma sample values
+function gamma = ct_geom_gamma(st, varargin)
+gamma = ct_geom_gamma_s(st, st.s);
 gamma = gamma(varargin{:});
 
 
@@ -428,45 +476,63 @@ function gamma_max = ct_geom_gamma_max(st)
 gamma_max = max(st.gamma);
 
 
-% ct_geom_xds()
-% center positions of detectors
-function xds = ct_geom_xds(st, varargin)
+% ct_geom_gamma_max_abs()
+function gamma_max = ct_geom_gamma_max_abs(st)
+gamma_max = max(abs(st.gamma));
+
+
+% ct_geom_xd_s()
+% x positions along detector given s values (for beta=0)
+function xds = ct_geom_xd_s(st, ss)
 switch st.type
 case 'par'
-	xds = st.s;
+	xds = ss;
 case 'fan'
 	switch st.dfs
 	case 0 % arc
-		xds = st.dsd * sin(st.gamma);
+		xds = st.dsd * sin(st.gamma_s(ss));
 	case inf % flat
-		xds = st.s;
+		xds = ss;
 	otherwise
 		error 'not done'
 	end
 otherwise
 	error 'bug'
 end
+
+
+% ct_geom_yd_s()
+% y positions along detector given s values (for beta=0)
+function yds = ct_geom_yd_s(st, ss)
+switch st.type
+case 'par'
+	yds = zeros(size(ss), class(ss));
+case 'fan'
+	switch st.dfs
+	case 0 % arc
+		yds = st.dso - st.dsd * cos(st.gamma_s(ss));
+	case inf % flat
+		yds = -st.dod * ones(size(ss), class(ss));
+	otherwise
+		error 'not done'
+	end
+otherwise
+	error 'bug'
+end
+
+
+% ct_geom_xds()
+% x center positions of detectors (for beta=0)
+function xds = ct_geom_xds(st, varargin)
+xds = ct_geom_xd_s(st, st.s);
+xds = xds(varargin{:});
 
 
 % ct_geom_yds()
-% center positions of detectors
+% y center positions of detectors (for beta=0)
 function yds = ct_geom_yds(st, varargin)
-switch st.type
-case 'par'
-	yds = zeros(size(st.s));
-
-case 'fan'
-	switch st.dfs
-	case 0 % arc
-		yds = st.dso - st.dsd * cos(st.gamma);
-	case inf % flat
-		yds = -st.dod * ones(size(st.s));
-	otherwise
-		error 'not done'
-	end
-otherwise
-	error 'bug'
-end
+yds = ct_geom_yd_s(st, st.s);
+yds = yds(varargin{:});
 
 
 % ct_geom_footprint_size()
@@ -669,7 +735,7 @@ for ia = ia_list
 	unit_vec = [-src(1) -src(2) 0] / sqrt(src(1)^2+src(2)^2);
 	% diametrically opposite point of the source on the detector
 	det_cen_loc = src + st.dsd * unit_vec;
-	plot3(det_cen_loc(1), det_cen_loc(2), det_cen_loc(3), 'rs')
+	plot3(det_cen_loc(1), det_cen_loc(2), det_cen_loc(3), 'ys')
 
 	rot = st.ar(ia);
 	rot = [cos(rot) -sin(rot); sin(rot) cos(rot)];
@@ -680,9 +746,11 @@ for ia = ia_list
 			detcolor{find(ia == ia_list)})
 	end
 
-	if 1 && ia == 1 % line from source to middle of first detector row
+	if 1 % line from source to middle of first,last detector row
 		plot3([src(1) det_cen_loc(1)], [src(2) det_cen_loc(2)], ...
-			[src(3) st.t(1)], 'm-')
+			[src(3) st.source_zs(ia)+st.t(1)], 'm-')
+		plot3([src(1) det_cen_loc(1)], [src(2) det_cen_loc(2)], ...
+			[src(3) st.source_zs(ia)+st.t(end)], 'm-')
 	end
 end
 hold off
@@ -751,10 +819,13 @@ cg = ct_geom('fan', 'ns', 888, 'nt', 64, 'na', 984, ...
 	'dsd', 949, 'dod', 408);
 cg.ad(2);
 cg.downsample(2);
-cg.rmax;
 cg.ws;
-cg.nframe; cg.frame; cg.gamma; cg.gamma_max;
+cg.nframe; cg.frame; cg.gamma;
+cg.gamma_max; cg.gamma_max_abs;
+cg.s;
 cg.s(cg.ns/2+1);
+jf_equal(cg.gamma_s(cg.s(1:4)), cg.gamma(1:4))
+cg.rmax;
 if im
 	cg.plot;
 prompt

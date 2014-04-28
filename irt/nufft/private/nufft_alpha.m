@@ -18,10 +18,10 @@ if nargin < 3
 return
 end
 
-if ~isvar('alpha') | isempty(alpha)
+if ~isvar('alpha') || isempty(alpha)
 	alpha = [1];	% default Fourier series coefficients of scaling factors
 end
-if ~isvar('beta') | isempty(beta)
+if ~isvar('beta') || isempty(beta)
 	beta = 0.5;	% default is Liu version for now
 end
 

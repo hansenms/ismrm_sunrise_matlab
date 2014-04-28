@@ -1,22 +1,22 @@
  function T = nufft_T(N, J, K, tol, alpha, beta, use_true_diric)
 %function T = nufft_T(N, J, K, tol, alpha, beta, use_true_diric)
-% Precompute the matrix T = [C' S S' C]\inv used in NUFFT.
-% This can be precomputed, being independent of frequency location.
-% in:
-%	N		# signal length
-%	J		# of neighbors
-%	K		# FFT length
-%	tol		tolerance for smallest eigenvalue
-%	alpha	[L+1]	Fourier coefficient vector for scaling
-%	beta		scale gamma=2*pi/K by this for Fourier series
-% out:
-%	T	[J,J]	precomputed matrix
-%
-% Copyright 2000-1-9, Jeff Fessler, The University of Michigan
+%|
+%| Precompute the matrix T = [C' S S' C]\inv used in NUFFT.
+%| This can be precomputed, being independent of frequency location.
+%|
+%| in
+%|	N		# signal length
+%|	J		# of neighbors
+%|	K		# FFT length
+%|	tol		tolerance for smallest eigenvalue
+%|	alpha	[L+1]	Fourier coefficient vector for scaling
+%|	beta		scale gamma=2*pi/K by this for Fourier series
+%| out
+%|	T	[J J]	precomputed matrix
+%|
+%| Copyright 2000-1-9, Jeff Fessler, University of Michigan
 
-%
 % if no arguments, run a test
-%
 if nargin < 3
 	help(mfilename)
 
@@ -31,34 +31,28 @@ if nargin < 3
 return
 end
 
-if ~isvar('tol') | isempty(tol)
+if ~isvar('tol') || isempty(tol)
 	tol = 1e-7;
 end
-if ~isvar('beta') | isempty(beta)
+if ~isvar('beta') || isempty(beta)
 	beta = 1/2;
 end
-if ~isvar('use_true_diric') | isempty(use_true_diric)
+if ~isvar('use_true_diric') || isempty(use_true_diric)
 	use_true_diric = false;
 end
 
 if N > K, error 'N > K', end
 
 
-%
 % default with unity scaling factors
-%
-if ~isvar('alpha') | isempty(alpha)
+if ~isvar('alpha') || isempty(alpha)
 
-	%
 	% compute C'SS'C = C'C
-	%
 	[j1 j2] = ndgrid(1:J, 1:J);
 	cssc = nufft_diric(j2 - j1, N, K, use_true_diric);
 
 
-%
 % Fourier-series based scaling factors
-%
 else
 	if ~isreal(alpha(1)), error 'need real alpha_0', end
 	L = length(alpha) - 1;	% L
@@ -80,14 +74,12 @@ else
 end
 
 
-%
 % Inverse, or, pseudo-inverse
-%
 
 %smin = svds(cssc,1,0);
 smin = min(svd(cssc));
-if smin < tol	% smallest singular value
-	warning(sprintf('Poor conditioning %g => pinverse', smin))
+if smin < tol % smallest singular value
+	warn('Poor conditioning %g => pinverse', smin)
 	T = pinv(cssc, tol/10);
 else
 	T = inv(cssc);

@@ -64,7 +64,7 @@ end
 
 arg = vararg_pair(arg, varargin);
 
-if ~isvar('W') | isempty(W)
+if ~isvar('W') || isempty(W)
 	W = 1;	% cheap identity
 end
 
@@ -235,7 +235,7 @@ while repeater
 	end
 
 	% if desired, display images, primarily for debug
-	if arg.chat & im
+	if arg.chat && im
 		clf, im pl 3 3
 		ix = [-dim(1)/2:dim(1)/2-1] - arg.offset(1);
 		iy = [-dim(2)/2:dim(2)/2-1] - arg.offset(2);

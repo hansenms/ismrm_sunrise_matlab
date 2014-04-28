@@ -46,6 +46,9 @@
 %|
 %| See the built-in test routine for a self-contained example.
 %|
+%| Caution: the sign of the field map estimated here is the opposite (negative)
+%| of the sign of the field map needed for input to the Gmri object.
+%|
 %| Copyright 2007-12-15, Amanda Funai & Jeff Fessler, University of Michigan
 
 if nargin >= 1 && streq(yik, 'test')

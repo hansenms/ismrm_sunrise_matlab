@@ -161,7 +161,7 @@ end
 
 ylab = @ (xh) ylabelf('%5.2f', nrms(xh(:), xtrue(:)));
 
-if 1 & im
+if 1 && im
 	im clf, im pl 5 2
 	set(0, 'DefaultAxesFontSize', 16)
 	im(1, 'notick', xtrue, clim), ylab(xtrue)
@@ -198,7 +198,7 @@ if 1 & im
 return
 end
 
-if 1 & im
+if 1 && im
 	c = (Rn.C1) * xnpls(mask);
 	c = reshape(c, [size(mask) 4]);
 	c = Rn.wpot(1, c);

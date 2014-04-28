@@ -6,7 +6,8 @@
 if ~isvar('sino'), printm 'simulate data'
 	down = 4;
 	% slightly larger than 80cm fov
-	sg = sino_geom('par', 'nb', 1500, 'na', 700, 'dr', 0.55, 'down', down);
+	sg = sino_geom('par', 'nb', 1500, 'na', 700, 'dr', 0.55, ...
+		'strip_width', 'd', 'down', down);
 	ig = image_geom('nx', 512, 'dx', [], 'fov', 800, 'down', down);
 	ig.dy = ig.dx; % DF needs this for now
 
@@ -33,16 +34,20 @@ if ~isvar('xfbp'), printm 'fbp'
 	xfbp = fbp2(sino, tmp);
 	cpu etoc 'fbp time'
 
-	xrange = inline('xlabelf(''[%g %g]'', min(x(:)), max(x(:)));');
+	xrange = @(x) xlabelf('[%g %g]', min(x(:)), max(x(:)));
 	im(2, ig.x, ig.y, xfbp, 'FBP', clim), cbar
 	im(4, ig.x, ig.y, xfbp-xtrue, 'FBP error', elim), cbar
-	xrange(xfbp-xtrue);
+	xrange(xfbp-xtrue)
 %	savefig fig_df1
 prompt
 end
 
 if 1, printm 'df' % DF recon
-	ilist = {'*linear', '*cubic'};
+	if ir_is_octave
+		ilist = {'linear', 'cubic'};
+	else
+		ilist = {'*linear', '*cubic'};
+	end
 	olist = {1, 2, 3}; % over-sampling factors
 	im clf, im pl 3 3
 	for ii=1:length(ilist)
@@ -184,7 +189,7 @@ return
 end
 
 % df reconstruction via nufft
-if 0 | ~isvar('xdf'), printm 'dfr'
+if 0 || ~isvar('xdf'), printm 'dfr'
 	mask = true(nx,ny);
 	f.kb_m = [2 2];
 	f.kb_alf = 14.0 * [1 1]; % fix: need to tune!

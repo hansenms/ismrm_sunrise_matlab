@@ -21,11 +21,11 @@
 %
 % Copyright Jan 1998, Jeff Fessler, The University of Michigan
 
-if nargin < 8 | nargin > 10, help(mfilename), error(mfilename), end
+if nargin < 8 || nargin > 10, help(mfilename), error(mfilename), end
 
-if ~isvar('chat') | isempty(chat), chat = 0; end
+if ~isvar('chat') || isempty(chat), chat = 0; end
 
-if ~isreal(yi) & ~isempty(M)
+if ~isreal(yi) && ~isempty(M)
 	persistent warned
 	if isempty(warned), warned = 0; end
 	if ~warned
@@ -37,8 +37,8 @@ end
 %
 % if requested, build circulant preconditioner based on center pixel
 %
-if ischar(M) & streq(M, 'circ0')
-	if ~isvar('mask') | isempty('mask')
+if ischar(M) && streq(M, 'circ0')
+	if ~isvar('mask') || isempty('mask')
 		error 'mask required for circulant precon'
 	end
 	M = qpwls_precon(M, {G, W}, C, mask);
@@ -46,7 +46,7 @@ end
 
 np = ncol(G);
 if np ~= 1
-	if numel(x) ~= np & isvar('mask')
+	if numel(x) ~= np && isvar('mask')
 		x = x(mask(:));
 	end
 else
@@ -148,7 +148,7 @@ for iter = 2:niter
 	x	= x + step * ddir;
 	xs(:,iter) = x;
 
-	if chat > 1 & (iter < 10 | rem(iter,10)==0)
+	if chat > 1 && (iter < 10 || rem(iter,10)==0)
 		im(121, embed(x,mask), 'x')
 		title(sprintf('%d step=%g gamma=%g', iter, step, gamma))
 		if isobject(M)

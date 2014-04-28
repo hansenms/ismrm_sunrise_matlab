@@ -24,14 +24,14 @@
 % Copyright May 1999, Jeff Fessler
 
 if nargin < 6, help(mfilename), error(mfilename), end
-if ~isvar('bi') | isempty(bi)
+if ~isvar('bi') || isempty(bi)
 	bi = ones(size(yi(:)));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi(:)));
 end
 if ~isvar('R'), R = []; end
-if ~isvar('mask') | isempty(mask)
+if ~isvar('mask') || isempty(mask)
 	mask = [];
 end
 
@@ -67,9 +67,8 @@ obj = like - penal;
 
 %printf('%g\t', [like penal obj]')
 
-%
+
 % Poisson transmission likelihood for each column of x
-%
 function like = trl_like(xs, G, yi, bi, ri, use_ll)
 
 like = zeros(ncol(xs),1);

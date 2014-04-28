@@ -19,7 +19,7 @@ end
 
 redo = 0;
 % analytical sino
-if redo | ~isvar('ya'), printm 'ya'
+if redo || ~isvar('ya'), printm 'ya'
 	down = 8;
 %	down = 2; % for threading check
 	ig = image_geom('nx', 512, 'ny', 496, 'fov', 500, 'down', down);
@@ -43,7 +43,7 @@ end
 
 
 % Atab
-if redo | ~isvar('Atab'), printm 'setup Atab'
+if redo || ~isvar('Atab'), printm 'setup Atab'
 	if 0 % linear interpolation (cf system 9)
 		if sg.strip_width ~= 0, fail 'change sg', end
 		f.system = 9;
@@ -74,13 +74,13 @@ if 0, printm 'threading check'
 	jf_equal(y1, y2)
 end
 
-if 1 % look at DD approx
+if exist('dd_ge1_mex') == 3 % DD approx, UM only
 	if ~isvar('As')
 		t = f.table; t{5} = 200;
 		As = Gtomo2_table(sg, ig, t); % exact
 		Ad = Gtomo2_table(sg, ig, {'dd2', t{2:end}});
 	end
-A45 = Gtomo2_table(sg, ig, {'la45', t{2:end}});
+	A45 = Gtomo2_table(sg, ig, {'la45', t{2:end}});
 	K = As.arg.tab_opt.Ktab;
 	L = As.arg.tab_opt.Ltab;
 	[kk ll] = ndgrid(0:K-1, 0:L-1);
@@ -134,7 +134,7 @@ prompt
 end
 
 % dsc
-if redo | ~isvar('Adsc'), printm 'setup Adsc'
+if redo || ~isvar('Adsc'), printm 'setup Adsc'
 	Adsc = Gtomo2_dscmex(sg, ig);
 	if f.system == 9 % untested
 		scale = sg.orbit / 180 / (2*pi) * (sg.dr)^2 / ig.dx; % trick:
@@ -144,11 +144,11 @@ prompt
 end
 
 % wtf
-if redo | ~isvar('Awtc'), printm 'setup Awtc/Awtr'
-	if ig.nx*ig.ny <= 2^16 & sg.nb*sg.na <= 2^16
+if redo || ~isvar('Awtc'), printm 'setup Awtc/Awtr'
+	if ig.nx*ig.ny <= 2^16 && sg.nb*sg.na <= 2^16
 		Awtr = Gtomo2_wtmex(sg, ig);
 	end
-	if ig.nx*ig.ny <= 2^16 & sg.nb*sg.na <= 2^16
+	if ig.nx*ig.ny <= 2^16 && sg.nb*sg.na <= 2^16
 		Awtc = Gtomo2_wtmex(sg, ig, 'grouped', 'col');
 	end
 end
@@ -246,11 +246,11 @@ prompt
 end
 
 % hereafter requires DD
-if 2 ~= exist('Gtomo_dd')
+if 2 ~= exist('Gtomo_dd') || exist('dd_ge1_mex') ~= 3
 	return
 end
 
-if redo | ~isvar('Add'), printm 'setup Add'
+if redo || ~isvar('Add'), printm 'setup Add'
 	cpu etic
 	Add = Gtomo_dd(sg, ig); 
 	cpu etoc 'Ad precompute time:'
@@ -274,7 +274,7 @@ end
 
 return %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if 0 & ~isvar('An'), printm 'setup An'
+if 0 && ~isvar('An'), printm 'setup An'
 warning 'todo: update nufft'
 	An = Gtomo_nufft(ig.mask, [nb na], ...
 		'chat', 1, ...

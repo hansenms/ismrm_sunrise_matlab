@@ -17,14 +17,14 @@
 
 warning 'fbp_dsc is obsolete.  use fbp2 instead.  see fbp2_example'
 
-if nargin == 1 & streq(sino, 'test'), fbp_dsc_test, return, end
+if nargin == 1 && streq(sino, 'test'), fbp_dsc_test, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
 
 opt.chat = 0;
 opt.nthread = 1;
 opt = vararg_pair(opt, varargin);
 
-if ~isvar('kernel') | isempty(kernel)
+if ~isvar('kernel') || isempty(kernel)
 	kernel = ones(3,1)/3;
 end
 

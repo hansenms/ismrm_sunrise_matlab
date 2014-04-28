@@ -5,13 +5,13 @@
 %	Copyright May 1999, Jeff Fessler
 
 if nargin < 3, help(mfilename), error(mfilename), end
-if (nargin < 4 | isempty(bi))
+if (nargin < 4 || isempty(bi))
 	bi = ones(size(yi(:)));
 end
-if (nargin < 5 | isempty(ri))
+if (nargin < 5 || isempty(ri))
 	ri = zeros(size(yi(:)));
 end
-if (nargin < 6 | isempty(C))
+if (nargin < 6 || isempty(C))
 	C = 0;
 end
 if nargin == 7

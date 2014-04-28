@@ -35,8 +35,8 @@ if nargin < 2
 return
 end
 
-if ~isvar('n_shift') | isempty(n_shift), n_shift = [0 0]; end
-if ~isvar('useloop') | isempty(useloop), useloop = 0; end
+if ~isvar('n_shift') || isempty(n_shift), n_shift = [0 0]; end
+if ~isvar('useloop') || isempty(useloop), useloop = 0; end
 
 [nn1 nn2] = ndgrid([0:(N1-1)]-n_shift(1), [0:(N2-1)]-n_shift(2));
 

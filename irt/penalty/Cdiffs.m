@@ -36,7 +36,7 @@
 %|
 %| Copyright 2006-12-4, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(isize, 'test'), Cdiffs_test, return, end
+if nargin == 1 && streq(isize, 'test'), Cdiffs_test, return, end
 if nargin < 1, help(mfilename), error(mfilename), end
 %if has_mex_jf, penalty_mex('help'), end
 
@@ -54,7 +54,7 @@ if isempty(isize)
 	if isempty(arg.mask)
 		fail 'must provide at least one of isize or ''mask'''
 	else
-		isize = size(mask);
+		isize = size(arg.mask);
 		if numel(isize) == 2 && isize(end) == 1
 			warn 'inferring isize from 1D mask is ambiguous'
 		end

@@ -64,8 +64,8 @@ while length(varargin)
 
 	% 'h' or 'horiz' for horizontal
 	elseif ischar(arg) && (streq(arg, 'h') || streq(arg, 'horiz'))
-		if (is_pre_v7)
-			st.orient = 'horiz';
+		if ir_is_octave
+			st.orient = 'southoutside';
 		else
 			st.orient = 'horiz';
 %			colorbar horiz; return % fixed
@@ -158,6 +158,15 @@ else
 	st.orient = 'horiz';
 end
 
+
+if ir_is_octave && streq(st.orient, 'southoutside')
+%	xtick = get(h, 'xtick');
+	xtick = get(gca, 'clim');
+	set(h, 'xtick', xtick([1 end]))
+return % todo: other options below for octave?
+end
+
+
 if streq(st.orient, 'horiz')
 	xtick = st.ytick;
 	if isempty(xtick)
@@ -187,7 +196,7 @@ if st.dotick
 	if streq(st.orient, 'horiz')
 		set(h, 'xtick', xtick)
 	else
-		if is_pre_v7
+		if 1 || is_pre_v7 % seems to work in 7.12 (r2011a)
 			set(h, 'ytick', st.ytick)
 		elseif 0 % disabled because not working
 			% trick: for v7, move ticks in slightly

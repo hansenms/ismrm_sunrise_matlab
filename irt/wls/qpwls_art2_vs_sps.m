@@ -79,7 +79,7 @@ if 1
 	end
 	hold off
 
-%	savefig 'fig_qpwls_art2_vs_sps'
+%	ir_savefig 'fig_qpwls_art2_vs_sps'
 return
 end
 

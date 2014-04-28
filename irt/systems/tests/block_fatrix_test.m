@@ -1,7 +1,7 @@
 % block_fatrix_test.m
 % Test the block_fatrix object
 
-if 1 | ~isvar('A5'), printm 'setup'
+if 1 || ~isvar('A5'), printm 'setup'
 	rng(0)
 %	A1 = Gsparse(sparse(rand(10,20)));
 	A1 = rand(10,20);

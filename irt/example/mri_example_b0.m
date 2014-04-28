@@ -10,7 +10,7 @@ if ~isvar('zmap'), printm 'read fieldmap'
 	ig = image_geom('nx', nx, 'ny', nx, 'dx', 1);
 	ig.mask = ellipse_im(ig, [0 0 27 35 0 1], 'oversample', 3) > 0;
 
-	if 1 & im % picture of field map
+	if 1 && im % picture of field map
 		t = (conv2(single(ig.mask), ones(3), 'same') >= 1) - ig.mask;
 		t = t .* (1 + (-1).^[1:nx]' * (-1).^[1:ny])/2;
 		t = t * max(fmap(:));
@@ -40,7 +40,7 @@ if ~isvar('xtrue'), printm 'xtrue'
 	xtrue(end/2+1, end/2+1) = 2;
 
 	f.clim = [0 2.5];
-	if 1 & im
+	if 1 && im
 		t = (conv2(single(ig.mask), ones(3), 'same') >= 1) - ig.mask;
 		im clf, im(xtrue + 2.0*t, f.clim), cbar
 		title('Image and support outline')
@@ -55,7 +55,7 @@ if ~isvar('kspace'), printm 'kspace (slow due to voronoi)'
 	f.fov = 22; % cm
 	f.traj = 'spiral3'; f.dens = {'voronoi'};
 	[kspace omega wi_traj] = mri_trajectory(f.traj, {}, N, f.fov, f.dens);
-	if 1 & im
+	if 1 && im
 		plot(omega(:,1), omega(:,2), '.')
 		axis(pi*[-1 1 -1 1]), axis_pipi, axis square
 	prompt
@@ -165,13 +165,13 @@ if ~isvar('xcg1'), printm 'xcg1 iterative'
 	xcg1 = embed(xcg1(:,end), ig.mask);
 	im clf, im([xtrue; xcg1], 'xcg1'), cbar
 
-	if 0 & ~isvar('bb'), printm 'bb'
+	if 0 && ~isvar('bb'), printm 'bb'
 		bb = Gm' * yi(:);
 		im clf, im(ig.embed(bb), 'bb'), cbar
 		prompt
 	end
 
-	if 0 & ~isvar('xcg2'), printm 'xcg2'
+	if 0 && ~isvar('xcg2'), printm 'xcg2'
 		xcg2 = qpwls_pcg2(xinit(ig.mask), Tm, bb, R.C, 'niter', f.niter);
 		xcg2 = ig.embed(xcg2(:,end));
 		im clf, im(xcg2, 'xcg2'), cbar

@@ -403,7 +403,7 @@ colormap hsv, caxis([0 fmax]), cbar
 axis([0 s_max(1) 0 s_max(2) 0 fmax])
 xtick, ytick, ztick, zwhite, xlabel s_1, ylabel s_2, title 'f_2(s)'
 
-% savefig('c', fdir, 'fig_f1_f2')
+% ir_savefig('c', fdir, 'fig_f1_f2')
 end % de_ftab_build_show_fm()
 
 

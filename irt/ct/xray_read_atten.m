@@ -15,7 +15,7 @@
 %|
 %| options
 %|	'units'		cm | mm	default: cm
-%|	'interp'	{}	interpolator type.  default {'cubic', 'extrap'}
+%|	'interp'	{}	interpolator type.  default {'pchip', 'extrap'}
 %|	shortfile	0|1	return short file name instead of full path
 %|
 %| out
@@ -51,7 +51,7 @@ end
 arg.units = 'cm';
 %arg.interp = {'linear', 'extrap'};
 %arg.interp = {'spline', 'extrap'};
-arg.interp = {'cubic', 'extrap'};
+arg.interp = {'pchip', 'extrap'};
 arg.shortfile = false;
 
 arg = vararg_pair(arg, varargin);
@@ -81,10 +81,8 @@ if 0 % look at k-edges
 	end
 end
 
-%
 % if input energies are specified, then interpolate onto those.
 % trick: allow for the k-edge jumps!
-%
 if isvar('kev_in') & ~isempty(kev_in)
 	mass_atten = log(mass_atten); % interpolate on a log scale
 	mass_atten = interp1_jump(kev, mass_atten, kev_in, ...
@@ -98,10 +96,8 @@ if is_mm
 end
 
 
-%
 % xray_read_atten_test()
 % example usage
-%
 function xray_read_atten_test
 mtypes = {'lead', 'aluminum', 'water', 'lexan'};
 mtypes = {'water', 'bone'};

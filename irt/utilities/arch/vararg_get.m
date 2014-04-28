@@ -14,7 +14,7 @@ ob.(key) = arg;
 %ob = setfield(ob, key, arg);
 args = {varargin{2:end}};
 
-if isfield(ob, 'chat') & ob.chat
+if isfield(ob, 'chat') && ob.chat
 	if isnumeric(arg)
 		if max(size(arg)) == 1	% only print scalars
 			printf('\t%s = %g', key, arg)

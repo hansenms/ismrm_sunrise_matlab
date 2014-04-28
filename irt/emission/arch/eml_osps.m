@@ -25,18 +25,18 @@ if nargin < 3, help(mfilename), error(mfilename), end
 nblock = block_ob(Gb, 'n');
 starts = subset_start(nblock);
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
-if ~isvar('niter') | isempty(niter),	niter = 1;	end
-if ~isvar('pixmax') | isempty(pixmax),	pixmax = inf;	end
-if ~isvar('curv') | isempty(curv),	curv = 'oc';	end
-if ~isvar('chat') | isempty(chat),	chat = true;	end
+if ~isvar('niter') || isempty(niter),	niter = 1;	end
+if ~isvar('pixmax') || isempty(pixmax),	pixmax = inf;	end
+if ~isvar('curv') || isempty(curv),	curv = 'oc';	end
+if ~isvar('chat') || isempty(chat),	chat = true;	end
 
-if ~isvar('relax0') | isempty(relax0)
+if ~isvar('relax0') || isempty(relax0)
 	relax0 = 1;
 end
 if length(relax0) == 1

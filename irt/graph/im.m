@@ -64,7 +64,7 @@ return
 end
 
 % im row 2 or im col 3
-if nargin == 2 && (streq(varargin{1}, 'row') || streq(varargin{1}, 'row'))
+if nargin == 2 && (streq(varargin{1}, 'row') || streq(varargin{1}, 'col'))
 	tmp = varargin{2};
 	if ischar(tmp), tmp = str2num(tmp); end
 	state.montage = {varargin{1}, tmp};
@@ -77,53 +77,60 @@ end
 if nargin == 1 && ischar(varargin{1})
 	arg = varargin{1};
 
-	if streq(arg, 'on')
+	switch arg
+	case 'on'
 		state.display = true;
 		state.display_quiet = false;
 		disp 'enabling images'
-	elseif streq(arg, 'off')
+	case 'off'
 		state.display = false;
 		state.display_quiet = false;
 		disp 'disabling images'
-	elseif streq(arg, 'off-quiet')
+	case 'off-quiet'
 		state.display = false;
 		state.display_quiet = true;
-	elseif streq(arg, 'clf')
+	case 'clf'
 		if state.display
 			clf
 		end
-	elseif streq(arg, 'drawnow')
+	case 'drawnow'
 		state.drawnow = true;
-	elseif streq(arg, 'drawnot')
+	case 'drawnow'
+		state.drawnow = true;
+	case 'drawnot'
 		state.drawnow = false;
-	elseif streq(arg, 'tickon')
+	case 'tickon'
 		state.tick = true;
-	elseif streq(arg, 'tickoff')
+	case 'tickoff'
 		state.tick = false;
-	elseif streq(arg, 'ison') % query
+	case 'ison' % query
 		if state.display
 			h = true;
 		else
 			h = false;
 		end
-	elseif streq(arg, 'state') % query
+	case 'state' % query
 		h = state;
-	elseif streq(arg, 'nan-fail')
+	case 'nan-fail'
 		state.nan_fail = true;
-	elseif streq(arg, 'nan-warn')
+	case 'nan-warn'
 		state.nan_fail = false;
-	elseif streq(arg, 'blue0')
+	case 'blue0'
 		state.blue0 = true;
-	elseif streq(arg, 'colorneg')
+	case 'colormap_keep'
+		state.colormap_control = '';
+	case 'colorneg'
 		state.colorneg = true;
-	elseif streq(arg, 'db', 2)
-		state.db = sscanf(arg, 'db%g');
-	elseif streq(arg, 'reset')
+	case 'reset'
 		state = im_reset;
-	elseif streq(arg, 'test')
+	case 'test'
 		im_test, return
-	else
-		error(['unknown argument: ' arg])
+	otherwise
+		if streq(arg, 'db', 2)
+			state.db = sscanf(arg, 'db%g');
+		else
+			error(['unknown argument: ' arg])
+		end
 	end
 return
 end
@@ -181,6 +188,7 @@ opt.black0 = false;
 opt.mid3 = false; % 1 if show mid-plane slices of 3D object
 opt.mip3 = false; % 1 if show 3 MIP views of 3D object
 opt.montage = state.montage;
+opt.hsv = false;
 
 if length(varargin) == 1 && isempty(varargin{1})
 	fail 'empty argument?'
@@ -221,6 +229,8 @@ while length(varargin)
 		opt.black0 = true;
 	elseif streq(arg, 'blue0')
 		opt.blue0 = true;
+	elseif streq(arg, 'hsv')
+		opt.hsv = true;
 	elseif streq(arg, 'mid3')
 		opt.mid3 = true;
 	elseif streq(arg, 'mip3')
@@ -395,8 +405,19 @@ elseif opt.colorneg || state.colorneg
 	zz(zt > 0) = 257+1+floor(255 * zz(zt > 0) / (abs(max(zt(:))) + eps));
 	zz(zt == 0) = 257;
 	zz(zt < 0) = 1+floor(-255 * zz(zt < 0) / (abs(min(zt(:))) + eps));
+
+elseif opt.hsv
+	colormap_gca(hsv(256))
+
 else
-	colormap_gca(gray(256))
+	switch state.colormap_control
+	case 'gray'
+		colormap_gca(gray(256))
+	case ''
+		% do nothing
+	otherwise
+		fail('unknown colormap_control "%s"', state.colormap_control)
+	end
 end
 
 if scale ~= 1 % fix: use clim?
@@ -454,6 +475,8 @@ if ndims(zz) < 3 % 2d
 			else
 				setgca('xtick', [1 n1])
 			end
+			tmp = {'fontsize', ir_fontsize('im_axes')};
+			setgca(tmp{:})
 		end
 		% problem with this is it fails to register
 		% space used for 'ylabel'
@@ -553,7 +576,7 @@ if ~isempty(titlearg)
 	titlef(titlearg{:})
 else
 	tmp = inputname(zz_arg_index);
-	tmp = sprintf('%s range: [%g %g]', tmp, zmin, zmax);
+	tmp = sprintf('%s range: [%.3g %.3g]', tmp, zmin, zmax);
 	title(tmp, 'interpreter', 'none')
 end
 
@@ -586,6 +609,7 @@ state.line3plot = true;
 state.line3type = 'y-';
 state.line3width = 1;
 state.line1type = '-'; % for 1D plots
+state.colormap_control = 'gray'; % default is to set it to gray(256) each time
 
 function x = ensure_num(x)
 if ischar(x), x = str2num(x); end

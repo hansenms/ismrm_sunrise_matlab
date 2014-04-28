@@ -128,7 +128,7 @@ for ii=1:n.col
 	waitbar(ii/n.col)
 end
 close(h)
-if any(i <= 0) | any(j <= 0) | any(i > nb*na) | any(j > n.col)
+if any(i <= 0) || any(j <= 0) || any(i > nb*na) || any(j > n.col)
 	error 'bad indices'
 end
 if chat

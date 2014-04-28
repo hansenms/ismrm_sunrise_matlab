@@ -1,8 +1,7 @@
-//
 // fdk,mex.c
 // Matlab mex gateway for FDK.
-//
 // Copyright 2005-6-27, Jeff Fessler, University of Michigan
+
 #include "jf,mex,def.h"
 #include "def,fdk.h"
 
@@ -19,6 +18,7 @@ cone-beam weighted 3d backprojection of 2d projection view(s).\n\
 }
 
 
+// fdk_mex_back()
 static sof fdk_mex_back(
 mxArray *plhs[],
 Cmx mx_nxyz, // [3] image dimensions
@@ -71,11 +71,13 @@ ctruf is_st)
 		Fail("mx_ost must have 2 elements")
 
 	Call(mxIsRealSingle, (mx_proj))
-	if (2 == mxGetNumberOfDimensions(mx_proj)) {
+	if (2 == mxGetNumberOfDimensions(mx_proj))
+	{
 		na = 1;
 		Call(mxIsScalarDouble, (mx_beta))
 	}
-	else if (3 == mxGetNumberOfDimensions(mx_proj)) {
+	else if (3 == mxGetNumberOfDimensions(mx_proj))
+	{
 		na = mxGetDimensions(mx_proj)[2];
 		Call(mxIsRealDouble, (mx_beta))
 		int na_beta = (int) mxGetM(mx_beta) * mxGetN(mx_beta);
@@ -88,14 +90,16 @@ ctruf is_st)
 	Call(mxIsScalarInt32, (mx_nthread))
 	cint nthread = mxGetInt(mx_nthread);
 
-	if (is_st) {
+	if (is_st)
+	{
 		mwSize odim[3] = {nx, ny, nz}; // usual order
 		Call(plhs[0] = mxCreateNumericArray, (3, odim, mxSINGLE_CLASS, mxREAL))
 		ns = mxGetDimensions(mx_proj)[0];
 		nt = mxGetDimensions(mx_proj)[1];
 
 	}
-	else {
+	else
+	{
 		mwSize odim[3] = {nz, nx, ny}; // trick: zxy order!
 		Call(plhs[0] = mxCreateNumericArray, (3, odim, mxSINGLE_CLASS, mxREAL))
 		nt = mxGetDimensions(mx_proj)[0];
@@ -213,7 +217,8 @@ int nrhs, Const mxArray *prhs[])
 // gateway routine
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, Const mxArray *prhs[])
 {
-	if (!nlhs && !nrhs) {
+	if (!nlhs && !nrhs)
+	{
 		fdk_mex_help();
 		return;
 	}

@@ -36,10 +36,10 @@ arg.userfun = [];
 arg = vararg_pair(arg, varargin);
 arg.isave = iter_saver(arg.isave, arg.niter);
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
 

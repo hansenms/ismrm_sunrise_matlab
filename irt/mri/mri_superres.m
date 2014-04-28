@@ -52,7 +52,7 @@ end
 %
 % true object
 %
-if 0 | ~isvar('xtrue'), printm 'setup object'
+if 0 || ~isvar('xtrue'), printm 'setup object'
 
 	% display images with many pixels...
 	Ndisp = 256;
@@ -74,7 +74,7 @@ end
 %
 % analytical k-space data
 %
-if 0 | ~isvar('yd'), printm 'data'
+if 0 || ~isvar('yd'), printm 'data'
 
 	% noiseless data
 	rng(0)
@@ -115,7 +115,7 @@ for in=1:length(Nlist)
 	%
 	% create Gnufft class object
 	%
-	if 1 | ~isvar('G'), printm 'setup Gnufft object'
+	if 1 || ~isvar('G'), printm 'setup Gnufft object'
 		omega = 2*pi*kspace*fov/N;
 %		minmax(omega(:,1))
 		G = Gnufft({omega, [N N], [6 6], 2*[N N], [N/2 N/2]});
@@ -124,7 +124,7 @@ for in=1:length(Nlist)
 	%
 	% reconstruct by PCG
 	%
-	if 1 | ~isvar('xpcg'), printm 'PCG with quadratic penalty'
+	if 1 || ~isvar('xpcg'), printm 'PCG with quadratic penalty'
 		mask = true(N);
 		R = Robject(mask, 'beta', beta);
 		ytmp = yd(:) * (1/fov)^2 * N^2;	% scaling!

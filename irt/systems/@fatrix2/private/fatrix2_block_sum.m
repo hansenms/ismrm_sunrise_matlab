@@ -25,8 +25,14 @@ for ii=1:numel(blocks)
 		error 'blocks must have same size for "sum"'
 	end
 	if isa(bi, 'fatrix2')
-		if ~isequal(bi.imask, bb.imask)
-			if ~isequal(bi.imask(:), bb.imask(:))
+try
+		bi_imask = fatrix2_imask_array(bi);
+		bb_imask = fatrix2_imask_array(bb);
+catch
+keyboard
+end
+		if ~isequal(bi_imask, bb_imask)
+			if ~isequal(bi_imask(:), bb_imask(:))
 				error 'blocks must have same imask(:) for "sum"'
 			else
 				if arg.same_idims
@@ -47,8 +53,11 @@ for ii=1:numel(blocks)
 			end
 		end
 
-		if ~isequal(bi.omask, bb.omask)
-			if ~isequal(bi.omask(:), bb.omask(:))
+		bi_omask = fatrix2_omask_array(bi);
+		bb_omask = fatrix2_omask_array(bb);
+
+		if ~isequal(bi_omask, bb_omask)
+			if ~isequal(bi_omask(:), bb_omask(:))
 				error 'blocks must have same omask(:) for "sum"'
 			else
 				if arg.same_odims

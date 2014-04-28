@@ -24,8 +24,13 @@ if 1, printm 'test ordinary sparse matrix'
 	x1 = A1' * y1;
 	im(7, x1, 'A''y')
 
-	Fatrix_test_basic(A1, ig.mask);
+	if isa(A1, 'Fatrix')
+		Fatrix_test_basic(A1, ig.mask);
+	else
+		fatrix2_tests(A1)
+	end
 	test_adjoint(A1);
+	tester_tomo2(A1, ig.mask)
 end
 
 
@@ -35,11 +40,15 @@ if 1, printm 'test multiple rhs'
 	t = reshape(A1(:,j), nb, na);
 	im(3, t, 'A(:,j)'), cbar
 
-	t = reshape(A1(:,[j j+1]), [nb na 2]);
+	tmp = A1(:,[j j+1]);
+	tmp = full(tmp); % trick: needed for fatrix2
+	t = reshape(tmp, [nb na 2]);
 	im(6, t, 'A(:,[j j+1])')
 
-	i = sub2ind([nb na], nb/2, na/2);
-	t = embed(A1([i i+2],:)', ig.mask);
+	i = sub2ind([nb na], round(nb/2), round(na/2));
+	tmp = A1([i i+2],:)';
+	tmp = full(tmp); % trick: needed for fatrix2
+	t = embed(tmp, ig.mask);
 	im(9, t, 'A([i i+1],:)')
 end
 

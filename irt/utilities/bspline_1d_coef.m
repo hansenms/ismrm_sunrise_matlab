@@ -38,7 +38,11 @@ if arg.mex
 			int32(arg.order), int32(ii));
 		return
 	catch
-		printm 'Warn: mex version failed; reverting to matlab version'
+		persistent warned
+		if isempty(warned)
+			warned = 1;
+			warn 'mex version failed; reverting to matlab version'
+		end
 	end
 end
 

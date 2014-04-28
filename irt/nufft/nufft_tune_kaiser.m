@@ -3,7 +3,7 @@
 % to minimize the worst-case error
 
 % explore scaling factors
-if ~isvar('N') & 0
+if ~isvar('N') && 0
 	N = 2^8; K = 2*N;
 	J = 6; alpha = 2.34 * J; kb_m = 0;
 	n = [0:(N-1)]'-(N-1)/2;
@@ -77,7 +77,7 @@ if 1
 	if any(ia_best.zn == 1 | ia_best.zn == length(alist))
 		warning 'zn end point F'
 	end
-	if any(im_best.zn == 1 | im_best.zn == length(mlist)) & length(mlist)>1
+	if any(im_best.zn == 1 | im_best.zn == length(mlist)) && length(mlist)>1
 		warning 'zn end point m'
 	end
 	abest.zn = alist(ia_best.zn);
@@ -92,7 +92,7 @@ if 1
 	if any(ia_best.ft == 1 | ibest.ft == length(alist))
 		warning 'ft end point F'
 	end
-	if any(im_best.ft == 1 | im_best.ft == length(mlist)) & length(mlist)>1
+	if any(im_best.ft == 1 | im_best.ft == length(mlist)) && length(mlist)>1
 		warning 'ft end point m'
 	end
 	abest.ft = alist(ia_best.ft);
@@ -139,7 +139,7 @@ if 1
 	xlabel J, ylabel E_{max}, legend('zn', 'ft')
         title(sprintf('Maximum KB error for K/N=%g', K/N))
 
-% savefig c 'fig_?'
+% ir_savefig c 'fig_?'
 end
 
 if 1

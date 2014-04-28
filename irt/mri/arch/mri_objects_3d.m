@@ -19,7 +19,7 @@
 % Copyright 2004-4-20, Jeff Fessler, The University of Michigan
 
 if nargin < 1, help(mfilename), error args, end
-if nargin == 1 & streq(varargin{1}, 'test'), mri_objects_3d_test; return, end
+if nargin == 1 && streq(varargin{1}, 'test'), mri_objects_3d_test; return, end
 
 warn 'todo: superceded by mri_objects - need to update code to not use this!'
 
@@ -195,7 +195,7 @@ gp = [ ...	% gaussian bumps
 	50 0 0		8 8 inf	1;
 ];
 
-if isvar('arg') & streq(arg, 'cm')
+if isvar('arg') && streq(arg, 'cm')
 	rp(:,1:6) = rp(:,1:6) / 10;
 	gp(:,1:6) = gp(:,1:6) / 10;
 end
@@ -224,7 +224,7 @@ gp = [ ...	% gaussian bumps
 	50 0 0		8 8 8	1;
 ];
 
-if isvar('arg') & streq(arg, 'cm')
+if isvar('arg') && streq(arg, 'cm')
 	rp(:,1:6) = rp(:,1:6) / 10;
 	gp(:,1:6) = gp(:,1:6) / 10;
 end

@@ -14,7 +14,7 @@ prompt
 end
 
 % true object (discrete because of discrete sense map)
-if 0 | ~isvar('xtrue'), printm 'true object'
+if 0 || ~isvar('xtrue'), printm 'true object'
 	xtrue = ellipse_im(ig, 'shepplogan-emis', 'oversample', 2);
 	clim = [0 8];
 	im clf, im pl 2 2
@@ -86,7 +86,7 @@ if ~isvar('xsos'), printm 'sum-of-squares reconstruction'
 prompt
 end
 
-if 0 | ~isvar('R'), printm 'regularizer'
+if 0 || ~isvar('R'), printm 'regularizer'
 	f.beta = 2^11;
 	R = Robject(ig.mask, 'beta', f.beta, 'potential', 'quad');
 	if 1

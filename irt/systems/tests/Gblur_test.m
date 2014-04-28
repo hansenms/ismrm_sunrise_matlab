@@ -1,14 +1,17 @@
 % Gblur_test.m
 % Test the Gblur object
 
-if 0 % test small even sized psf
+if 0 % test small even-sized psf
 	types = {'fft,same', 'conv,same', 'conv,per'};
-	B = Gblur(true(6,2), 'psf', [1 -2]', 'type', types{3});
-	im plc 1 3
-	im(1, full(B)'), im(2, full(B'))
-	im(3, full(B)' - full(B')), drawnow
-	fatrix2_tests(B)
-	test_adjoint(B, 'complex', 1);
+	for ii=1:numel(types)
+		B = Gblur(true(6,2), 'psf', [1 -2]', 'type', types{ii});
+		im plc 1 3
+		im(1, full(B)')
+		im(2, full(B'))
+		im(3, full(B)' - full(B')), drawnow
+		fatrix2_tests(B)
+		test_adjoint(B, 'complex', 1);
+	end
 return
 end
 

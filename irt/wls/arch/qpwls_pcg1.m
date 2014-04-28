@@ -37,7 +37,7 @@ arg = vararg_pair(arg, varargin);
 if isempty(arg.isave), arg.isave = arg.niter; end
 if streq(arg.isave, 'all'), arg.isave = 0:arg.niter; end
 
-if ~isreal(yi) & ~isequal(arg.precon, 1)
+if ~isreal(yi) && ~isequal(arg.precon, 1)
 	persistent warned
 	if isempty(warned), warned = 0; end
 	if ~warned

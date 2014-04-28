@@ -23,10 +23,10 @@
 
 if nargin < 4, help(mfilename), error(mfilename), end
 
-if ~isvar('n_shift') | isempty(n_shift)
+if ~isvar('n_shift') || isempty(n_shift)
 	n_shift = [0];		% default is no shift, so n=0,1,...,N-1
 end
-if ~isvar('kernel') | isempty(kernel)
+if ~isvar('kernel') || isempty(kernel)
 	kernel = 'kaiser';
 end
 

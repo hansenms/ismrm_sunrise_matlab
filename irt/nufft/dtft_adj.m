@@ -35,8 +35,8 @@ if nargin < 2
 return
 end
 
-if ~isvar('n_shift') | isempty(n_shift), n_shift = zeros(size(Nd)); end
-if ~isvar('useloop') | isempty(useloop), useloop = 0; end
+if ~isvar('n_shift') || isempty(n_shift), n_shift = zeros(size(Nd)); end
+if ~isvar('useloop') || isempty(useloop), useloop = 0; end
 
 if length(Nd) == 1
 	nn{1} = [0:(Nd(1)-1)] - n_shift(1);

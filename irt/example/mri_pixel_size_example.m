@@ -45,7 +45,7 @@ end
 %
 % true object and analytical k-space data
 %
-if 0 | ~isvar('xtrue'), printm 'setup object'
+if 0 || ~isvar('xtrue'), printm 'setup object'
 
 	% display images with many pixels...
 	Ndisp = 512;
@@ -103,20 +103,16 @@ for in=1:length(Nlist)
 	tmp = sprintf('|x| gridding %d', N);
 	im(5, xg{1}, xg{2}, abs(xhatg), tmp, clim), cbar
 
-	%
 	% create Gnufft class object
-	%
-	if 1 | ~isvar('G'), printf('setup Gnufft object for N=%d', N)
+	if 1 || ~isvar('G'), printf('setup Gnufft object for N=%d', N)
 		omega = 2*pi*kspace*fov/N;
 %		minmax(omega(:,1))
 		G = Gnufft({omega, [N N], [6 6], 2*[N N], [N/2 N/2], ...
 			'table', 2^11, 'kaiser'});
 	end
 
-	%
 	% reconstruct by PCG
-	%
-	if 1 | ~isvar('xpcg'), disp 'PCG with quadratic penalty'
+	if 1 || ~isvar('xpcg'), disp 'PCG with quadratic penalty'
 		mask = true(N);
 		R = Robject(mask, 'beta', beta);
 		ytmp = yd(:) * (1/fov)^2 * N^2;	% scaling!

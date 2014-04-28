@@ -21,9 +21,9 @@
 %	Copyright 2002-4-12	Jeff Fessler	The University of Michigan
 
 if nargin < 7, help(mfilename), error args, end
-if ~isvar('n_shift') | isempty(n_shift), n_shift = [0 0]; end
-if ~isvar('kernel') | isempty(kernel), kernel = 'kaiser'; end
-if ~isvar('useloop') | isempty(useloop), useloop = false; end
+if ~isvar('n_shift') || isempty(n_shift), n_shift = [0 0]; end
+if ~isvar('kernel') || isempty(kernel), kernel = 'kaiser'; end
+if ~isvar('useloop') || isempty(useloop), useloop = false; end
 
 %
 %	see if 'best' alpha is desired

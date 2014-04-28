@@ -233,7 +233,7 @@ if(found > 0)
 
     end
 
-if(found < ncoil & 0)
+if (found < ncoil && 0)
 finding = found;
 for u=1:ncoil
         if(isempty(find(found_matrix(:) == u)))
@@ -256,7 +256,7 @@ end
 end
 
 
-if(found < ncoil & 0)
+if (found < ncoil && 0)
 % estimate omap based on rows with DAM
 omap_temp = mri_b1map_omap(yy(:,found_matrix(:)),...
                 [eye(size(found_matrix,1)); 2*eye(size(found_matrix,1))], ...
@@ -282,7 +282,7 @@ end
 
 end
 
-if(found < ncoil & 0)
+if (found < ncoil && 0)
 omap_temp = mri_b1map_omap(yy(:,found_matrix(:)),...
                 [eye(size(found_matrix,1)); 2*eye(size(found_matrix,1))], ...
                 real(absz_estimate_sum.* exp(1i * anglez_sum))', ...
@@ -319,7 +319,7 @@ zmap = A\b;
 
 end
 %% NOTE - this is what I used in paper
-if(found < ncoil & 0)
+if (found < ncoil && 0)
 
 % Estimate object based on data
 omap_temp = mri_b1map_omap(yy(:,found_matrix(:)),...
@@ -435,7 +435,7 @@ end
 %% TESTING
 %% Okay - works but let's try something else
 %% Let's try to estimate both abs and angle at same time
-if(found < ncoil & 1)
+if (found < ncoil && 1)
 
 % Estimate object based on data
 omap_temp = mri_b1map_omap(yy(:,found_matrix(:)),...
@@ -1679,7 +1679,7 @@ error_abs_bar = [-.07 .07];
 error_phase_bar = [-pi/8 pi/8];
 
 
-if compare_coil & (nreal==1) & 1
+if compare_coil && (nreal==1) && 1
     
     zh1 = zh1_niter;
     

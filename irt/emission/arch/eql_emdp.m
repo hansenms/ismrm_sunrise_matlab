@@ -10,16 +10,16 @@
 %	Copyright 1998, Jeff Fessler, The University of Michigan
 
 if nargin < 3, help(mfilename), error(mfilename), end
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = ones(size(yi(:)));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi(:)));
 end
-if ~isvar('Asum') | isempty(Asum)
+if ~isvar('Asum') || isempty(Asum)
 	Asum = G' * ci;
 end
-if ~isvar('C') | isempty(C)
+if ~isvar('C') || isempty(C)
 	C = 0;
 end
 

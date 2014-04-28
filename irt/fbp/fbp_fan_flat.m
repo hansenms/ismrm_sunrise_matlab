@@ -27,9 +27,9 @@
 % Copyright 2004-5 by Patty Laskowsky, Nicole Caparanis, Taka Masuda
 % and Jeff Fessler, The University of Michigan
 
-if nargin == 1 & streq(sino, 'test'), run_mfile_local('fbp_fan_flat_example'), return, end
+if nargin == 1 && streq(sino, 'test'), run_mfile_local('fbp_fan_flat_example'), return, end
 if nargin < 2, help(mfilename), error(mfilename), end
-if ~isvar('window') | isempty(window)
+if ~isvar('window') || isempty(window)
 	window = 'ramp';
 end
 

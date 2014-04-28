@@ -96,7 +96,7 @@ for ip=1:numel(mm)
 	if im
 		hold on, plot(x, f(x,m,p,b,c), 'r.'), hold off
 	end
-	% savefig c 'fig_cos_quad'
+	% ir_savefig c 'fig_cos_quad'
 end
 
 

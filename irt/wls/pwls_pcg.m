@@ -34,7 +34,7 @@ if isempty(nder1), nder1 = 0; end
 if isempty(M), M = 1; end
 if nder1 ~= 0, error 'nder1 = 0 required', end
 
-if ~isvar('stepper') | isempty(stepper)
+if ~isvar('stepper') || isempty(stepper)
 	stepper = {'qs', 3};	% quad surr with this # of subiterations
 end
 

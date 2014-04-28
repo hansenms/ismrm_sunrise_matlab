@@ -18,6 +18,7 @@ arg.delta = 0.2; % round corner of |t| to approximate by hyperbola
 arg.linear = false;
 arg.A = [];
 arg.xinit = [];
+arg.isave = 'all';
 %arg.l2b = -6;
 arg = vararg_pair(arg, varargin);
 
@@ -38,7 +39,7 @@ if 1 % new way
 	% null regularizer 
 	R = R_null;
 	x1 = pl_pcg_qs_ls(arg.xinit, arg.A, {yi, arg.delta}, @l1_dercurv, ...
-		R_null, 'niter', arg.niter);
+		R_null, 'niter', arg.niter, 'isave', arg.isave);
 return
 end
 

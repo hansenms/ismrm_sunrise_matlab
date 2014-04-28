@@ -5,7 +5,7 @@
 % istart is 1,...,nblock
 
 % support 'exists' option for seeing if this routine is available
-if nargin == 2 & ischar(x) & streq(x, 'exists')
+if nargin == 2 && ischar(x) && streq(x, 'exists')
 	y = ~isempty(ob.handle_mtimes_block);
 	return
 end

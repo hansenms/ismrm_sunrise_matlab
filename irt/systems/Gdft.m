@@ -155,9 +155,7 @@ x = NN * x(arg.mask(:),:); % [np *L]
 %x = reshape(x, [Ns Ld]); % [np (L)] % not needed if L can be scalar only!
 
 
-%
 % fft1_shifted()
-%
 function y = fft1_shifted(x, is_ifftshift, is_fftshift)
 if is_ifftshift
 	x = ifftshift(x, 1);
@@ -168,9 +166,7 @@ if is_fftshift
 end
 
 
-%
 % ifft1_shifted()
-%
 function x = ifft1_shifted(y, is_ifftshift, is_fftshift)
 if is_fftshift
 	y = fftshift(y, 1);
@@ -181,9 +177,7 @@ if is_ifftshift
 end
 
 
-%
 % fftn_shifted()
-%
 function y = fftn_shifted(x, is_ifftshift, is_fftshift)
 if is_ifftshift
 	x = ifftshift(x);
@@ -194,28 +188,18 @@ if is_fftshift
 end
 
 
-%
 % ifftn_shifted()
-%
 function x = ifftn_shifted(y, is_ifftshift, is_fftshift)
 if is_fftshift
-	if any(rem(size(y), 2))
-		error 'odd size not done with shift'
-	end
-	y = fftshift(y);
+	y = ifftshift(y);
 end
 x = ifftn(y);
 if is_ifftshift
-	if any(rem(size(x), 2))
-		error 'odd size not done with shift'
-	end
-	x = ifftshift(x);
+	x = fftshift(x);
 end
 
 
-%
 % Gdft_gram_Fatrix()
-%
 function [T, reuse] = Gdft_gram_Fatrix(A, W, reuse)
 if isempty(W)
 	T = A' * A;
@@ -224,10 +208,16 @@ else
 end
 
 
-% Gdft_test
 function Gdft_test
+%Nv = [10 6];
+Nv = [7 6]; % test both odd and even sizes
+%Nv = [4 5];
+Gdft_test1(Nv)
 
-Nv = [10 6];
+
+% Gdft_test
+function Gdft_test1(Nv)
+
 rng(1)
 samp = rand(Nv) > 0.3;
 mask = true(Nv); mask(1:4) = false; % stress

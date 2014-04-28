@@ -22,7 +22,7 @@ if nargin < 4, help(mfilename), error(mfilename), end
 
 if ~isvar('R'), R = []; end
 
-if isvar('mask') & ~isempty(mask)
+if isvar('mask') && ~isempty(mask)
 	xs = reshapee(xs, numel(mask), []);	% [(*N) niter]
 	xs = xs(mask(:), :);			% [np niter]
 end
@@ -33,7 +33,7 @@ reg = zeros(niter,1);
 if isempty(R)
 	warning 'empty R means no penalty'
 
-elseif issparse(R) | isa(R, 'Fatrix')
+elseif issparse(R) || isa(R, 'Fatrix')
 	C = R; % trick!
 	if size(C,2) == size(C,1)
 		warning 'square C is quite unusual!?'
@@ -42,7 +42,7 @@ elseif issparse(R) | isa(R, 'Fatrix')
 		reg(ii) = sum(abs(C * xs(:,ii)).^2)/2;
 	end
 
-elseif isstruct(R) | isa(R, 'strum')
+elseif isstruct(R) || isa(R, 'strum')
 	for ii=1:niter
 		reg(ii) = R.penal(R, xs(:,ii));
 	end

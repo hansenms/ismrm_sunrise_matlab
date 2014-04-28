@@ -1,19 +1,18 @@
-/*
-* interp2_table1_adj.c
-* *adjoint* of 2D periodic interpolation using table lookup.
-*
-* forward direction: (for m = 1,...,M)
-* f(t_m) = \double_sum_{k1,2=0}^{K1,2-1} c[k1,k2]
-*	h_1( (t_m1 - k1) mod K1 ) h_2( (t_m2 - k2) mod K2 )
-*
-* adjoint direction: (for k1,2=0,...,K1,2-1) (note complex conjugate!)
-* c[k1,k2] = \sum_{m=1}^M f(t_m)
-*	h_1^*( (t_m1 - k1) mod K1 ) h_2^*( (t_m2 - k2) mod K2 )
-*
-* Interpolators h_1,2 are nonzero (and tabulated) for -J/2 <= t <= J/2.
-*
-* Copyright 2004-4-2 Jeff Fessler and Yingying Zhang, University of Michigan
-*/
+// interp2_table1_adj.c
+// *adjoint* of 2D periodic interpolation using table lookup.
+//
+// forward direction: (for m = 1,...,M)
+// f(t_m) = \double_sum_{k1,2=0}^{K1,2-1} c[k1,k2]
+//	h_1( (t_m1 - k1) mod K1 ) h_2( (t_m2 - k2) mod K2 )
+//
+// adjoint direction: (for k1,2=0,...,K1,2-1) (note complex conjugate!)
+// c[k1,k2] = \sum_{m=1}^M f(t_m)
+//	h_1^*( (t_m1 - k1) mod K1 ) h_2^*( (t_m2 - k2) mod K2 )
+//
+// Interpolators h_1,2 are nonzero (and tabulated) for -J/2 <= t <= J/2.
+//
+// Copyright 2004-4-2 Jeff Fessler and Yingying Zhang, University of Michigan
+
 #include <math.h>
 #include <string.h>
 #include "def,table2.h"
@@ -44,12 +43,12 @@ const double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	i_h1 += ncenter1;
 	}
 	{
-	const int ncenter2 = floor(J2 * L2/2);
+	const int ncenter2 = floor(J2 * L2/2.);
 	r_h2 += ncenter2;
 	i_h2 += ncenter2;
 	}
@@ -124,11 +123,11 @@ const double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	}
 	{
-	const int ncenter2 = floor(J2 * L2/2);
+	const int ncenter2 = floor(J2 * L2/2.);
 	r_h2 += ncenter2;
 	}
 
@@ -212,11 +211,11 @@ const double *i_fm)
 
 	/* trick: shift table pointer to center */
 	{
-	const int ncenter1 = floor(J1 * L1/2);
+	const int ncenter1 = floor(J1 * L1/2.);
 	r_h1 += ncenter1;
 	}
 	{
-	const int ncenter2 = floor(J2 * L2/2);
+	const int ncenter2 = floor(J2 * L2/2.);
 	r_h2 += ncenter2;
 	}
 

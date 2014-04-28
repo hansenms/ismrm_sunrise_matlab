@@ -17,8 +17,8 @@ if nargin < 1, help(mfilename), error(mfilename), end
 if nargin == 1 && streq(u, 'test'), kaiser_bessel_ft_test, return, end
 
 if ~isvar('J'), J = 6; end
-if ~isvar('alpha') | isempty('alpha'), alpha = 2.34 * J; end
-if ~isvar('kb_m') | isempty('kb_m'), kb_m = 0; end
+if ~isvar('alpha') || isempty('alpha'), alpha = 2.34 * J; end
+if ~isvar('kb_m') || isempty('kb_m'), kb_m = 0; end
 if ~isvar('d'), d = 1; end
 
 %
@@ -49,7 +49,7 @@ if (kb_m < -1)
 		printf('         - validity of FT formula uncertain for kb_m < -1\n')
 		warned = 1;
 	end
-elseif (kb_m < 0) & ((abs(round(kb_m)-kb_m)) > eps)
+elseif (kb_m < 0) && ((abs(round(kb_m)-kb_m)) > eps)
 	if isempty(warned)	% only print this reminder the first time
 		printf('\nWarning: Neg NonInt kb_m=%g in kaiser_bessel_ft()', kb_m)
 		printf('         - validity of FT formula uncertain\n')

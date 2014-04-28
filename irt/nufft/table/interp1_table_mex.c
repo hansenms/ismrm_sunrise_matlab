@@ -136,6 +136,4 @@ int nrhs, const mxArray *prhs[])
 		nrhs > 5 ? prhs[5] : NULL,
 		nrhs > 6 ? prhs[6] : NULL))
 		mexFail("interp1_table_mex() failed")
-
-	return;
 }

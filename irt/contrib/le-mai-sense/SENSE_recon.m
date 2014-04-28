@@ -1,21 +1,45 @@
-function recon_im = SENSE_recon(smap, reduced_fft, reduced_dim, np, regularizer, mask, figs_on)
-% function recon_im = SENSE_recon(smap, reduced_fft, reduced_dim, np,
-%       regularizer, figs_on)
-% in:
+function recon_im = SENSE_recon(smap, reduced_fft, np, varargin)
+% function recon_im = SENSE_recon(smap, reduced_fft, np, varargin)
+% inputs:
 %   smap          [N M nc]                complex sensitivity maps
-%   reduced_fft   [N/np M] or [N M/np]    undersampled fft
-%   reduced_dim   1 or 2                  dimension of undersampling
-%   np            degree of undersampling
-%   regularizer   string, 'none' or 'tikhonov'
-%   mask          [N M] boolean
-%   figs_on       boolean that shows intermediate images for debugging
+%   reduced_fft   [N/np M nc] or [N M/np nc]    undersampled fft
+%   np       degree of undersampling
+% optional inputs:
+%   direction     1 or 2                  dimension of undersampling    
+%   reg      type of regularizer, string, 'none' or 'tikhonov'
+%   mask     [N M] boolean
+%   figs     boolean that shows intermediate images for debugging
+
 % out:
 %   recon_im      [N M]                   SENSE reconstructed image
+%
 % This implementation assumes that the fft will be reduced in such a way
 % that the DC term is still included (i.e. even DFT coefficients retained)
 % 2012-06-07 Mai Le, University of Michigan
+% 2013-01-02 Mai Le, tweaks
 
-assert(isequal(size(mask), size(squeeze(smap(:,:,1)))), 'mask size does not match image size');
+% default vals
+arg.direction = 1;
+arg.reg = 'none';
+arg.mask = true(size(smap,1),size(smap,2));
+arg.figs = 0;
+arg = vararg_pair(arg, varargin); % replace default vals
+
+assert(isequal(size(arg.mask), size(squeeze(smap(:,:,1)))), ...
+    'mask size does not match image size');
+
+if arg.direction == 2 % trick to switch directions
+    for ii = 1:size(smap,3)
+       smapT(:,:,ii) = smap(:,:,ii).'; 
+       reduced_fftT(:,:,ii) = reduced_fft(:,:,ii).';
+    end
+    recon_im = SENSE_recon(smapT, reduced_fftT, np, 'direction', ...
+        1, 'mask', arg.mask.', 'reg', arg.reg);
+    recon_im = recon_im.';
+    return
+elseif arg.direction ~= 1
+    fail('bad direction %d',arg.direction)
+end
 
 % dimensions of original image
 dims = [size(smap,1) size(smap,2)];
@@ -30,10 +54,12 @@ for ii = 1:nc
 end
 
 % plot aliased images
-if (figs_on)
+if (arg.figs)
     figure;
     for ii = 1:nc
-        subplot(ceil(nc/2),2,ii); imshow(abs(aliased_im(:,:,ii)),[]); colorbar;
+        subplot(ceil(nc/2),2,ii); 
+        imshow(abs(aliased_im(:,:,ii)),[]); 
+        colorbar;
     end
 end
 
@@ -42,50 +68,53 @@ end
 % value works well for beta
 C = Cdiff1(np);
 [U, SIG, V] = svd(C'*C);
-% beta = 0.01*max(SIG(:));
-beta = 0.005*max(SIG(:));
+beta = 0.01*max(SIG(:));
+% beta = 0.005*max(SIG(:));
 
 % reconstruct image by finding (regularized) LS solution for each set of pixels
 recon_im = zeros(dims);
-indeces = (0:np-1)*dims(reduced_dim)/np;
-if (reduced_dim == 1)
+indeces = (0:np-1)*dims(arg.direction)/np;
+% if (arg.direction == 1)
     for ii = 1:dims(1)/np
         for jj = 1:dims(2)
-            if any(mask(ii+indeces,jj))
+            if any(arg.mask(ii+indeces,jj))
                 ivect = ii+indeces;
-                S = squeeze(smap(ivect(mask(ii+indeces,jj)),jj,:));
-                if sum(mask(ii+indeces,jj)) > 1
+                S = squeeze(smap(ivect(arg.mask(ii+indeces,jj)),jj,:));
+                if sum(arg.mask(ii+indeces,jj)) > 1
                     % because if S is vector, squeeze flips S
                     S = S.';
                 end
                 a = squeeze(aliased_im(ii,jj,1:nc));
-                v = recon_pixels(S,a,regularizer, beta);
-                [recon_im] = place_pixels(recon_im, v, reduced_dim, dims, ii, jj, np, mask(ii+indeces,jj));
+                v = recon_pixels(S,a,arg.reg, beta);
+                [recon_im] = place_pixels(recon_im, v, arg.direction, ...
+                    dims, ii, jj, np, arg.mask(ii+indeces,jj));
             end
         end
     end
-else
-    for ii = 1:dims(1)
-        for jj = 1:dims(2)/np
-            if any(mask(ii,jj+indeces))
-                jvect = jj+indeces;
-                S = squeeze(smap(ii,jvect(mask(ii,jj+indeces)),:));
-                if sum(mask(ii,jj+indeces)) > 1
-                    % because if S is vector, squeeze flips S
-                    S = S.';
-                end
-                a = squeeze(aliased_im(ii,jj,1:nc));
-                v = recon_pixels(S,a,regularizer, beta);
-                [recon_im] = place_pixels(recon_im, v, reduced_dim, dims, ii, jj, np, mask(ii,jj+indeces));
-            end
-        end
-    end
-end
+% else
+%     for ii = 1:dims(1)
+%         for jj = 1:dims(2)/np
+%             if any(arg.mask(ii,jj+indeces))
+%                 jvect = jj+indeces;
+%                 S = squeeze(smap(ii,jvect(arg.mask(ii,jj+indeces)),:));
+%                 if sum(arg.mask(ii,jj+indeces)) > 1
+%                     % because if S is vector, squeeze flips S
+%                     S = S.';
+%                 end
+%                 a = squeeze(aliased_im(ii,jj,1:nc));
+%                 v = recon_pixels(S,a,arg.reg, beta);
+%                 [recon_im] = place_pixels(recon_im, v, arg.direction, ...
+%                     dims, ii, jj, np, arg.mask(ii,jj+indeces));
+%             end
+%         end
+%     end
+% end
 
 % places each of the reconstructed pixels in the reconstructed image
-function [recon_im] = place_pixels(recon_im, v, reduced_dim, dims, ii, jj, np, mask)
-indeces = (0:np-1)*dims(reduced_dim)/np;
-if (reduced_dim == 1)
+function [recon_im] = place_pixels(recon_im, v, direction, dims, ...
+    ii, jj, np, mask)
+indeces = (0:np-1)*dims(direction)/np;
+if (direction == 1)
     mk = 1;
     vk = 1;
     while (mk <= np)
@@ -112,7 +141,7 @@ function pixels = recon_pixels(S,a,regularizer, beta)
 switch regularizer
     case 'none'
         pixels = S\a;
-    case 'tikhonov'
+    case 'Tikhonov'
         M = min(size(S));
         pixels = (S'*S+(beta^2)*eye(M))\(S'*a);
     otherwise

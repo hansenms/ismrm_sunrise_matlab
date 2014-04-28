@@ -6,7 +6,7 @@
 % generate data
 %
 if ~isvar('yi'), printm 'setup tpl_os_sps_test'
-	if has_aspire & has_mex_jf
+	if has_aspire && has_mex_jf
 		f.dir	= test_dir;
 		f.wtf	= [f.dir 't,g.wtf'];
 		f.wtr	= strrep(f.wtf, 'wtf', 'wtr');
@@ -71,7 +71,7 @@ prompt
 end
 
 
-if ~has_aspire | ~has_mex_jf, return, end
+if ~has_aspire || ~has_mex_jf, return, end
 
 %
 % aspire iterations

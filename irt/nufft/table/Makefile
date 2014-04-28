@@ -6,6 +6,7 @@
 matlab_top = ~/l/matlab/
 mexloc = $(matlab_top)/bin/mex
 #mexloc = mex
+mex ?= $(mexloc)
 
 # different OS versions have different suffixes for the compiled mex files:
 suf_i686 = mexglx
@@ -18,6 +19,9 @@ suf = $(suf_$(Arch))
 
 # where to install the compiled mex files:
 dir = ../../mex/v7/
+
+mexo = $(mex) -output
+mexa = chmod 755
 
 # architecture specific compile flags:
 aflag_x86_64 = -fPIC
@@ -35,42 +39,54 @@ goal:	\
 	$(dir)interp1_table_mex.$(suf) \
 	$(dir)interp2_table_mex.$(suf) \
 	$(dir)interp3_table_mex.$(suf) \
+	$(dir)interp4_table_mex.$(suf) \
 	$(dir)interp1_table_adj_mex.$(suf) \
 	$(dir)interp2_table_adj_mex.$(suf) \
-	$(dir)interp3_table_adj_mex.$(suf)
+	$(dir)interp3_table_adj_mex.$(suf) \
+	$(dir)interp4_table_adj_mex.$(suf)
 	@echo working on $(suf)
 
 
 i1c = interp1_table1_for.c interp1_table_mex.c
 $(dir)interp1_table_mex.$(suf):	$(i1c) $(def) def,table1.h
-	$(mex) -output $@ $(i1c)
-	chmod 755 $@
+	$(mexo) $@ $(i1c)
+	$(mexa) $@
 
 i2c = interp2_table1_for.c interp2_table_mex.c
 $(dir)interp2_table_mex.$(suf):	$(i2c) $(def) def,table2.h
-	$(mex) -output $@ $(i2c)
-	chmod 755 $@
+	$(mexo) $@ $(i2c)
+	$(mexa) $@
 
 i3c = interp3_table1_for.c interp3_table_mex.c
 $(dir)interp3_table_mex.$(suf):	$(i3c) $(def) def,table3.h
-	$(mex) -output $@ $(i3c)
-	chmod 755 $@
+	$(mexo) $@ $(i3c)
+	$(mexa) $@
+
+i4c = interp4_table1_for.c interp4_table_mex.c
+$(dir)interp4_table_mex.$(suf):	$(i4c) $(def) def,table4.h
+	$(mexo) $@ $(i4c)
+	$(mexa) $@
 
 
 a1c = interp1_table1_adj.c interp1_table_adj_mex.c
 $(dir)interp1_table_adj_mex.$(suf):	$(a1c) $(def) def,table1.h
-	$(mex) -output $@ $(a1c)
-	chmod 755 $@
+	$(mexo) $@ $(a1c)
+	$(mexa) $@
 
 a2c = interp2_table1_adj.c interp2_table_adj_mex.c
 $(dir)interp2_table_adj_mex.$(suf):	$(a2c) $(def) def,table2.h
-	$(mex) -output $@ $(a2c)
-	chmod 755 $@
+	$(mexo) $@ $(a2c)
+	$(mexa) $@
 
 a3c = interp3_table1_adj.c interp3_table_adj_mex.c
 $(dir)interp3_table_adj_mex.$(suf):	$(a3c) $(def) def,table3.h
-	$(mex) -output $@ $(a3c)
-	chmod 755 $@
+	$(mexo) $@ $(a3c)
+	$(mexa) $@
+
+a4c = interp4_table1_adj.c interp4_table_adj_mex.c
+$(dir)interp4_table_adj_mex.$(suf):	$(a4c) $(def) def,table4.h
+	$(mexo) $@ $(a4c)
+	$(mexa) $@
 
 
 # how to compile for freemat import?

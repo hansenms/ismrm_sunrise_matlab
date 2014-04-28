@@ -11,7 +11,7 @@
 %|
 %| options
 %|	'units'		cm | mm	default: cm
-%|	'interp'	{}	interpolator type.  default {'cubic', 'extrap'}
+%|	'interp'	{}	interpolator type.  default {'pchip', 'extrap'}
 %|	'shortfile'	0|1	return short file name instead of full path
 %|
 %| out
@@ -47,7 +47,7 @@ end
 mas.units = 'cm';
 %arg.interp = {'linear', 'extrap'};
 %arg.interp = {'spline', 'extrap'};
-mas.interp = {'cubic', 'extrap'};
+mas.interp = {'pchip', 'extrap'};
 mas.shortfile = false;
 
 mas = vararg_pair(mas, varargin);

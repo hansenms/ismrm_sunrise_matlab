@@ -1,5 +1,5 @@
- function out = fatrix2_subsref_colon(ob, sub2)
-%function out = fatrix2_subsref_colon(ob, sub2)
+ function out = fatrix2_subsref_colon(ob, sub2, varargin)
+%function out = fatrix2_subsref_colon(ob, sub2, varargin)
 %
 % handle subscript references like ob(:,sub2)
 % This will called from ../subsref with (ob, subs{2})
@@ -7,10 +7,30 @@
 % Copyright 2010-12-02, Jeff Fessler, University of Michigan
 
 if streq(sub2, ':') % ob(:,:)
-	if size(ob,1) > size(ob,2) % thin: do each column
+	% do by col if thin or if user-defined forw() with default back()
+	user_forw =	~isequal(ob.handle_forw, @fatrix2_def_forw) && ...
+			~isequal(ob.handle_forw, @fatrix2_def_back);
+	do_by_col = ((size(ob,1) >= size(ob,2)) && user_forw) || ...
+		(isequal(ob.handle_back, @fatrix2_def_back));
+
+	if nargin > 2 % for full(ob, 'col') in test_adjoint.m
+		if numel(varargin) == 1 && ischar(varargin{1})
+			switch varargin{1}
+			case 'col'
+				do_by_col = true;
+			case 'row'
+				do_by_col = false;
+			otherwise
+				fail('unknown option "%s"', varargin{1})
+			end
+		else
+			fail 'unknown arguments'
+		end
+	end
+	if do_by_col % thin (or 'col'): do each column
 		jj = 1:size(ob,2);
 		out = fatrix2_subsref_colon2_vectors(ob, jj);
-	else % wide: do each row
+	else % wide (or 'row'): do each row
 		ii = 1:size(ob,1);
 		out = fatrix2_subsref_colon2_vectors(ob', ii)';
 	end

@@ -15,6 +15,7 @@
 %|			'pd1' : basic pixel-driven (not very good)
 %|			'nn1' : nearest-neighbor pixel-driven (very bad)
 %|			'user' : user must provide 'mexfun'
+%|			'sf0' : sf with rect/rect footprint
 %|			'dd1' : distance-driven (GE's patented method, UM only)
 %|			'dd2' : new improved DD version from GE (UM only)
 %|	'is_ns_nt'	1 (default) for [ns nt na] or 0 for [nt ns na]
@@ -38,7 +39,7 @@
 %|
 %| Copyright 2005-5-19, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(cg, 'test'), run_mfile_local Gcone_test, return, end
+if nargin == 1 && streq(cg, 'test'), run_mfile_local Gcone_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 
 % option defaults
@@ -73,13 +74,14 @@ arg.mask2 = uint8(sum(ig.mask, 3) > 0);
 arg.back_needs_mask3 = ~isequal(repmat(arg.mask2, [1 1 ig.nz]), ig.mask);
 
 % case specific setup
-if streq(arg.type, 'sf1', 3) || streq(arg.type, 'sf2', 3)
+if streq(arg.type, 'sf1', 3) || streq(arg.type, 'sf2', 3) ...
+	|| streq(arg.type, 'sf6', 3)
 	tmp = arg.type(1:3); % trick to handle sf1,... and sf2,...
 else
 	tmp = arg.type;
 end
 switch tmp % arg.type
-case {'nn1', 'pd1', 'sf1', 'sf2', 'sf3', 'sf4', 'sf5'}
+case {'nn1', 'pd1', 'sf0', 'sf1', 'sf2', 'sf3', 'sf4', 'sf5', 'sf6'}
 	arg.mexfun = Gcone_which_mex(arg.chat);
 	arg.mexstr_back = ['cbct,back,' arg.type];
 	arg.mexstr_proj = ['cbct,proj,' arg.type];
@@ -344,7 +346,7 @@ case {'dd1', 'dd2'}
 		arg.angles(ia), arg.zshifts(ia), ...
 		single(x));
 
-otherwise % nn1 pd1 sf1 sf2 sf3 sf4 sf5
+otherwise % nn1 pd1 sf0 sf1 sf2 sf3 sf4 sf5 sf6
 
 	if ((x(1) ~= 0) && (arg.mask2(1) == 0))
 		warn 'projecting image with nonzero x(1) but mask2(1)=0'
@@ -354,6 +356,7 @@ otherwise % nn1 pd1 sf1 sf2 sf3 sf4 sf5
 	% codo: could add is_ns_nt here to save permute at end
 	s = @(x) single(x);
 %	cpu etic
+	angles = arg.angles(ia);
 	y = arg.mexfun(arg.mexstr_proj, ...
 		int32([arg.cg.ns arg.cg.nt length(ia)]), ...
 		s([arg.ig.dx arg.ig.dy arg.ig.dz]), ...
@@ -361,7 +364,7 @@ otherwise % nn1 pd1 sf1 sf2 sf3 sf4 sf5
 		arg.mask2, ...
 		s(arg.cg.dso), s(arg.cg.dsd), s(arg.cg.dfs), ...
 		s([arg.cg.ds arg.cg.dt]), ...
-		arg.angles(ia), ...
+		angles, ...
 		s(arg.cg.source_zs(ia)), ...
 		s(arg.cg.offset_s), ...
 		s(arg.cg.offset_t), ...
@@ -393,9 +396,9 @@ case {'dd1', 'dd2'}
 		arg.dz_dx, arg.img_offset, int32(arg.nthread), ...
 		arg.angles(ia), arg.zshifts(ia), ...
 		single(y), int32([arg.ig.nz arg.ig.nx arg.ig.ny]));
-	x = Gcone3_dd_flipper3(x, arg); % only DD might need this
+	x = Gcone3_dd_xyz_flipper3(x, arg); % only DD might need this
 
-otherwise % nn1 pd1 sf1 sf2 sf3 sf4 sf5
+otherwise % nn1 pd1 sf0 sf1 sf2 sf3 sf4 sf5 sf6
 
 	% codo: could add is_ns_nt here to save permute at end
 	s = @(x) single(x);

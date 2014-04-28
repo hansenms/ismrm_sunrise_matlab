@@ -28,14 +28,14 @@ end
 %
 % test data
 %
-if 0 | ~isvar('x'), printm 'setup object'
+if 0 || ~isvar('x'), printm 'setup object'
 	x = zeros(N);
 	x(round(N(1)/4+1:3*N(1)/4), round(N(2)/4+1:3*N(2)/4)) = 1;
 	clim = [0 2];
 	im(2, x, 'x true', clim), cbar
 end
 
-if 0 | ~isvar('yd'), printm 'setup data (slow!)'
+if 0 || ~isvar('yd'), printm 'setup data (slow!)'
 	% generate "true" data using exact DTFT (to be fair)
 	yd = dtft2(x, omega);
 end
@@ -52,7 +52,7 @@ if ~isvar('xhatg'), printm 'crude gridding reconstruction'
 end
 
 %
-if 1 | ~isvar('xpcg'), printm 'PCG with quadratic penalty'
+if 1 || ~isvar('xpcg'), printm 'PCG with quadratic penalty'
 	mask = true(N);
 	niter = 40;
 	% playing around with this beta does not change the summations

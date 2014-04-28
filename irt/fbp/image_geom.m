@@ -178,12 +178,10 @@ if isempty(st.mask)
 	st.mask = true(st.dim);
 elseif ~islogical(st.mask)
 	error 'mask must be logical'
-elseif ndims(st.mask) ~= 2 + st.is3 ...
-	|| size(st.mask,1) ~= st.nx ...
-	|| size(st.mask,2) ~= st.ny ...
-	|| (st.is3 && size(st.mask,3) ~= st.nz)
-	size(st.mask), st.nx, st.ny
-	error 'bad input mask size'
+elseif size(st.mask,1) ~= st.nx || size(st.mask,2) ~= st.ny ...
+	|| (st.is3 && (size(st.mask,3) ~= st.nz))
+	pr size(st.mask)
+	fail('bad input mask size, nx=%d ny=%d', st.nx, st.ny)
 end
 
 meth = { ...
@@ -198,6 +196,9 @@ meth = { ...
 	'plot', @image_geom_plot, '()'; ...
 	'x', @image_geom_x, '(subs), 1D x coordinates'; ...
 	'y', @image_geom_y, '(subs), 1D y coordinates'; ...
+	'wx', @image_geom_wx, '(), (nx-1/2) * dx + offset_x'; ...
+	'wy', @image_geom_wy, '(), (ny-1/2) * dy + offset_y'; ...
+	'wz', @image_geom_wz, '(), (nz-1/2) * dz + offset_z'; ...
 	'xg', @image_geom_xg, '(subs), 2D or 3D grid of x coordinates'; ...
 	'yg', @image_geom_yg, '(subs), 2D or 3D grid of y coordinates'; ...
 	'zg', @image_geom_zg, '(subs), 2D or 3D grid of z coordinates'; ...
@@ -391,22 +392,32 @@ else
 	x = reshape(x, st.nx, st.ny, []);
 end
 
+% image_geom_wx()
+function wx = image_geom_wx(st)
+wx = (st.nx-1)/2 + st.offset_x;
+
+% image_geom_wy()
+function wy = image_geom_wy(st)
+wy = (st.ny-1)/2 + st.offset_y;
+
+% image_geom_wz()
+function wz = image_geom_wz(st)
+wz = (st.nz-1)/2 + st.offset_z;
+
+
 % image_geom_x()
 function x = image_geom_x(st, varargin)
-wx = (st.nx-1)/2 + st.offset_x;
-x = ([0:st.nx-1]' - wx) * st.dx;
+x = ([0:st.nx-1]' - st.wx) * st.dx;
 x = x(varargin{:});
 
 % image_geom_y()
 function y = image_geom_y(st, varargin)
-wy = (st.ny-1)/2 + st.offset_y;
-y = ([0:st.ny-1]' - wy) * st.dy;
+y = ([0:st.ny-1]' - st.wy) * st.dy;
 y = y(varargin{:});
 
 % image_geom_z()
 function z = image_geom_z(st, varargin)
-wz = (st.nz-1)/2 + st.offset_z;
-z = ([0:st.nz-1]' - wz) * st.dz;
+z = ([0:st.nz-1]' - st.wz) * st.dz;
 z = z(varargin{:});
 
 
@@ -531,6 +542,7 @@ end
 % image_geom_unitv()
 % use: st.unitv(ix,iy) or st.unitv(ix,iy,iz) or st.unitv(jj)
 % or st.unitv('c', [ix_offset iy_offset iz_offset])
+% or st.unitv('c', ix_offset, iy_offset ...)
 % plain st.unitv defaults to "center" of image
 function ej = image_geom_unitv(st, varargin)
 ej = zeros(st.dim, 'single');
@@ -546,6 +558,9 @@ elseif streq(varargin{1}, ':')
 	ej(t{:}) = 1;
 	ej = ej(:);
 elseif streq(varargin{1}, 'c')
+	if numel(varargin) > 2 % 'c', ox, oy ...
+		varargin{2} = cell2mat({varargin{2:end}});
+	end
 	t = floor(st.dim/2+1) + varargin{2}; % "offset"
 	t = num2cell(t);
 	ej(t{:}) = 1;

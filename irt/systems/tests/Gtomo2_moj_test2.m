@@ -6,7 +6,7 @@
 redo = 0;
 im pl 2 3
 % analytical sino
-if redo | ~isvar('ya'), printm 'ya'
+if redo || ~isvar('ya'), printm 'ya'
 	down = 2;
 	ig = image_geom('nx', 512, 'ny', 504, 'fov', 500, 'down', down);
 	sgf = sino_geom('fan', 'nb', 888, 'na', 984/8, ...
@@ -29,7 +29,7 @@ prompt
 end
 
 % Gmpf (mojette: parallel to fan)
-if redo | ~isvar('Gmpf'), printm 'setup Gmpf'
+if redo || ~isvar('Gmpf'), printm 'setup Gmpf'
 	f.table = {'mojette,square/strip'};
 
 %	f.nr = ceil(sqrt(2)/2 * max(ig.nx,ig.ny))*2;
@@ -48,7 +48,7 @@ prompt
 end
 
 % dsc
-if redo | ~isvar('Gdsc'), printm 'setup Gdsc'
+if redo || ~isvar('Gdsc'), printm 'setup Gdsc'
 	args = arg_pair('system', 14, 'nx', ig.nx, 'ny', ig.ny, ...
 		'nb', sgf.nb, 'na', sgf.na, ...
 ...%		'support', 'all', ...
@@ -67,13 +67,13 @@ if redo | ~isvar('Gdsc'), printm 'setup Gdsc'
 	Gdsc = Gtomo2_dscmex(args);
 end
 
-if redo | ~isvar('Gdd'), printm 'setup Gdd'
+if redo || ~isvar('Gdd'), printm 'setup Gdd'
 	cpu etic
 	Gdd = Gtomo_dd(sgf, ig);
 	cpu etoc 'Gd precompute time'
 end
 
-if redo | ~isvar('Gn'), printm 'setup Gn'
+if redo || ~isvar('Gn'), printm 'setup Gn'
 	cpu etic
 	Gn = Gtomo_nufft(ig.mask, [sgf.nb sgf.na], ...
 		'chat', 0, ...
@@ -86,7 +86,7 @@ if redo | ~isvar('Gn'), printm 'setup Gn'
 	cpu etoc 'Gn precompute time'
 end
 
-if redo | ~isvar('Gw'), printm 'setup Gw'
+if redo || ~isvar('Gw'), printm 'setup Gw'
 	Gw = Gtomo2_wtmex(sgf, ig, 'grouped', 'col');
 end
 

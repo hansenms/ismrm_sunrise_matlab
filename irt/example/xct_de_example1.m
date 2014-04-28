@@ -122,10 +122,7 @@ prompt
 end
 
 
-% iterative recon
-if exist('xct_de_example1_p2.m') == 2 % mfile
+% iterative recon for DE CT covered by US Patent 6,754,298
+if exist('xct_de_example1_p2.m') == 2 % mfile for UM only
 	xct_de_example1_p2
-else
-	disp 'Contact Jeff Fessler about iterative DE CT reconstruction'
-	% iterative DE CT covered by US Patent 6,754,298.
 end

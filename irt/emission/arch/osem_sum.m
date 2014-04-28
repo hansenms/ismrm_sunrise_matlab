@@ -16,13 +16,13 @@ if nargin < 3, help osem_sum, error args, end
 
 [nb, na] = size(yi);
 
-if (nargin < 4 | isempty(ci))
+if (nargin < 4 || isempty(ci))
 	ci = ones(size(yi));
 end
-if (nargin < 5 | isempty(ri))
+if (nargin < 5 || isempty(ri))
 	ri = zeros(size(yi));
 end
-if (nargin < 6 | isempty(block_order))
+if (nargin < 6 || isempty(block_order))
 	block_order = 1;
 end
 nblock = length(block_order);
@@ -30,7 +30,7 @@ if length(block_order) == 1
 	nblock = block_order;
 	block_order = 1:nblock;
 end
-if (nargin < 7 | isempty(Asums))
+if (nargin < 7 || isempty(Asums))
 	% compute Asum
 
 	not done!!!!!!!1
@@ -39,7 +39,7 @@ if (nargin < 7 | isempty(Asums))
 	end
 	Asum = zeros([size(x) nblock]);
 end
-if (nargin < 7 | isempty(nblock))
+if (nargin < 7 || isempty(nblock))
 	nblock = 1;
 end
 

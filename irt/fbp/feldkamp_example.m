@@ -18,6 +18,7 @@ if ~isvar('cg'), printm 'cg: cone-beam CT geometry'
 	clear dfs
 end
 
+
 if ~isvar('ig'), printm 'ig: image geometry'
 	ig = image_geom('nx', 256, 'ny', 240, 'nz', 200, 'fov', 500, ...
 		'down', down);
@@ -28,26 +29,33 @@ if ~isvar('ig'), printm 'ig: image geometry'
 	clear mask2
 end
 
+
 if ~isvar('ell'), printm 'ell: ellipsoid object'
+	cyl = [20 10 10  150 150 inf  0 0.01]; % 30cm diam cylinder
 	ell = [ ...
-		[20 10 10	150 150 380	0 0 0.01]; % 30cm diam "cylinder
+%		[20 10 10	150 150 380	0 0 0.01]; % 30cm diam "cylinder
 		[80 10 10	50 50 30	0 0 0.01]; % bone-like inserts
 		[-10 -40 75	40 40 40	0 0 0.01];
 		[-10 80 -20	30 30 30	0 0 0.01];
 	];
-%	ell = [20 10 10  150 150 inf  0 0 0.01]; % 30cm diam "cylinder
 end
+
 
 if ~isvar('xtrue'), printm 'xtrue: true image volume'
-	xtrue = ellipsoid_im(ig, ell);
+	f.over = 2;
+	tmp = ellipse_im(ig, cyl(:,[1 2 4 5 7 8]), 'oversample', f.over);
+	tmp = repmat(tmp, [1 1 ig.nz]); % emulate a "cylinder_im"
+	xtrue = tmp + ellipsoid_im(ig, ell, 'oversample', f.over);
 
 	im plc 2 3
-	t = sprintf('x true, z=%g to %g', ig.z(1), ig.z(end));
-	im(1, ig.x, ig.y, xtrue, t), cbar, clear t
+	im(1, ig.x, ig.y, xtrue), cbar
+	titlef('x true, z=%g to %g', ig.z(1), ig.z(end))
 end
 
+
 if ~isvar('proj'), printm 'proj: analytical ellipsoid projection views'
-	proj = ellipsoid_proj(cg, ell);
+	tmp = cylinder_proj(cg, cyl, 'oversample', 1+0*f.over); % todo
+	proj = tmp + ellipsoid_proj(cg, ell, 'oversample', f.over);
 	im(4, proj, 'true projections'), cbar
 prompt
 end
@@ -56,7 +64,7 @@ end
 % noisy data and estimated line integrals
 if ~isvar('li_hat'), printm 'li_hat: projection view log data'
 	% noisy data, if blank scan value has been specified.
-	if isvar('bi') & isvar('ri')
+	if isvar('bi') && isvar('ri')
 		yb = bi .* exp(-proj) + ri;
 		yi = poisson(yb);
 		li_hat = -log((yi-ri) ./ bi);
@@ -69,13 +77,14 @@ end
 
 % FDK cone-beam reconstruction
 if ~isvar('xfdk'), printm 'fdk'
-	xfdk = feldkamp(cg, ig, li_hat, 'use_mex', has_mex_jf, 'w1cyl', 0, ...
-		'extrapolate_t', 0);
+	xfdk = feldkamp(cg, ig, li_hat, 'use_mex', has_mex_jf, 'w1cyl', 1, ...
+		'extrapolate_t', 0); % todo
 %		'window', 'hanning,0.7', ... % test window
 %	clf, im_toggle(xtrue, xfdk, [0 0.02]), return
 %	im_toggle(permute(xtrue, [1 3 2]), permute(xfdk, [1 3 2]), [0 0.02])
 prompt
 end
+
 
 if 0 % debugging tests
 	if 1, printm 'nthread'
@@ -103,21 +112,8 @@ if 0 % debugging tests
 return
 end
 
-if 0, % check old-style usage
-	ofdk = feldkamp(li_hat, ig.mask_or, ...
-		'use_mex', 1, ...
-		'nz', ig.nz, ...
-		'orbit', 360, 'orbit_start', 0, ...
-		'dx', ig.dx, 'ds', cg.ds, 'dt', cg.dt, ...
-		'dis_src_det', cg.dsd, ...
-		'dis_iso_det', cg.dod, ...
-		'dis_foc_src', cg.dfs, ...
-		'offset_st', [cg.offset_s cg.offset_t]);
-	max_percent_diff(xfdk, ofdk)
-return
-end
 
-if im & ~isempty(xfdk)
+if im && ~isempty(xfdk)
 	% show results (off-center slices worse than central slice)
 	im(2, xfdk, 'FDK recon'), cbar
 	im(3, xfdk - xtrue, 'FDK error'), cbar

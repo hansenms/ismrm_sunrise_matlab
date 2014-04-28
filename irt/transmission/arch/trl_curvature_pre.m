@@ -31,16 +31,14 @@ end
 
 trl_check(yi, bi, ri);
 
-if ~isvar('bi') | isempty(bi)
+if ~isvar('bi') || isempty(bi)
 	bi = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
 
-%
-%	ci = (yi-ri)^2 / yi, if yi > ri >= 0 and bi > 0
-%
-ii = (yi > ri) & (ri >= 0) & (bi > 0);	% good rays
+% ci = (yi-ri)^2 / yi, if yi > ri >= 0 and bi > 0
+ii = (yi > ri) & (ri >= 0) & (bi > 0); % good rays
 ci = zeros(size(yi));
 ci(ii) = (yi(ii) - ri(ii)).^2 ./ yi(ii);

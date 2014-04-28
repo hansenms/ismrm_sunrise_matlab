@@ -22,7 +22,7 @@
 %|
 %| Copyright 2004-4-21, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(ktype, 'test'), mri_trajectory_test, return, end
+if nargin == 1 && streq(ktype, 'test'), mri_trajectory_test, return, end
 if nargin < 4, help(mfilename), error 'args', end
 if ~isvar('arg_wi') arg_wi = {}; end
 
@@ -87,7 +87,7 @@ case 'half+8'
 case 'epi-sin'
 	if isempty(arg_traj)
 		oversample = 1;
-	elseif iscell(arg_traj) & length(arg_traj) == 1
+	elseif iscell(arg_traj) && length(arg_traj) == 1
 		oversample = arg_traj{1};
 	else
 		error 'bad trajectory argument'
@@ -116,7 +116,7 @@ case 'spiral1'
 
 % 3T spiral:
 case 'spiral3'
-	if fov(1) ~= fov(2) | N(1) ~= N(2), error 'only square done', end
+	if fov(1) ~= fov(2) || N(1) ~= N(2), error 'only square done', end
 	[kspace omega] = mri_kspace_spiral('N', max(N(1:2)), ...
 				'fov', max(fov(1:2)));
 

@@ -26,7 +26,7 @@
 %|
 %| Copyright 2010-07-27, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(cg, 'test'), run_mfile_local Gtomosyn_test, return, end
+if nargin == 1 && streq(cg, 'test'), run_mfile_local Gtomosyn_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 
 % option defaults

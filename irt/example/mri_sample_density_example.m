@@ -43,7 +43,7 @@ end
 %
 % true object and analytical k-space data
 %
-if 0 | ~isvar('xtrue'), printm 'setup object'
+if 0 || ~isvar('xtrue'), printm 'setup object'
 	% display images with many pixels...
 	x1d = [-N0/2:N0/2-1] / N0 * fov;
 	[x1dd, x2dd] = ndgrid(x1d, x1d);
@@ -75,7 +75,7 @@ end, clear yd_g k1g
 %
 % create Gnufft class object
 %
-if 0 | ~isvar('G'), printm 'setup Gnufft object'
+if 0 || ~isvar('G'), printm 'setup Gnufft object'
 	omega = 2*pi*kspace*fov/N0;
 %	disp(minmax(omega(:,1)))
 	G = Gnufft({omega, [N0 N0], [6 6], 2*[N0 N0], [N0/2 N0/2]});
@@ -84,7 +84,7 @@ prompt
 end
 
 % gridding
-if ~isvar('xgr.unif') & 0
+if ~isvar('xgr.unif') && 0
 	xgr.unif = embed(G' * yd, mask);
 	im(5, x1g, x1g, abs(xgr.unif), 'no comp')
 end
@@ -119,7 +119,7 @@ return %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % reconstruct by PCG
 %
-if 0 | ~isvar('xpcg'), printm 'PCG with quadratic penalty'
+if 0 || ~isvar('xpcg'), printm 'PCG with quadratic penalty'
 
 	niter = 20;
 	beta = 2^-10 * size(omega,1);
@@ -132,4 +132,4 @@ if 0 | ~isvar('xpcg'), printm 'PCG with quadratic penalty'
 prompt
 end
 
-% savefig fig_mri_sample_density
+% ir_savefig fig_mri_sample_density

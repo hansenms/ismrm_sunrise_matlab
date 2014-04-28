@@ -3,10 +3,13 @@
 % Copyright 2009-10-05, Jeff Fessler, University of Michigan
 
 if ~isvar('A'), printm 'setup geometry, image, sinogram'
-	down = 4;
-	ig = image_geom('nx', 512, 'fov', 50, 'down', down);
+	f.down = 4;
+	f.do_sparse = 1; % set to one for sparse angle case
+	ig = image_geom('nx', 512, 'fov', 50, 'down', f.down);
 	ig.mask = ig.circ > 0;
-	sg = sino_geom('ge1', 'units', 'cm', 'strip_width', 'd', 'down', down);
+	sg = sino_geom('ge1', 'units', 'cm', 'strip_width', 'd', ...
+		'down', f.down);
+	if f.do_sparse, sg.na = 50; end % # views in sparse angle case
 
 	% system object
 	if has_mex_jf
@@ -56,12 +59,21 @@ if ~isvar('sino'), printm 'noisy fan-beam data'
 prompt
 end
 
+xl = @(x) xlabelf('RMSE = %.3f / %s', rms(col(x - xtrue)), sg.units);
 
 if ~isvar('fbp'), printm 'fbp 2d fan-beam reconstruction'
 	tmp = fbp2(sg, ig);
 	fbp = fbp2(sino, tmp);
 	im(3, fbp, 'FBP', clim), cbar
-	xlabelf('RMSE = %.3f / %s', rms(col(fbp - xtrue)), sg.units)
+	xl(fbp)
+prompt
+end
+
+if f.do_sparse && ~isvar('fbpw') % sparse angle
+	tmp = fbp2(sg, ig);
+	fbpw = fbp2(sino, tmp, 'window', 'hanning,0.6');
+	im(4, fbpw, 'FBP Hanning', clim), cbar
+	xl(fbpw)
 prompt
 end
 
@@ -78,6 +90,9 @@ end
 if ~isvar('R'), printm 'R'
 	f.l2b = 8; % maybe a bit too big, but ok for now
 	f.delta = 0.01;
+	if f.do_sparse
+		f.l2b = 4; % sparse angle
+	end
 %	f.pot_arg = {'lange3', f.delta}; % todo: why not as sharp as hyper3?
 	f.pot_arg = {'hyper3', f.delta};
 	R = Reg1(kappa, 'beta', 2^f.l2b, 'pot_arg', f.pot_arg);
@@ -89,13 +104,29 @@ if ~isvar('xpwls'), printm 'iterative reconstruction'
 	if has_mex_jf
 		f.niter = 20;
 		Ab = Gblock(A, 41); % 41 subsets
-		xpwls = pwls_sps_os(fbp(ig.mask), sino, wi, Ab, R, f.niter);
+		xpwls = pwls_sqs_os(fbp(ig.mask), Ab, sino, R, 'wi', wi, 'niter', f.niter);
 	else
 		f.niter = 90;
 		xpwls = pwls_pcg1(fbp(ig.mask), A, Gdiag(wi), sino(:), R, 'niter', f.niter);
 	end
-	xpwls = ig.embed(xpwls(:,end));
+	xpwls = ig.embed(xpwls);
 	im(4, xpwls, 'PWLS'), cbar
-	xlabelf('RMSE = %.3f / %s', rms(col(xpwls - xtrue)), sg.units)
+	xl(xpwls)
 %prompt
+end
+
+
+if f.do_sparse % sparse angle figure for book chapter
+	im on
+	im plc 2 2
+	im(1, xtrue, 'x', clim), cbar
+	xlabelf('units: 1 / %s', sg.units)
+	im(2, xpwls, 'PWLS', clim), cbar
+	xl(xpwls)
+	im(3, fbp, 'FBP Ramp', clim), cbar
+	xl(fbp)
+	im(4, fbpw, 'FBP Hanning', clim), cbar
+	xl(fbpw)
+%	savefig ct_fan_beam_example1
+prompt
 end

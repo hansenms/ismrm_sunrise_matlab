@@ -36,7 +36,7 @@ f.niter = 20;
 if ~isvar('xinit')
 	%xinit = ones(size(xtrue));		% uniform initial image
 	%xinit = xfbp;				% FBP initial image
-	if exist('imfilter') == 2
+	if ir_has_imfilter
 		xinit = imfilter(xfbp, double(psf)); % smoothed FBP
 	else
 		xinit = convn(xfbp, double(psf), 'same'); % smoothed FBP
@@ -65,7 +65,7 @@ end
 
 
 % PWLS-IOT iterations (unconstrained)
-if 0 | ~isvar('xiot'), printm 'do iot'
+if 0 || ~isvar('xiot'), printm 'do iot'
 	[xiot tim.iot] = pl_iot(xinit(ig.mask), Ab, {yi, wi}, R, ...
 			'dercurv', 'wls', ...
 			'riter', 1, ...

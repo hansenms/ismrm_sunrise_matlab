@@ -39,13 +39,13 @@ arg.isave = iter_saver(arg.isave, arg.niter);
 
 yi = block_op(Gb, 'ensure_block_data', yi);
 
-if ~isvar('ci') | isempty(ci)
+if ~isvar('ci') || isempty(ci)
 	ci = num2cell(ones(1,nblock));
 else
 	ci = block_op(Gb, 'ensure_block_data', ci);
 end
 
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = num2cell(zeros(1,nblock));
 else
 	ri = block_op(Gb, 'ensure_block_data', ri);

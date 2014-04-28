@@ -49,14 +49,14 @@ axis(pi * [-1 1 -1 1])
 set(gca, 'xtick', [-pi -pi/2 0 pi/2 pi])
 set(gca, 'xticklabel', [])
 %set(gca, 'xticklabel', ['-pi  '; '-pi/2'; '  0  '; 'pi/2 '; 'pi   '])
-set(text(pi, yo, '\pi'), 'horizontalalign', 'center')
-set(text(-pi, yo, '-\pi'), 'horizontalalign', 'center')
-set(text(pi/2, yo, '\pi/2'), 'horizontalalign', 'center')
-set(text(-pi/2, yo, '-\pi/2'), 'horizontalalign', 'center')
+set(text(pi, yo, '\pi'), 'horizontalalignment', 'center')
+set(text(-pi, yo, '-\pi'), 'horizontalalignment', 'center')
+set(text(pi/2, yo, '\pi/2'), 'horizontalalignment', 'center')
+set(text(-pi/2, yo, '-\pi/2'), 'horizontalalignment', 'center')
 %set(text(0, yo, '0'), 'horizontalalign', 'center')
 
 if ~isempty(omx)
-	set(text(0, yo, omx), 'horizontalalign', 'center')
+	set(text(0, yo, omx), 'horizontalalignment', 'center')
 end
 
 set(gca, 'ytick', [-pi -pi/2 0 pi/2 pi])
@@ -73,5 +73,5 @@ end
 
 function rtext(x, y, s)
 	set(text(x, y, s), ...
-	'verticalalign', 'middle', ...
-	'horizontalalign', 'right');
+	'verticalalignment', 'middle', ...
+	'horizontalalignment', 'right');

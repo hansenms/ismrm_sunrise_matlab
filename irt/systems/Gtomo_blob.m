@@ -1,51 +1,45 @@
  function ob = Gtomo_blob(mask, dim_data, varargin)
 %function ob = Gtomo_blob(mask, dim_data, options)
-%
-% Construct Gtomo_blob object, for fast forward and backprojection.
-% INCOMPLETE WORK-IN-PROGRESS!
-%
-% Currently handles 2D parallel and fan-beam cases.
-%
-% See Gtomo_blob_test.m for example usage.
-%
-% Basically, you create an object calling:
-%		G = Gtomo_blob(...)
-% and then you can use it thereafter by typing commands like
-%		y = G * x;
-% which will auto-magically do the multiplication by calling a mex file.
-%
-% in
-%	mask	[nx,ny]	logical array of object support.
-%	dim_data [2]	data dimensions, usually: [nb na], where
-%		nb	number of "detector bins" in each sinogram row
-%		na	number of view angles: size(sinogram,2)
-%
-% options
-%	'chat'		verbose printing of debug messages
-%	'pixel_size'	width of pixels
-%	'ray_spacing'	radial sample spacing
-%	'strip_width'	width of rectangular detector PSF
-%	'orbit'		projection angle coverage [180 degrees]
-%	'orbit_start'	first projection angle [0 degrees]
-%	'xscale'	use -1 to flip in x direction
-%	'yscale'	use -1 to flip in y direction
-%
-%	'beam'		structure for beam PSF (see below)
-%	'basis'		structure for image-domain basis (see below)
-%
-% required arguments for fan-beam geometry (for which a value must follow):
-%	'dis_src_det'		source-to-detector distance
-%	'dis_iso_det'		object_isocenter-to-detector distance
-%	'source_offset'		offset between source-detector and isocenter
-%	'channel_offset'	offset between central ray and detector center
-%				in terms of fraction of sample(detector) spacing
-%
-% out
-%	ob [nd,np]	np = sum(mask(:)), so it is already "masked"
-%
-% For more help, see Gtomo_blob_test.m
-%
-% Copyright 2005-7-26, Jeff Fessler, The University of Michigan
+%|
+%| Construct Gtomo_blob object, for fast forward and backprojection.
+%| INCOMPLETE, WORK-IN-PROGRESS!
+%|
+%| Currently handles 2D parallel and fan-beam cases.
+%|
+%| See Gtomo_blob_test.m for example usage.
+%|
+%| in
+%|	mask	[nx,ny]	logical array of object support.
+%|	dim_data [2]	data dimensions, usually: [nb na], where
+%|		nb	number of "detector bins" in each sinogram row
+%|		na	number of view angles: size(sinogram,2)
+%|
+%| options
+%|	'chat'		verbose printing of debug messages
+%|	'pixel_size'	width of pixels
+%|	'ray_spacing'	radial sample spacing
+%|	'strip_width'	width of rectangular detector PSF
+%|	'orbit'		projection angle coverage [180 degrees]
+%|	'orbit_start'	first projection angle [0 degrees]
+%|	'xscale'	use -1 to flip in x direction
+%|	'yscale'	use -1 to flip in y direction
+%|
+%|	'beam'		structure for beam PSF (see below)
+%|	'basis'		structure for image-domain basis (see below)
+%|
+%| required arguments for fan-beam geometry (for which a value must follow):
+%|	'dis_src_det'		source-to-detector distance
+%|	'dis_iso_det'		object_isocenter-to-detector distance
+%|	'source_offset'		offset between source-detector and isocenter
+%|	'channel_offset'	offset between central ray and detector center
+%|				in terms of fraction of sample(detector) spacing
+%|
+%| out
+%|	ob [nd np]	np = sum(mask(:)), so it is already "masked"
+%|
+%| For more help, see Gtomo_blob_test.m
+%|
+%| Copyright 2005-7-26, Jeff Fessler, University of Michigan
 
 if nargin == 1 && streq(mask, 'test'), Gtomo_blob_test, return, end
 if nargin < 1, help(mfilename), error(mfilename), end
@@ -195,7 +189,7 @@ arg.fan.omegam = (-1) * 2*pi * arg.fan.del_rho * fan.sin_rad;
 
 % center shift shouldn't be 0 since it wasn't absorbed into tomo_filter
 int1c = arg.interp; % copy for 1d
-if ~isempty(arg.interp) & streq(arg.interp{1}, 'table')
+if ~isempty(arg.interp) && streq(arg.interp{1}, 'table')
 	interp1 = {arg.interp{end}};
 	if isnumeric(interp1{:})
 		int1c = {'minmax:kb'};
@@ -287,8 +281,8 @@ if streq(ob.basis.type, 'KB')
 		ob.basis.kernel = kaiser_bessel(...
 			kernel3, ob.basis.diam, ob.basis.shape, ob.basis.m);
 
-	else 
-		error(sprintf('basis function dimension %g not supported', ob.basis.dim))
+	else
+		fail('basis function dimension %g not supported', ob.basis.dim)
 	end
 
 	norm=sum(sum(sum(ob.basis.kernel)));
@@ -297,11 +291,11 @@ if streq(ob.basis.type, 'KB')
 elseif streq(ob.basis.type,'Gauss')
 	error('Gaussian basis not yet implemented - kernel not calculated')
 
-elseif isempty(ob.basis.type) | streq(ob.basis.type,'pixel') | ...
+elseif isempty(ob.basis.type) || streq(ob.basis.type,'pixel') || ...
 	streq(ob.basis.type,'no')
 
-else 
-	error(sprintf('basis function %s not implemented', ob.basis.type))
+else
+	fail('basis function %s not implemented', ob.basis.type)
 
 end
 

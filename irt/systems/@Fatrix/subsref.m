@@ -35,8 +35,8 @@ case '()'
 	%
 	% G(:,:) or G(:,j)
 	%
-	if length(subs) == 2 & ischar(subs{1}) & streq(subs{1}, ':')
-		if ischar(subs{2}) & streq(subs{2}, ':')
+	if length(subs) == 2 && ischar(subs{1}) && streq(subs{1}, ':')
+		if ischar(subs{2}) && streq(subs{2}, ':')
 			jj = [1:ob.dim(2)]';
 		elseif isnumeric(subs{2}) || islogical(subs{2})
 			jj = col(subs{2});
@@ -71,7 +71,7 @@ case '()'
 	%
 	% G(i,:)
 	%
-	elseif length(subs) == 2 & streq(subs{2}, ':')
+	elseif length(subs) == 2 && streq(subs{2}, ':')
 		ii = col(subs{1});
 		if islogical(ii)
 			if length(ii) ~= ob.dim(1)

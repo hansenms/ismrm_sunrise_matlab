@@ -44,7 +44,7 @@ if nargin < 4, help(mfilename), error(mfilename), end
 
 % dimensionality of input space (usually 2 or 3)
 dd = length(Nd);
-if dd ~= length(Jd) | dd ~= length(Kd)
+if dd ~= length(Jd) || dd ~= length(Kd)
 	error 'inconsistent dim'
 end
 if any(Kd < Nd), warning 'Kd < Nd unlikely to work.  Try Kd=2*Nd', end
@@ -60,7 +60,7 @@ if dd ~= size(om,2), fail('omega needs %d columns', dd), end
 %
 
 % n_shift argument? (must be first)
-if length(varargin) > 0 & isnumeric(varargin{1})
+if length(varargin) > 0 && isnumeric(varargin{1})
 	n_shift = varargin{1};
 	if dd ~= length(n_shift)
 		error('n_shift needs %d columns', dd)
@@ -81,7 +81,7 @@ st.beta = {};
 is_kaiser_scale = false;
 
 % table based?
-if ischar(varargin{1}) & streq(varargin{1}, 'table')
+if ischar(varargin{1}) && streq(varargin{1}, 'table')
 	st = nufft_table_init(om, Nd, Jd, Kd, n_shift, varargin{2:end});
 	return
 end
@@ -90,7 +90,7 @@ ktype = varargin{1};
 
 % cell array of kernel functions: {kernel1, kernel2, ..., kernelD}
 if isa(ktype, 'cell')
-	if isa(ktype{1}, 'inline') | isa(ktype{1}, 'function_handle')
+	if isa(ktype{1}, 'inline') || isa(ktype{1}, 'function_handle')
 		ktype = 'inline';
 		if length(varargin) > 1, error 'excess arguments?', end
 		if length(varargin{1}) ~= dd, error 'wrong # of kernels', end
@@ -100,7 +100,7 @@ if isa(ktype, 'cell')
 	end
 
 % or a single inline kernel for all dimension
-elseif isa(ktype, 'inline') | isa(ktype, 'function_handle')
+elseif isa(ktype, 'inline') || isa(ktype, 'function_handle')
 	ktype = 'inline';
 	if length(varargin) > 1, error 'excess arguments?', end
 	for id = 1:dd
@@ -142,7 +142,7 @@ elseif streq(ktype, 'kaiser')
 	elseif length(varargin) == 3
 		alpha_list = varargin{2};
 		m_list = varargin{3};
-		if (length(alpha_list) ~= dd) | (length(m_list) ~= dd)
+		if (length(alpha_list) ~= dd) || (length(m_list) ~= dd)
 			error('#alpha=%d #m=%d vs dd=%d', ...
 				length(alpha_list), length(m_list), dd)
 		end
@@ -175,7 +175,7 @@ elseif streq(ktype, 'minmax:user')
 	if length(varargin) ~= 3, error 'user must provide alpha/beta', end
 	st.alpha = varargin{2};
 	st.beta = varargin{3};
-	if length(st.alpha) ~= dd | length(st.beta) ~= dd
+	if length(st.alpha) ~= dd || length(st.beta) ~= dd
 		error 'alpha/beta size mismatch'
 	end
 

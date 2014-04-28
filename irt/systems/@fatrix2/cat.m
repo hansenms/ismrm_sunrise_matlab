@@ -8,6 +8,15 @@
 %|
 %| dim > 2 is also supported thanks to 'odim'
 
+% purge any empty cells so [[]; ob] returns ob
+is_empty = cellfun(@isempty, varargin);
+if any(is_empty)
+	varargin = {varargin{~is_empty}};
+end
+if numel(varargin) == 1
+	ob = varargin{1};
+end
+
 switch dim
 case 1
 	ob = fatrix2_vertcat(varargin);

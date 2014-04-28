@@ -52,13 +52,13 @@ if isempty(Ld)
 end
 
 % dimensionality of input space (usually 2 or 3)
-if dd > 1 & length(Ld) == 1
+if dd > 1 && length(Ld) == 1
 	Ld = repmat(Ld, [1 dd]); % allow scalar L to be used for all dimensions
 end
 st.oversample = Ld;
 st.Ld = Ld;
 
-if dd ~= length(Jd) | dd ~= length(Kd) | dd ~= length(Ld)
+if dd ~= length(Jd) || dd ~= length(Kd) || dd ~= length(Ld)
 	whos
 	error 'inconsistent dim'
 end

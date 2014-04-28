@@ -21,10 +21,10 @@
 
 if nargin < 3, help(mfilename), error(mfilename), end
 
-if ~isvar('bi') | isempty(bi)
+if ~isvar('bi') || isempty(bi)
 	bi = ones(size(yi));
 end
-if ~isvar('ri') | isempty(ri)
+if ~isvar('ri') || isempty(ri)
 	ri = zeros(size(yi));
 end
 
@@ -33,41 +33,35 @@ nblock = block_ob(Gb, 'n');
 
 trl_check(yi, bi, ri);
 
-if ~isvar('niter') | isempty(niter)
+if ~isvar('niter') || isempty(niter)
 	niter = 2;
 end
-if ~isvar('pixmax') | isempty(pixmax)
+if ~isvar('pixmax') || isempty(pixmax)
 	pixmax = inf;
 end
-if ~isvar('curv') | isempty(curv)
+if ~isvar('curv') || isempty(curv)
 	curv = 'oc';
 end
 if strcmp(curv, 'oc'),		is_oc = 1;
 elseif strcmp(curv, 'pc'),	is_oc = 0;
 else,	error 'curv unknown',	end
 
-if ~isvar('gi') | isempty(gi)
-	gi = reshape(sum(Gb'), size(yi));	% g_i = sum_j g_ij
+if ~isvar('gi') || isempty(gi)
+	gi = reshape(sum(Gb'), size(yi)); % g_i = sum_j g_ij
 end
 
 starts = subset_start(nblock);
 [nb, na] = size(yi);
 
-%
-%	precompute denominator if needed
-%
-if (~isvar('denom') | isempty(denom)) & ~is_oc
-	ni = trl_curvature_pre(yi, bi, ri);	% precomputed curvatures
+% precompute denominator if needed
+if (~isvar('denom') || isempty(denom)) && ~is_oc
+	ni = trl_curvature_pre(yi, bi, ri); % precomputed curvatures
 
-	%
-	%	a single denominator shared by all subsets (scaled)
-	%
+	% a single denominator shared by all subsets (scaled)
 	if 1
 		denom = Gb' * col(gi .* ni) / nblock;
-	%
-	%	separate denominators for each subset
-	%	fix: this is inefficient, but consistent with 2d aspire!
-	%
+	% separate denominators for each subset
+	% fix: this is inefficient, but consistent with 2d aspire!
 	else
 		denom = zeros(numel(x), nblock);
 		for iset=1:nblock
@@ -80,9 +74,7 @@ end
 
 pixmin = 0;
 
-%
-%	loop over iterations
-%
+% loop over iterations
 xs = zeros(numel(x), niter);
 x = max(x,pixmin);
 x = min(x,pixmax);
@@ -91,9 +83,7 @@ xs(:,1) = x;
 for it=2:niter
 %	printf('TML OSPS iteration %d', it)
 
-	%
-	%	loop over subsets
-	%
+	% loop over subsets
 	for iset=1:nblock
 		iblock = starts(iset);
 		ia = iblock:nblock:na;
@@ -102,7 +92,7 @@ for it=2:niter
 		li = Gb{iblock} * x;
 
 		li = reshape(li, nb, length(ia));
-		yb = bi(:,ia) .* exp(-li) + ri(:,ia);	% predicted meas. means
+		yb = bi(:,ia) .* exp(-li) + ri(:,ia); % predicted meas. means
 		dothi = bi(:,ia) .* (1 - yi(:,ia) ./ yb) .* exp(-li);
 
 		if is_oc

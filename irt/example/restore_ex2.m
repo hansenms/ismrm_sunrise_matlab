@@ -35,7 +35,7 @@ if ~isvar('yi')
 	im(2, yi, 'yi', clim)
 end
 
-if ~isvar('xnpls') | 1
+if ~isvar('xnpls') || 1
 	f.l2b_n = -2; % hyper3
 	f.delta = 0.3;
 	Rn = Reg1(ig.mask, 'type_denom', 'matlab', ...

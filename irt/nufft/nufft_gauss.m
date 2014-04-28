@@ -34,9 +34,9 @@ if nargin < 1
 	error(mfilename)
 end
 
-if ~isvar('type') | isempty(type), type = 'string'; end
+if ~isvar('type') || isempty(type), type = 'string'; end
 if ~isvar('J'), J = 6; end
-if ~isvar('sig') | isempty('sig'), sig = 0.78 * sqrt(J); end
+if ~isvar('sig') || isempty('sig'), sig = 0.78 * sqrt(J); end
 
 if ~ischar(type), error 'type is string', end
 

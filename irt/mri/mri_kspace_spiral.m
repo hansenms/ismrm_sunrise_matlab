@@ -12,7 +12,7 @@
 %
 % based on m-files from valur that he got from brad who got them from doug...
 
-if nargin == 1 & streq(varargin{1}, 'test'), mri_kspace_spiral_test, return, end
+if nargin == 1 && streq(varargin{1}, 'test'), mri_kspace_spiral_test, return, end
 
 % defaults for spiral trajectory
 arg.fov = 22;	% in cm

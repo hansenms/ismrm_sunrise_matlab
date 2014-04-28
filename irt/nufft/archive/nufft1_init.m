@@ -26,13 +26,13 @@
 
 if nargin < 4, help(mfilename), error(mfilename), end
 
-if ~isvar('n_shift') | isempty(n_shift)
+if ~isvar('n_shift') || isempty(n_shift)
 	n_shift = [0];		% default is no shift, so n=0,1,...,N-1
 end
-if ~isvar('alpha') | isempty(alpha)
+if ~isvar('alpha') || isempty(alpha)
 	alpha = [1];	% default Fourier series coefficients of scaling factors
 end
-if ~isvar('beta') | isempty(beta)
+if ~isvar('beta') || isempty(beta)
 	beta = 0.5;	% default is Liu version for now
 end
 

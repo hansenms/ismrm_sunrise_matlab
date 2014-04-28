@@ -5,7 +5,7 @@
 %
 % THIS IS NEW AND UNTESTED!!!
 %
-% cost(x) = (y-Gx)'W(y-Gx)2 + R(x)
+% cost(x) = (y-Gx)'W(y-Gx)/2 + R(x)
 % in
 %	G	[nd,np]		system matrix
 %	W	[nd,nd]		data weighting matrix, usually diag_sp(wi)
@@ -28,7 +28,7 @@ if nargin < 4, help mfilename, error mfilename, end
 if ~isvar('stepper'), stepper = 'hq0'; end
 if ~isvar('nsub'), nsub = 1; end
 
-if ~isvar('R') | isempty(R)
+if ~isvar('R') || isempty(R)
 	Rgrad = 0;	% unregularized default
 	Rwpot = 0;
 end

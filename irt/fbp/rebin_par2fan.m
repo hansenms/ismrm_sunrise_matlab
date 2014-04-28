@@ -1,31 +1,33 @@
  function fsino = rebin_par2fan(psino, pgeom, fgeom, varargin)
-%function fsino = rebin_par2fan(psino, pgeom, fgeom, varargin)
-%
-% Rebin parallel-beam (or mojette) sinogram into fan-beam sinogram.
-% Also useful for mojette-to-parallel rebinning.
-%
-% in
-%	psino	[nr,nphi]	parallel-beam sinogram
-%	pgeom			sino_geom() for parallel-beam input
-%	fgeom			sino_geom() for fan-beam output
-%
-% options
-%	'ob'			set to 1 to create (Fatrix) object
-%	'r_interp'	default: {'order', 3, 'ending', 'zero'}
-%	'phi_interp'	default: {'order', 3, 'ending', 'periodic'}
-%
-% out
-%	fsino	[ns,nbeta]	fan-beam sinogram (or possibly mojette)
-%
-% Copyright 2005-12-7, Jeff Fessler, The University of Michigan
+%|function fsino = rebin_par2fan(psino, pgeom, fgeom, varargin)
+%|
+%| Rebin parallel-beam (or mojette) sinogram into fan-beam sinogram.
+%| Also useful for mojette-to-parallel rebinning.
+%|
+%| in
+%|	psino	[nr nphi]	parallel-beam sinogram
+%|	pgeom			sino_geom() for parallel-beam input
+%|	fgeom			sino_geom() for fan-beam output
+%|
+%| options
+%|	'ob'			set to 1 to create (Fatrix) object
+%|	'r_interp'	default: {'order', 3, 'ending', 'zero'}
+%|	'phi_interp'	default: {'order', 3, 'ending', 'periodic'}
+%|
+%| out
+%|	fsino	[ns nbeta]	fan-beam sinogram (or possibly mojette)
+%|
+%| Copyright 2005-12-7, Jeff Fessler, University of Michigan
 
 if nargin == 1 && streq(psino, 'test'), rebin_par2fan_test, return, end
+if nargin == 1 && streq(psino, 'test-moj'), rebin_par2fan_test_moj, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
 
 % defaults
 arg.ob = false; % set to 1 to create (Fatrix) object
 arg.r_interp = {'order', 3, 'ending', 'zero'};
 arg.phi_interp = {'order', 3, 'ending', 'periodic'};
+arg.na_min_fail = 180; % fail if fewer than this many views
 
 arg = vararg_pair(arg, varargin);
 
@@ -33,6 +35,10 @@ if isempty(pgeom.nb), pgeom.nb = size(psino,1); end
 if isempty(pgeom.na), pgeom.na = size(psino,2); end
 arg.dimi = [pgeom.nb pgeom.na];
 arg.dimo = [fgeom.nb fgeom.na];
+
+if (pgeom.na < arg.na_min_fail)
+	fail('na=%d too few views; need %d', pgeom.na, arg.na_min_fail)
+end
 
 if streq(pgeom.type, 'par')
 	is_mojette = 0;
@@ -73,9 +79,7 @@ else
 end
 
 
-%
 % rebin_par2fan_ob()
-%
 function ob = rebin_par2fan_ob(arg)
 
 dim = [prod(arg.dimo) prod(arg.dimi)];
@@ -83,9 +87,7 @@ ob = Fatrix(dim, arg, 'caller', 'rebin_par2fan', ...
 	'forw', @rebin_par2fan_arg, 'back', @rebin_par2fan_adj);
 
 
-%
 % rebin_par2fan_arg()
-%
 function sino = rebin_par2fan_arg(arg, sino)
 
 if size(sino,1) == prod(arg.dimi)
@@ -105,10 +107,8 @@ if flag_column
 end
 
 
-%
 % rebin_par2fan_setup()
 % set up the objects needed for (repeated) interpolation
-%
 function [r_ob phi_ob flag180] = rebin_par2fan_setup(...
 	is_mojette, ... % input sinogram mojette? trick: if so, dr is really dx
 	nr, dr, offset_r, ...
@@ -181,9 +181,7 @@ phi_int = nphi / phi_orbit * (phi - phi_start);
 phi_ob = bspline_1d_interp(zeros(nphi,nr), phi_int, phi_interp{:}, 'ob', 1);
 
 
-%
 % rebin_par2fan_adj()
-%
 function sino = rebin_par2fan_adj(arg, sino)
 
 if size(sino,1) == prod(arg.dimo)
@@ -204,22 +202,59 @@ if flag_column
 end
 
 
-%
+% rebin_par2fan_test_moj()
+% test "magnification" ability of par2fan vs pure fan
+function rebin_par2fan_test_moj()
+sf = sino_geom('ge1', 'strip_width', 'd', 'down', 1);
+dx = sf.ds * sf.dso / sf.dsd;
+fov = 500;
+nr = 2 * round(1.5 * fov / dx / 2);
+sm = sino_geom('moj', 'nr', nr, 'na', sf.na, ...
+		'dx', dx, 'strip_width', 'd', 'orbit', 360);
+ell2 = [fov/2.1*[1 0] dx/2 dx/2 0 1];
+tmp2f = ellipse_sino(sf, ell2, 'oversample', 2);
+tmp2m = ellipse_sino(sm, ell2, 'oversample', 2);
+arg = {'r_interp', {'order', 1, 'ending', 'zero'}, ...
+	'phi_interp', {'order', 1, 'ending', 'periodic'}};
+tmp2r = rebin_par2fan(tmp2m, sm, sf, arg{:});
+tmp2r = max(tmp2r, 0);
+im plc 2 4
+im(1, tmp2f, 'fan'), axis normal
+im(2, tmp2m, 'moj'), axis normal
+im(3, tmp2r, 'rebin to fan'), axis normal
+im(4, tmp2r - tmp2f, 'diff'), axis normal
+im subplot 5
+plot(1:sf.na, sum(tmp2f ~= 0), 'bo'), axisy(0,10)
+im subplot 6
+plot(1:sm.na, sum(tmp2m ~= 0), 'g.'), axisy(0,10)
+im subplot 7
+plot(1:sm.na, sum(tmp2r ~= 0), 'r.'), axisy(0,10)
+ia = imax(sum(tmp2f ~= 0));
+is = imax(tmp2f(:,ia)) + [-10:10];
+im subplot 8
+plot(is, tmp2f(is,ia), '-o', is, tmp2r(is,ia), 'r-o')
+pr sum(tmp2f(is,ia))
+pr sum(tmp2r(is,ia))
+
+
 % rebin_par2fan_test()
-%
 function rebin_par2fan_test()
 
 gm = sino_geom('moj', 'nb', 28, 'na', 11, ...
-	'dx', 1.1, 'offset_r', 0.2, 'orbit', 180);
+	'strip_width', 'd', ...
+	'dx', 1.1, 'offset_r', 0*0.2, 'orbit', 180); % todo: nonzero offset?
 gp = sino_geom('par', 'nb', 20, 'na', 11, ...
-	'dr', 1, 'offset_r', 0.1, 'orbit', 180);
+	'strip_width', 'd', ...
+	'dr', 1, 'offset_r', 0*0.1, 'orbit', 180); % todo: nonzero offset?
 gf = sino_geom('fan', 'nb', 21, 'na', 9, ...
+	'strip_width', 'd', ...
 	'ds', 0.5, 'offset_s', 0.25, 'orbit', 360, ...
 	'dsd', 949, 'dod', 408);
 
-oo{1} = rebin_par2fan(zeros(gp.nb,gp.na), gp, gf, 'ob', 1);
-oo{2} = rebin_par2fan(zeros(gm.nb,gm.na), gm, gf, 'ob', 1);
-oo{3} = rebin_par2fan(zeros(gm.nb,gm.na), gm, gp, 'ob', 1);
+arg = {'na_min_fail', 4}; % for testing only
+oo{1} = rebin_par2fan(zeros(gp.nb,gp.na), gp, gf, 'ob', 1, arg{:});
+oo{2} = rebin_par2fan(zeros(gm.nb,gm.na), gm, gf, 'ob', 1, arg{:});
+oo{3} = rebin_par2fan(zeros(gm.nb,gm.na), gm, gp, 'ob', 1, arg{:});
 
 for ii=1:3
 	ob = oo{ii};

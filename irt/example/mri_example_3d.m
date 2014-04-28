@@ -38,7 +38,7 @@ if ~isvar('yi'), printm 'trajectory'
 	if 1, minmax(wi_traj), end
 	if 0, im(2, reshape(wi_traj, ig.dim)), cbar, return, end
 
-	if 0 & im
+	if 0 && im
 		im clf; plot3(omega(:,1), omega(:,2), omega(:,3), '-.')
 		title(sprintf('%s: %d', f.traj, size(omega,1)))
 		axis(pi*[-1 1 -1 1 -1 1]), axis_pipi
@@ -50,7 +50,7 @@ if ~isvar('yi'), printm 'trajectory'
 
 	% add noise, if desired
 	rng(0)
-	yi = ytrue + 0 * randn(size(ytrue));
+	yi = ytrue + 0 * (randn(size(ytrue)) + 1i * randn(size(ytrue)));
 
 	if streq(f.traj, 'cartesian')
 		im(4, reshape(abs(yi), ig.dim), '|yi|'), cbar

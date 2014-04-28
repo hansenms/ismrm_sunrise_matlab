@@ -17,7 +17,7 @@ dims = size(X);
 dd = length(Nd);
 
 
-if length(dims) > 2 | dims(2) > 1
+if length(dims) > 2 || dims(2) > 1
 	Lprod = prod(dims(2:end));
 	X = reshape(X, [st.M Lprod]);	% [M,*L]
 else

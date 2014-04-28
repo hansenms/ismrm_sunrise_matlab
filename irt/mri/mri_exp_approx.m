@@ -54,7 +54,7 @@
 %|
 %| Copyright 2004-7-1, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(ti, 'test'), mri_exp_approx_test, return, end
+if nargin == 1 && streq(ti, 'test'), mri_exp_approx_test, return, end
 if nargin < 3, help(mfilename), error(mfilename), end
 
 persistent warned
@@ -94,7 +94,7 @@ rmap = real(zmap);
 fmap = imag(zmap) / (2*pi);
 
 % histogram the field map
-if streq(atype, 'hist,', 5) | o.ctest
+if streq(atype, 'hist,', 5) || o.ctest
 	nhist = o.type{2};
 	if length(nhist) == 1 % fmap only
 
@@ -117,7 +117,7 @@ if streq(atype, 'hist,', 5) | o.ctest
 
 	else
 
-		[hk zc] = hist_equal([imag(zmap(:)) real(zmap(:))], nhist);
+		[hk zc] = hist_equal([imag(zmap(:)) real(zmap(:))], nhist); % 2d histogram
 		zk = outer_sum(1i*zc{1}, zc{2}); % [K1 K2]
 
 		if o.acorr % code by valur olafsson
@@ -147,11 +147,11 @@ if streq(atype, 'hist,svd')
 %
 % time segmentation approaches (recommended)
 %
-elseif streq(atype, 'time,unif') | streq(atype, 'hist,time,unif')
+elseif streq(atype, 'time,unif') || streq(atype, 'hist,time,unif')
 
 	pn = jf_protected_names;
 	rms = Inf;
-	while rms > rmsmax & LL < 40
+	while rms > rmsmax && LL < 40
 		ticker(mfilename, LL, 0)
 
 		% time sample locations [0 ... end]
@@ -162,11 +162,11 @@ elseif streq(atype, 'time,unif') | streq(atype, 'hist,time,unif')
 			tl = col(pn.prctile(ti, p));
 		end
 
-		if rmsmax < 1 | o.ctest | streq(atype, 'hist,time,unif')
+		if rmsmax < 1 || o.ctest || streq(atype, 'hist,time,unif')
 			Ch = exp(-tl * zk(:).'); % [L K]
 		end
 
-		if LL > 9 & isempty(o.tol) & ~warned
+		if LL > 9 && isempty(o.tol) && ~warned
 			warning 'For large L, try tol=''fro'''
 		end
 

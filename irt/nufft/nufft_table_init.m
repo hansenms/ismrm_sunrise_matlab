@@ -22,10 +22,10 @@ if nargin < 5, help(mfilename), error args, end
 
 % dimensionality of input space (usually 2 or 3)
 dd = length(Nd);
-if dd > 1 & length(Ld) == 1
+if dd > 1 && length(Ld) == 1
 	Ld = Ld * ones(1,dd); % allow scalar L to be used for all dimensions
 end
-if dd ~= length(Jd) | dd ~= length(Kd) | dd ~= length(Ld)
+if dd ~= length(Jd) || dd ~= length(Kd) || dd ~= length(Ld)
 	printm('dd:'), disp(dd)
 	printm('Jd:'), disp(Jd)
 	printm('Kd:'), disp(Kd)
@@ -69,7 +69,7 @@ for id = 1:dd
 	% The trick to this is to use fake small values for N and K,
 	% which works for interpolators that depend only on the ratio K/N.
 	ktype = varargin{1};
-	if 0 & (streq(ktype, 'minmax:kb') | streq(ktype, 'kaiser'))
+	if 0 && (streq(ktype, 'minmax:kb') || streq(ktype, 'kaiser'))
 
 		if streq(ktype, 'minmax:kb')
 			args = {'minmax:user', {st.alpha{id}}, {st.beta{id}}};
@@ -103,7 +103,7 @@ for id = 1:dd
 			printf('diff=%g', max_percent_diff(h0, h))
 			keyboard
 		end
-		st.h{id} = h;
+		st.h{id} = double(h); % table mex files want double
 
 
 	% This way is "J times faster" than the slow way, but still not ideal.
@@ -131,7 +131,7 @@ for id = 1:dd
 		end
 		h = [h; 0];
 
-		st.h{id} = h;
+		st.h{id} = double(h); % table mex files want double
 		if 0	% testing
 			clf, subplot(211)
 			plot(t0, real(h0), 'c-', t0, real(h), 'y.')

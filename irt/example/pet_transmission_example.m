@@ -46,7 +46,7 @@ end
 % strip integral system matrix with mask for iterative reconstruction.
 %
 if ~isvar('A2'), printm 'A2'
-	if 0 & has_mex_jf
+	if 0 && has_mex_jf
 		A2 = Gtomo2_wtmex(sg, ig); % preferable for speed
 	else
 		A2 = Gtomo2_strip(sg, ig, 'strip_width', sg.dr); % slower but universal

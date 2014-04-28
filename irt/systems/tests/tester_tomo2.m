@@ -76,7 +76,7 @@ y2 = [y2(:,1) y2(:,2)]; % for fatrix2
 my_compare(y1, y2, 'A(:,j)')
 
 % check A(:,:)
-if 0 & size(x,1) < 100
+if 0 && size(x,1) < 100
 	t1 = A1(:,:);
 	t2 = A2(:,:);
 	my_compare(t1, t2, '(:,:)');

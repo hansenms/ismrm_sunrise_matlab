@@ -65,7 +65,7 @@ K1 = st.K1;
 K2 = st.K2;
 
 dims = size(x);
-if dims(1) ~= N1 | dims(2) ~= N2, error size, end
+if dims(1) ~= N1 || dims(2) ~= N2, error size, end
 
 if round(K1/N1) == K1/N1 & round(K2/N2) == K2/N2
 	persistent warned

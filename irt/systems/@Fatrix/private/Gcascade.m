@@ -22,7 +22,7 @@
 %|
 %| Copyright 2005-7-21, Jeff Fessler, University of Michigan
 
-if nargin == 1 & streq(arg1, 'test'), Gcascade_test, return, end
+if nargin == 1 && streq(arg1, 'test'), Gcascade_test, return, end
 if nargin < 2, help(mfilename), error(mfilename), end
 
 % defaults

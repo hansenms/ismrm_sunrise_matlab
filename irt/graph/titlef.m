@@ -4,6 +4,9 @@
 %| also supports default font size from ir_fontsize()
 
 opt = {'fontsize', ir_fontsize('title')};
+if ir_is_octave
+	opt = {opt{:}, 'fontname', 'Helvetica'};
+end
 
 if 1
 	tex = {'interpreter', 'tex'};

@@ -67,7 +67,7 @@ for ii = 1:length(npow)
 
   %%%%% forward exact dft %%%%%%%%%
   if doexact
-    if length(npow) > 1 | ii == 1 % only need to do it once if only
+    if length(npow) > 1 || ii == 1 % only need to do it once if only
                                   % one data length
       tic
         yd = Gd * x(:);
@@ -126,7 +126,7 @@ for ii = 1:length(npow)
   yb = ones(size(omega,1), 1);
   %%%%%% back exact dft
   if doexact
-    if length(npow) > 1 | ii == 1 % only need to do it once if only
+    if length(npow) > 1 || ii == 1 % only need to do it once if only
                                   % one data length
       tic
       xd = Gd' * yb;

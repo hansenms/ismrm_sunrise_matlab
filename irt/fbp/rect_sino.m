@@ -255,9 +255,11 @@ sg = sino_geom('ge1', 'strip_width', 'd', 'down', down);
 %	'dfs', 0, ...%inf, ... % flat fan
 %sg.plot(ig)
 
-im plc 2 3
-im(1, ig.x, ig.y, xtrue,'xtrue'), cbar
-axis([-1 1 -1 1]*max(ig.x)), axis square
+if im
+	im plc 2 3
+	im(1, ig.x, ig.y, xtrue,'xtrue'), cbar
+	axis([-1 1 -1 1]*max(ig.x)), axis square
+end
 
 tik = @() xytick(0, [0:45:360]);
 ya = rect_sino(sg, rect, 'oversample', 10); % "analytical" sinogram

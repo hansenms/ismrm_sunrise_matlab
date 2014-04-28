@@ -13,7 +13,7 @@ aflags = -std=c99 \
 ifeq ($(Arch), mi64) # mac 64-bit
 	oflags = -arch x86_64 -DUse_ncore_sysctl # -DUse_aff_mac1
 	libs =
-	mextop = ~fessler/l/matlab64/extern
+	mextop = ~fessler/l/matlab/extern
 	mexinc = -I$(mextop)/include
 	mexsuf = maci64
 	mexgnu = -DMATLAB_HOST -DMmex

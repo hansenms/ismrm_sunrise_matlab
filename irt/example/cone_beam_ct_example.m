@@ -1,9 +1,9 @@
 % cone_beam_ct_example.m
 % Illustrate cone-beam X-ray CT image reconstruction via FDK and iterative.
-% This illustration uses a tiny system size cone-beam projection can be slow.
+% Uses a tiny system size because cone-beam projection can be slow.
 % Copyright 2005-1-21, Jeff Fessler, University of Michigan
 
-% First run the FDK example.  It generates the true image xtrue
+%% First run the FDK example.  It generates the true image xtrue
 % and noiseless projection views "proj" and noisy data "yi"
 % and generates (noisy) FDK recon "xfdk" for comparison / initialization.
 if ~isvar('xfdk')
@@ -15,7 +15,7 @@ prompt
 end
 
 
-% system matrix
+%% generate system matrix needed for iterative reconstruction
 if ~isvar('A'), printm 'A'
 	f.nz_pad = 18; % add this many slices to each side.  todo: how many?
 	ig_pad = ig.expand_nz(f.nz_pad);
@@ -43,16 +43,18 @@ end
 
 % check discrete vs analytical projection (note long object problem)
 if 0, printm 'proj check'
-	cpu etic
-	pp = Ab * f.rep(xtrue);
-	cpu etoc 'proj time'
+	for ii=1:1
+		cpu etic
+		pp = Ab * f.rep(xtrue);
+		cpu etoc 'proj time'
+	end
 	nrms(pp, proj)
 	im clf, im_toggle(proj(:,:,1:12:end), pp(:,:,1:12:end), [0 4.4])
 prompt
 end
 
 
-% regularization object
+%% regularization object
 if ~isvar('R'), printm 'regularizer'
 	f.l2b = 2^4.5;
 	f.delta = 100/1000;
@@ -73,7 +75,7 @@ if ~isvar('si'), printm 'log sinogram'
 end
 
 
-% OS-SQS iterations for PWLS
+%% OS-SQS iterations for PWLS
 if ~isvar('xos'), printm 'start os-sqs pwls iterations'
 	f.niter_os = 10;
 	xos = pwls_sqs_os(xinit, Ab, reshaper(si, '2d'), R, ...
@@ -83,6 +85,7 @@ if ~isvar('xos'), printm 'start os-sqs pwls iterations'
 end
 
 
+%% CG iterations
 if ~isvar('xpcg1'), printm 'PWLS reconstruction with CG (no preconditioner)'
 	f.niter1 = 20;
 	[xpcg1 cost_pcg1] = pwls_pcg1(xinit, A, W, si(:), R, ...
@@ -101,7 +104,8 @@ if ~isvar('pre2'), printm 'circulant preconditioner'
 end
 
 
-if 0 | ~isvar('xpcg2'), printm 'PWLS with PCG and circulant preconditioner'
+%% PCG
+if 0 || ~isvar('xpcg2'), printm 'PWLS with PCG and circulant preconditioner'
 	[xpcg2 cost_pcg2] = pwls_pcg1(xinit, A, W, si(:), R, ...
 		'userfun', @userfun_cost1, ...
 		'niter', f.niter1, 'stop_threshold', 1e-3, 'precon', pre2);
@@ -135,7 +139,7 @@ if ~isvar('os_data'), printm 'os_data'
 end
 
 
-% OS-SPS iterations for transmission penalized likelihood
+%% OS-SPS iterations for transmission penalized likelihood
 if ~isvar('xpl'), printm 'start tpl os-sqs iterations'
 	f.niter = 20;
 	xs = tpl_os_sps(xinit, Ab, os_data{:}, R, 1+f.niter);
@@ -145,7 +149,7 @@ if ~isvar('xpl'), printm 'start tpl os-sqs iterations'
 end
 
 
-% finally, compare FDK vs iterative results
+%% compare FDK vs iterative results
 if 1
 	iz_good = f.nz_pad + [1:ig.nz]; % original slices
 	xpcg1_good = xpcg1(:,:,iz_good);

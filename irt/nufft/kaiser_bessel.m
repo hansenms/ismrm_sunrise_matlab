@@ -57,14 +57,15 @@ if nargin < 2
 	leg{end+1} = 'best';
 	axis tight, legend(leg)
 %	axisy(0, 0.01)	% to see endpoints
-	xlabel \kappa, ylabel F(\kappa)
-	titlef('KB functions, J=%g \\alpha=%g', J, alpha)
+	xlabelf '\kappa'
+	ylabelf 'F(\kappa)'
+	titlef('KB functions, J=%g \alpha=%g', J, alpha)
 return
 end
 
 if ~isvar('J'), J = 6; end
-if ~isvar('alpha') | isempty('alpha'), alpha = 2.34 * J; end
-if ~isvar('kb_m') | isempty('kb_m'), kb_m = 0; end
+if ~isvar('alpha') || isempty('alpha'), alpha = 2.34 * J; end
+if ~isvar('kb_m') || isempty('kb_m'), kb_m = 0; end
 
 if ischar(alpha)
 	[alpha kb_m] = kaiser_bessel_params(alpha, J, K_N);
@@ -90,7 +91,7 @@ end
 %
 % Warn about use of modified formula for negative kb_m
 %
-if (kb_m < 0) & ((abs(round(kb_m)-kb_m)) > eps)
+if (kb_m < 0) && ((abs(round(kb_m)-kb_m)) > eps)
 	persistent warned
 	if isempty(warned)	% print this reminder only the first time
 		printf('\nWarning: Negative NonInt kb_m=%g in kaiser_bessel()', kb_m)

@@ -98,7 +98,7 @@ if ischar(kernel)
 
 	% gaussian (truncated) with previously numerically-optimized width
 	elseif streq(kernel, 'gauss')
-		if isvar('sn') & ischar(sn) & streq(sn, 'ft')
+		if isvar('sn') && ischar(sn) && streq(sn, 'ft')
 			stype = 'ft';
 		else
 			stype = 'zn';
@@ -147,18 +147,18 @@ elseif isa(sn, 'inline')
 	sn = 1 ./ sn(n/K1);		% [N]
 
 % trick to use Gaussian FT scaling factors
-elseif ischar(sn) & streq(sn, 'ft') & isvar('kernel_ft')
+elseif ischar(sn) && streq(sn, 'ft') && isvar('kernel_ft')
 	Nmid = (N1-1)/2; % todo!
 	n = [0:(N1-1)]' - Nmid;
 	sn = 1 ./ kernel_ft(n/K1);		% [N]
-	if 0 & J1 > 2
+	if 0 && J1 > 2
 		sn_zn = 1 ./ nufft_interp_zn(0, N1, J1, K1, kernel);	% [N]
 		clf, plot(n, [sn reale(sn_zn)])
 		keyboard
 	end
 
 % trick to use Kaiser-Bessel FT scaling factors
-elseif isstruct(sn) & streq(sn.type, 'kaiser')
+elseif isstruct(sn) && streq(sn.type, 'kaiser')
 	Nmid = (N1-1)/2; % todo!
 	n = [0:(N1-1)]' - Nmid;
 	sn = 1 ./ kaiser_bessel_ft(n/K1, J1, sn.alpha, sn.m, 1);

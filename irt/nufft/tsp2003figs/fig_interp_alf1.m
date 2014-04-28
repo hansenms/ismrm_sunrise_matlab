@@ -2,7 +2,7 @@
 % visualize the interpolator for optimized alphas
 % use for Fig. 7 of Fessler/Sutton 2003 NUFFT paper
 
-if ~isvar('kerns') | 1
+if 1 || ~isvar('kerns')
 	J = 6;
 	M = 2;
 	N = ceil(J/M);	% just big enough so K=J

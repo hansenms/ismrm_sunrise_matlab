@@ -60,22 +60,28 @@ case 'ncore'
 	return
 	end
 
-	try
-		tmp = os_run('sysctl hw.ncpu');
-		out = sscanf(tmp, 'hw.ncpu: %d');
-		ncore = out;
-		return
-	catch
-		persistent warned1
-		if ~isvar('warned1') || isempty(warned1)
-			warned1 = 1;
-			warn 'sysctl did not work'
+	if ismac % only try this on a mac!
+		try
+			tmp = os_run('/usr/sbin/sysctl hw.ncpu');
+			out = sscanf(tmp, 'hw.ncpu: %d');
+			ncore = out;
+			return
+		catch
+			persistent warned1
+			if ~isvar('warned1') || isempty(warned1)
+				warned1 = 1;
+				warn 'sysctl did not work'
+			end
 		end
 	end
 
 	try
 		maxNumCompThreads('automatic');
 		out = maxNumCompThreads;
+		if (out > 40)
+			warn 'limiting to 40 threads (over-ride with caution)'
+			out = 40;
+		end
 		ncore = out;
 		return
 	catch
@@ -106,7 +112,7 @@ case 'nobar'
 	set(0, 'DefaultFigureToolbar', 'none')
 	set(0, 'DefaultFigureMenubar', 'none')
 
-case 'notoolbox' % remove all matlab extra toolboxed from path for testing
+case 'notoolbox' % remove all matlab extra toolboxes from path for testing
 	jf_rm_toolbox
 
 case 'nomex'

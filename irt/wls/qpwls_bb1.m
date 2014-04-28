@@ -69,7 +69,7 @@ if ~isequal(arg.precon, 1)
 	warn 'todo: precon not tested'
 end
 
-if ~isreal(yi) & ~isequal(arg.precon, 1)
+if ~isreal(yi) && ~isequal(arg.precon, 1)
 	persistent warned
 	if isempty(warned), warned = 0; end
 	if ~warned
@@ -156,7 +156,7 @@ for iter = 1:arg.niter
 
 	% check norm(xnew-xold) / norm(xnew) vs threshold
 	if arg.stop_diff_tol && ...
-		norm_diff(step * ddir) / norm_diff(x) < arg.stop_diff_tol
+		norm_diff(step * ddir) < arg.stop_diff_tol * norm_diff(x)
 		if arg.chat
 			ratio = norm_diff(step * ddir) / norm_diff(x);
 			printm('stop at iteration %d with diff %g < %g', ...
